@@ -755,6 +755,37 @@ static PyObject * Data_getLinkPath(PyObject * self, PyObject * /*args*/)
 }
 
 
+/// returns the complete link path name (i.e. following the shape "@/path/to/my/object.dataname")
+static PyObject * Data_getLinkedComponentPath(PyObject * self, PyObject * /*args*/)
+{
+    BaseData* data = get_basedata( self );
+    BaseData* parent_data;
+    Base* owner;
+    if (!data->getLinkPath().empty())
+    {
+        parent_data = data->getParent();
+        owner = parent_data->getOwner();
+    }
+    else
+    {
+        msg_warning("SofaPython") << "Cannot return path, because Data is not linked";
+        return PyString_FromString("error: no parent");
+    }
+
+    if( owner )
+    {
+        if( BaseObject* obj = owner->toBaseObject() )
+            return PyString_FromString(obj->getPathName().c_str());
+        else if( BaseNode* node = owner->toBaseNode() )
+            return PyString_FromString(node->getPathName().c_str());
+    }
+
+    /// default: no owner or owner of unknown type
+    SP_MESSAGE_WARNING( "Data_getLinkName the Data has no known owner. Returning its own name." )
+    return PyString_FromString(data->getName().c_str());
+}
+
+
 /// returns a pointer to the Data
 static PyObject * Data_getValueVoidPtr(PyObject * self, PyObject * /*args*/)
 {
@@ -867,6 +898,7 @@ SP_CLASS_METHOD(Data,setParent)
 SP_CLASS_METHOD_DOC(Data,getParentPath, "Returns the string containing the path to the field's parent. Return empty string if there is not parent")
 SP_CLASS_METHOD_DOC(Data,hasParent, "Indicate if the string is linked to an other data field (its parent).")
 SP_CLASS_METHOD(Data,getLinkPath)
+SP_CLASS_METHOD(Data,getLinkedComponentPath)
 SP_CLASS_METHOD(Data,getValueVoidPtr)
 SP_CLASS_METHOD(Data,getCounter)
 SP_CLASS_METHOD(Data,isDirty)

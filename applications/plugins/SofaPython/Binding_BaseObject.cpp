@@ -60,7 +60,7 @@ static PyObject * BaseObject_storeResetState(PyObject *self, PyObject * /*args*/
     Py_RETURN_NONE;
 }
 
-static PyObject * BaseObject_reset(PyObject *self, PyObject * /*args*/)
+static PyObject * BaseObject_reset(PyObject *self, PyObject * /*argsD*/)
 {
     BaseObject* obj = get_baseobject( self );
     obj->reset();
