@@ -14,6 +14,7 @@ def WriteDataGraph(Node):
         
         DataGraphFile.write('}\n')
         DataGraphFile.close()
+        # run 'dot -Tsvg DataGraph.dot -o DataGraph.svg' in the terminal to generate the svg file.
     
 def BuildGraph(Node, DataGraphFile):
  
@@ -33,9 +34,7 @@ def BuildGraph(Node, DataGraphFile):
                     ReferringComponentPath = CurrentComponent.getPathName().replace('/','_')
                     
                     DataGraphFile.write(ReferringComponentPath + ' -> ' + ReferencedComponentPath +  ' [ label = "' + DataFields[i].name + '"];\n')
-                    
-        #print(len(self.RootNode.getChildren()[0].getChildren()))
-        #Volume = self.node.getRoot().getChild('model').getChild('cavity').getObject('SurfacePressureConstraint').findData('cavityVolume')	   
+                
 
         Children = Node.getChildren() 
         NChildren = len(Children)
