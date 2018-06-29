@@ -29,11 +29,11 @@ def BuildGraph(Node, DataGraphFile):
                 HasParent = DataFields[i].hasParent()
                 if HasParent:
                     #print(DataFields[i].name)
-                    ReferencedDataPath = DataFields[i].getParentPath()
-                    ReferencedComponentPath = DataFields[i].getLinkedComponentPath().replace('/','_')
-                    ReferringComponentPath = CurrentComponent.getPathName().replace('/','_')
+                    ReferencedDataPath = DataFields[i].getParentPath()                    
+                    ReferencedComponentPath = DataFields[i].getLinkedComponentPath()
+                    ReferringComponentPath = CurrentComponent.getPathName()
                     
-                    DataGraphFile.write(ReferringComponentPath + ' -> ' + ReferencedComponentPath +  ' [ label = "' + DataFields[i].name + '"];\n')
+                    DataGraphFile.write('"' + ReferringComponentPath + '"' + ' -> ' + '"' + ReferencedComponentPath + '"' +  ' [ label = "' + DataFields[i].name + '"];\n')
                 
 
         Children = Node.getChildren() 
