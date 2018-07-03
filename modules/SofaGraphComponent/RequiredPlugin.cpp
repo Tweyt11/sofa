@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -77,16 +77,23 @@ void RequiredPlugin::loadPlugin()
     }
     if (suffixVec.empty())
         suffixVec.push_back(defaultSuffix);
+
+    /// In case the pluginName is not set we copy the provided name into the set to load.
+    if(!d_pluginName.isSet() && name.isSet())
+    {
+        helper::WriteOnlyAccessor<Data<helper::vector<std::string>>> pluginsName = d_pluginName ;
+        pluginsName.push_back(this->getName());
+    }
+
     const helper::vector<std::string>& nameVec = d_pluginName.getValue();
     helper::vector<std::string> nameVecCopy=nameVec;
-    if(nameVec.empty()) nameVecCopy.push_back(this->getName());
+
     helper::vector< std::string > loaded;
     helper::vector< std::string > failed;
     std::ostringstream errmsg;
     for (std::size_t nameIndex = 0; nameIndex < nameVecCopy.size(); ++nameIndex)
     {
         const std::string& name = nameVecCopy[nameIndex];
-        //sout << "Loading " << name << sendl;
         bool nameLoaded = false;
         for (std::size_t suffixIndex = 0; suffixIndex < suffixVec.size(); ++suffixIndex)
         {
@@ -99,7 +106,7 @@ void RequiredPlugin::loadPlugin()
             }
             if (result)
             {
-                msg_info("RequiredPlugin") << "Loaded " << pluginPath;
+                msg_info() << "Loaded " << pluginPath;
                 loaded.push_back(pluginPath);
                 nameLoaded = true;
                 if (d_stopAfterFirstSuffixFound.getValue()) break;
@@ -118,13 +125,13 @@ void RequiredPlugin::loadPlugin()
     {
         if ((d_requireAll.getValue() || (d_requireOne.getValue() && loaded.empty())))
         {
-            msg_error("RequiredPlugin") << errmsg.str();
-            msg_error("RequiredPlugin") <<(failed.size()>1?"s":"")<<" failed to load: " << failed ;
+            msg_error() << errmsg.str();
+            msg_error() <<(failed.size()>1?"s":"")<<" failed to load: " << failed ;
         }
         else
         {
-            msg_warning("RequiredPlugin") << errmsg.str();
-            msg_warning("RequiredPlugin") << "Optional/alternate plugin"<<(failed.size()>1?"s":"")<<" failed to load: " << failed;
+            msg_warning() << errmsg.str();
+            msg_warning() << "Optional/alternate plugin"<<(failed.size()>1?"s":"")<<" failed to load: " << failed;
         }
     }
     pluginManager->init();

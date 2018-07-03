@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -230,7 +230,7 @@ using namespace sofa::defaulttype;
 
 SOFA_DECL_CLASS(PrecomputedConstraintCorrection)
 
-int PrecomputedConstraintCorrectionClass = core::RegisterObject("Component computing contact forces within a simulated body using the compliance method.")
+int PrecomputedConstraintCorrectionClass = core::RegisterObject("Component computing constraint forces within a simulated body using the compliance method.")
 #ifndef SOFA_FLOAT
         .add< PrecomputedConstraintCorrection<Vec3dTypes> >()
         .add< PrecomputedConstraintCorrection<Vec1dTypes> >()

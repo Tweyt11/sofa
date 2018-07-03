@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -34,8 +34,6 @@
 
 #cmakedefine SOFA_HAVE_GLEW
 
-#cmakedefine SOFA_HAVE_GLUT
-
 #cmakedefine SOFA_HAVE_BOOST
 
 #cmakedefine SOFA_HAVE_BOOST_THREAD
@@ -47,6 +45,8 @@
 #cmakedefine SOFA_HAVE_BOOST_LOCALE
 
 #cmakedefine SOFA_HAVE_BOOST_FILESYSTEM
+
+#cmakedefine SOFA_HAVE_BOOST_PROGRAM_OPTION
 
 #cmakedefine SOFA_HAVE_TINYXML
 

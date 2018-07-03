@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -25,7 +25,6 @@
 #include <SofaConstraint/GenericConstraintSolver.h>
 #include <sofa/core/visual/VisualParams.h>
 
-#include <sofa/simulation/BehaviorUpdatePositionVisitor.h>
 #include <sofa/simulation/MechanicalVisitor.h>
 #include <sofa/simulation/SolveVisitor.h>
 #include <sofa/simulation/VectorOperations.h>
@@ -40,6 +39,8 @@
 
 #include <sofa/core/ObjectFactory.h>
 
+#include "ConstraintStoreLambdaVisitor.h"
+
 namespace sofa
 {
 
@@ -48,6 +49,19 @@ namespace component
 
 namespace constraintset
 {
+
+namespace
+{
+
+template< typename TMultiVecId >
+void clearMultiVecId(sofa::core::objectmodel::BaseContext* ctx, const sofa::core::ConstraintParams* cParams, const TMultiVecId& vid)
+{
+    simulation::MechanicalVOpVisitor clearVisitor(cParams, vid, core::ConstMultiVecDerivId::null(), core::ConstMultiVecDerivId::null(), 1.0);
+    clearVisitor.setMapped(true);
+    ctx->executeVisitor(&clearVisitor);
+}
+
+}
 
 GenericConstraintSolver::GenericConstraintSolver()
 : displayTime(initData(&displayTime, false, "displayTime","Display time for each important step of GenericConstraintSolver."))
@@ -68,7 +82,7 @@ GenericConstraintSolver::GenericConstraintSolver()
 , currentIterations(initData(&currentIterations, 0, "currentIterations", "OUTPUT: current number of constraint groups"))
 , currentError(initData(&currentError, 0.0, "currentError", "OUTPUT: current error"))
 , reverseAccumulateOrder(initData(&reverseAccumulateOrder, false, "reverseAccumulateOrder", "True to accumulate constraints from nodes in reversed order (can be necessary when using multi-mappings or interaction constraints not following the node hierarchy)"))
-, current_cp(&cp1)
+, current_cp(&m_cpBuffer[0])
 , last_cp(NULL)
 {
     addAlias(&maxIt, "maxIt");
@@ -119,6 +133,18 @@ void GenericConstraintSolver::init()
     for (unsigned int i = 0; i < constraintCorrections.size(); i++)
         constraintCorrections[i]->addConstraintSolver(this);
     context = (simulation::Node*) getContext();
+
+    simulation::common::VectorOperations vop(sofa::core::ExecParams::defaultInstance(), this->getContext());
+    {
+        sofa::core::behavior::MultiVecDeriv lambda(&vop, m_lambdaId);
+        lambda.realloc(&vop,false,true);
+        m_lambdaId = lambda.id();
+    }
+    {
+        sofa::core::behavior::MultiVecDeriv dx(&vop, m_dxId);
+        dx.realloc(&vop,false,true);
+        m_dxId = dx.id();
+    }
 }
 
 void GenericConstraintSolver::cleanup()
@@ -129,7 +155,9 @@ void GenericConstraintSolver::cleanup()
             constraintCorrections[i]->removeConstraintSolver(this);
         constraintCorrections.clear();
     }
-
+    simulation::common::VectorOperations vop(sofa::core::ExecParams::defaultInstance(), this->getContext());
+    vop.v_free(m_lambdaId, false, true);
+    vop.v_free(m_dxId, false, true);
     core::behavior::ConstraintSolver::cleanup();
 }
 
@@ -144,13 +172,31 @@ bool GenericConstraintSolver::prepareStates(const core::ConstraintParams *cParam
 
     last_cp = current_cp;
 
-    time = 0.0;
-    timeTotal = 0.0;
+    clearConstraintProblemLocks(); // NOTE: this assumes we solve only one constraint problem per step
+
+	time = 0.0;
+	timeTotal = 0.0;
     timeScale = 1000.0 / (double)sofa::helper::system::thread::CTime::getTicksPerSec();
 
     simulation::common::VectorOperations vop(cParams, this->getContext());
-    vop.v_clear(this->m_fId);
-    vop.v_clear(this->m_dxId);
+    
+    
+    {
+        sofa::core::behavior::MultiVecDeriv lambda(&vop, m_lambdaId);
+        lambda.realloc(&vop,false,true);
+        m_lambdaId = lambda.id();
+
+        clearMultiVecId(getContext(), cParams, m_lambdaId);
+    }
+
+    {
+        sofa::core::behavior::MultiVecDeriv dx(&vop, m_dxId);
+        dx.realloc(&vop,false,true);
+        m_dxId = dx.id();
+
+        clearMultiVecId(getContext(), cParams, m_dxId);
+        
+    }
 
     if ( displayTime.getValue() )
     {
@@ -169,10 +215,10 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
     // mechanical action executed from root node to propagate the constraints
     simulation::MechanicalResetConstraintVisitor(cParams).execute(context);
     // calling buildConstraintMatrix
-    //simulation::MechanicalAccumulateConstraint(&cparams, core::MatrixDerivId::holonomicC(), numConstraints).execute(context);
+	//simulation::MechanicalAccumulateConstraint(&cparams, cParams->j(), numConstraints).execute(context);
 
-    MechanicalSetConstraint(cParams, core::MatrixDerivId::holonomicC(), numConstraints).execute(context);
-    MechanicalAccumulateConstraint2(cParams, core::MatrixDerivId::holonomicC(), reverseAccumulateOrder.getValue()).execute(context);
+	simulation::MechanicalBuildConstraintMatrix(cParams, cParams->j(), numConstraints).execute(context);
+    simulation::MechanicalAccumulateMatrixDeriv(cParams, cParams->j(), reverseAccumulateOrder.getValue()).execute(context);
 
     // suppress the constraints that are on DOFS currently concerned by projective constraint
     core::MechanicalParams mparams = core::MechanicalParams(*cParams);
@@ -202,7 +248,8 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
         for (unsigned int i=0;i<constraintCorrections.size();i++)
         {
             core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
-            cc->resetForUnbuiltResolution(current_cp->getF(), current_cp->constraints_sequence);
+			if (!cc->isActive()) continue;
+			cc->resetForUnbuiltResolution(current_cp->getF(), current_cp->constraints_sequence); 
         }
 
         sofa::component::linearsolver::SparseMatrix<double>* Wdiag = &current_cp->Wdiag;
@@ -220,11 +267,12 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
         {
             bool foundCC = false;
             nbObjects++;
-            unsigned int l = current_cp->constraintsResolutions[c_id]->nbLines;
+			unsigned int l = current_cp->constraintsResolutions[c_id]->getNbLines();
 
             for (unsigned int j = 0; j < constraintCorrections.size(); j++)
             {
                 core::behavior::BaseConstraintCorrection* cc = constraintCorrections[j];
+				if (!cc->isActive()) continue;
                 if (cc->hasConstraintNumber(c_id))
                 {
                     current_cp->cclist_elems[c_id][j] = cc;
@@ -256,6 +304,7 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
         for (unsigned int i=0; i<constraintCorrections.size(); i++)
         {
             core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
             sofa::helper::AdvancedTimer::stepBegin("Object name: " + cc->getName());
             cc->addComplianceInConstraintSpace(cParams, &current_cp->W);
             sofa::helper::AdvancedTimer::stepEnd("Object name: " + cc->getName());
@@ -280,6 +329,7 @@ void GenericConstraintSolver::rebuildSystem(double massFactor, double forceFacto
     for (unsigned int i=0; i<constraintCorrections.size(); i++)
     {
             core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
             //serr << "REBUILD " <<  cc->getName() << " m="<<massFactor << " f=" << forceFactor << sendl;
             cc->rebuildSystem(massFactor, forceFactor);
     }
@@ -365,6 +415,7 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
         msg_info() << tmp.str() ;
     }
 
+	
     return true;
 }
 
@@ -384,44 +435,83 @@ bool GenericConstraintSolver::applyCorrection(const core::ConstraintParams *cPar
     msg_info() << "KeepContactForces done" ;
 
     AdvancedTimer::stepBegin("Compute And Apply Motion Correction");
-
+    
     if (cParams->constOrder() == core::ConstraintParams::POS_AND_VEL)
     {
         core::MultiVecCoordId xId(res1);
-        core::MultiVecDerivId vId(res2);
-        for (unsigned int i = 0; i < constraintCorrections.size(); i++)
-        {
-            if (!constraintCorrectionIsActive[i]) continue;
-            BaseConstraintCorrection* cc = constraintCorrections[i];
-            cc->computeAndApplyMotionCorrection(cParams, xId, vId, this->m_fId, &current_cp->f);
-        }
-    }
-    else if (cParams->constOrder() == core::ConstraintParams::POS)
-    {
-        core::MultiVecCoordId xId(res1);
-        for (unsigned int i = 0; i < constraintCorrections.size(); i++)
-        {
-            if (!constraintCorrectionIsActive[i]) continue;
-            BaseConstraintCorrection* cc = constraintCorrections[i];
-            cc->computeAndApplyPositionCorrection(cParams, xId, this->m_fId, &current_cp->f);
-        }
-    }
-    else if (cParams->constOrder() == core::ConstraintParams::VEL)
-    {
+		core::MultiVecDerivId vId(res2);
+		for (unsigned int i = 0; i < constraintCorrections.size(); i++)
+		{
+			if (!constraintCorrectionIsActive[i]) continue;
+			BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
+
+            sofa::helper::AdvancedTimer::stepBegin("ComputeCorrection on: " + cc->getName());
+            cc->computeMotionCorrectionFromLambda(cParams, this->getDx(), &current_cp->f);
+            sofa::helper::AdvancedTimer::stepEnd("ComputeCorrection on: " + cc->getName());
+
+			sofa::helper::AdvancedTimer::stepBegin("ApplyCorrection on: " + cc->getName());
+			cc->applyMotionCorrection(cParams, xId, vId, cParams->dx(), this->getDx() );
+			sofa::helper::AdvancedTimer::stepEnd("ApplyCorrection on: " + cc->getName());
+		}
+	}
+	else if (cParams->constOrder() == core::ConstraintParams::POS)
+	{
+		core::MultiVecCoordId xId(res1);
+		for (unsigned int i = 0; i < constraintCorrections.size(); i++)
+		{
+			if (!constraintCorrectionIsActive[i]) continue;
+			BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
+
+            sofa::helper::AdvancedTimer::stepBegin("ComputeCorrection on: " + cc->getName());
+            cc->computeMotionCorrectionFromLambda(cParams, this->getDx(), &current_cp->f);
+            sofa::helper::AdvancedTimer::stepEnd("ComputeCorrection on: " + cc->getName());
+
+			sofa::helper::AdvancedTimer::stepBegin("ApplyCorrection on: " + cc->getName());
+			cc->applyPositionCorrection(cParams, xId, cParams->dx(), this->getDx());
+			sofa::helper::AdvancedTimer::stepEnd("ApplyCorrection on: " + cc->getName());
+		}
+	}
+	else if (cParams->constOrder() == core::ConstraintParams::VEL)
+	{
         core::MultiVecDerivId vId(res1);
-        for (unsigned int i = 0; i < constraintCorrections.size(); i++)
-        {
-            if (!constraintCorrectionIsActive[i]) continue;
-            BaseConstraintCorrection* cc = constraintCorrections[i];
-            cc->computeAndApplyVelocityCorrection(cParams, vId, this->m_fId, &current_cp->f);
-        }
-    }
+		for (unsigned int i = 0; i < constraintCorrections.size(); i++)
+		{
+			if (!constraintCorrectionIsActive[i]) continue;
+			BaseConstraintCorrection* cc = constraintCorrections[i];
+			if (!cc->isActive()) continue;
+
+            sofa::helper::AdvancedTimer::stepBegin("ComputeCorrection on: " + cc->getName());
+            cc->computeMotionCorrectionFromLambda(cParams, this->getDx(), &current_cp->f);
+            sofa::helper::AdvancedTimer::stepEnd("ComputeCorrection on: " + cc->getName());
+
+			sofa::helper::AdvancedTimer::stepBegin("ApplyCorrection on: " + cc->getName());
+			cc->applyVelocityCorrection(cParams, vId, cParams->dx(), this->getDx() );
+			sofa::helper::AdvancedTimer::stepEnd("ApplyCorrection on: " + cc->getName());
+		}
+	}
 
     AdvancedTimer::stepEnd("Compute And Apply Motion Correction");
 
     msg_info() << "Compute And Apply Motion Correction in constraintCorrection done" ;
 
     msg_info_when(displayTime.getValue()) << " TotalTime " << ((double) timerTotal.getTime() - timeTotal) * timeScale << " ms" ;
+    AdvancedTimer::stepBegin("Store Constraint Lambdas");
+
+    /// Some constraint correction schemes may have written the constraint motion space lambda in the lambdaId VecId.
+    /// In order to be sure that we are not accumulating things twice, we need to clear.
+    clearMultiVecId(getContext(), cParams, m_lambdaId);
+
+    /// Store lambda and accumulate.
+    sofa::simulation::ConstraintStoreLambdaVisitor v(cParams, &current_cp->f);
+    this->getContext()->executeVisitor(&v);
+    AdvancedTimer::stepEnd("Store Constraint Lambdas");
+
+	if (displayTime.getValue())
+    {
+        sout << " TotalTime " << ((double) timerTotal.getTime() - timeTotal) * timeScale << " ms" << sendl;
+    }
 
     return true;
 }
@@ -432,17 +522,34 @@ ConstraintProblem* GenericConstraintSolver::getConstraintProblem()
     return last_cp;
 }
 
-void GenericConstraintSolver::lockConstraintProblem(ConstraintProblem* p1, ConstraintProblem* p2)
+void GenericConstraintSolver::clearConstraintProblemLocks()
 {
-    if( (current_cp != p1) && (current_cp != p2) ) // Le ConstraintProblem courant n'est pas locké
-        return;
+    for (unsigned int i = 0; i < CP_BUFFER_SIZE; ++i)
+    {
+        m_cpIsLocked[i] = false;
+    }
+}
 
-    if( (&cp1 != p1) && (&cp1 != p2) ) // cp1 n'est pas locké
-        current_cp = &cp1;
-    else if( (&cp2 != p1) && (&cp2 != p2) ) // cp2 n'est pas locké
-        current_cp = &cp2;
-    else
-        current_cp = &cp3; // cp1 et cp2 sont lockés, donc cp3 n'est pas locké
+void GenericConstraintSolver::lockConstraintProblem(sofa::core::objectmodel::BaseObject* from, ConstraintProblem* p1, ConstraintProblem* p2)
+{
+	if( (current_cp != p1) && (current_cp != p2) ) // The current ConstraintProblem is not locked
+		return;
+
+    for (unsigned int i = 0; i < CP_BUFFER_SIZE; ++i)
+    {
+        GenericConstraintProblem* p = &m_cpBuffer[i];
+        if (p == p1 || p == p2)
+        {
+            m_cpIsLocked[i] = true;
+        }
+        if (!m_cpIsLocked[i]) // ConstraintProblem i is not locked
+        {
+            current_cp = p;
+            return;
+        }
+    }
+    // All constraint problems are locked
+    serr << "All constraint problems are locked, request from " << (from ? from->getName() : "NULL") << " ignored" << sendl;
 }
 
 void GenericConstraintProblem::clear(int nbC)
@@ -480,7 +587,7 @@ int GenericConstraintProblem::getNumConstraintGroups()
             break;
         }
         ++n;
-        i += constraintsResolutions[i]->nbLines;
+        i += constraintsResolutions[i]->getNbLines();
     }
     return n;
 }
@@ -525,7 +632,6 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 
     int i, j, k, l, nb;
 
-    double errF[6] = {0,0,0,0,0,0};
     double error=0.0;
 
     bool convergence = false;
@@ -547,7 +653,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
                 break;
             }
             constraintsResolutions[i]->init(i, w, force);
-            i += constraintsResolutions[i]->nbLines;
+			i += constraintsResolutions[i]->getNbLines();
         }
     }
 
@@ -587,11 +693,14 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
         error=0.0;
         for(j=0; j<dimension; ) // increment of j realized at the end of the loop
         {
-            //1. nbLines provide the dimension of the constraint  (max=6)
-            nb = constraintsResolutions[j]->nbLines;
+			//1. nbLines provide the dimension of the constraint
+			nb = constraintsResolutions[j]->getNbLines();
 
             //2. for each line we compute the actual value of d
             //   (a)d is set to dfree
+            
+            std::vector<double> errF(nb, 0);
+
             for(l=0; l<nb; l++)
             {
                 errF[l] = force[j+l];
@@ -631,11 +740,11 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
                     constraintsAreVerified = false;
             }
 
-            if(constraintsResolutions[j]->tolerance)
+			if(constraintsResolutions[j]->getTolerance())
             {
-                if(contraintError > constraintsResolutions[j]->tolerance)
+				if(contraintError > constraintsResolutions[j]->getTolerance())
                     constraintsAreVerified = false;
-                contraintError *= tol / constraintsResolutions[j]->tolerance;
+				contraintError *= tol / constraintsResolutions[j]->getTolerance();
             }
 
             error += contraintError;
@@ -697,6 +806,9 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 
     currentError = error;
     currentIterations = i+1;
+
+	sofa::helper::AdvancedTimer::valSet("GS iterations", currentIterations);
+
     if(solver)
     {
         if(!convergence)
@@ -705,11 +817,9 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
         }
         else msg_info_when(solver->displayTime.getValue(), solver) << " Convergence after " << i+1 << " iterations " ;
 
-        for(i=0; i<dimension; i += constraintsResolutions[i]->nbLines)
+		for(i=0; i<dimension; i += constraintsResolutions[i]->getNbLines())
             constraintsResolutions[i]->store(i, force, convergence);
     }
-
-    sofa::helper::AdvancedTimer::valSet("GS iterations", i+1);
 
 /*
     if(schemeCorrection)
@@ -730,12 +840,12 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
 
         for(j=0; j<dimension; )
         {
-            nb = constraintsResolutions[j]->nbLines;
+			const unsigned int nb = constraintsResolutions[j]->getNbLines();
 
             if(tabErrors[j])
                 graph_constraints.push_back(tabErrors[j]);
-            else if(constraintsResolutions[j]->tolerance)
-                graph_constraints.push_back(constraintsResolutions[j]->tolerance);
+			else if(constraintsResolutions[j]->getTolerance())
+				graph_constraints.push_back(constraintsResolutions[j]->getTolerance());
             else
                 graph_constraints.push_back(tol);
 
@@ -790,7 +900,7 @@ void GenericConstraintProblem::unbuiltGaussSeidel(double timeout, GenericConstra
                 break;
             }
             constraintsResolutions[i]->init(i, w, force);
-            i += constraintsResolutions[i]->nbLines;
+			i += constraintsResolutions[i]->getNbLines();
         }
         memset(force, 0, dimension * sizeof(double));	// Erase previous forces for the time being
     }
@@ -832,7 +942,7 @@ void GenericConstraintProblem::unbuiltGaussSeidel(double timeout, GenericConstra
         for(j=0; j<dimension; ) // increment of j realized at the end of the loop
         {
             //1. nbLines provide the dimension of the constraint  (max=6)
-            nb = constraintsResolutions[j]->nbLines;
+			nb = constraintsResolutions[j]->getNbLines();
 
             //2. for each line we compute the actual value of d
             //   (a)d is set to dfree
@@ -878,11 +988,11 @@ void GenericConstraintProblem::unbuiltGaussSeidel(double timeout, GenericConstra
                     constraintsAreVerified = false;
             }
 
-            if(constraintsResolutions[j]->tolerance)
+			if(constraintsResolutions[j]->getTolerance())
             {
-                if(contraintError > constraintsResolutions[j]->tolerance)
+				if(contraintError > constraintsResolutions[j]->getTolerance())
                     constraintsAreVerified = false;
-                contraintError *= tol / constraintsResolutions[j]->tolerance;
+				contraintError *= tol / constraintsResolutions[j]->getTolerance();
             }
 
             error += contraintError;
@@ -964,11 +1074,11 @@ void GenericConstraintProblem::unbuiltGaussSeidel(double timeout, GenericConstra
             break;
         }
     }
-
-    sofa::helper::AdvancedTimer::valSet("GS iterations", i+1);
-
+    
     currentError = error;
     currentIterations = i+1;
+
+	sofa::helper::AdvancedTimer::valSet("GS iterations", currentIterations);
 
     if(solver)
     {
@@ -978,7 +1088,7 @@ void GenericConstraintProblem::unbuiltGaussSeidel(double timeout, GenericConstra
         }
         else msg_info_when(solver->displayTime.getValue(),solver) <<" Convergence after " << i+1 << " iterations ";
 
-        for(i=0; i<dimension; i += constraintsResolutions[i]->nbLines)
+		for(i=0; i<dimension; i += constraintsResolutions[i]->getNbLines())
             constraintsResolutions[i]->store(i, force, convergence);
     }
 
@@ -991,12 +1101,12 @@ void GenericConstraintProblem::unbuiltGaussSeidel(double timeout, GenericConstra
 
         for(j=0; j<dimension; )
         {
-            nb = constraintsResolutions[j]->nbLines;
+			nb = constraintsResolutions[j]->getNbLines();
 
             if(tabErrors[j])
                 graph_constraints.push_back(tabErrors[j]);
-            else if(constraintsResolutions[j]->tolerance)
-                graph_constraints.push_back(constraintsResolutions[j]->tolerance);
+			else if(constraintsResolutions[j]->getTolerance())
+				graph_constraints.push_back(constraintsResolutions[j]->getTolerance());
             else
                 graph_constraints.push_back(tol);
 

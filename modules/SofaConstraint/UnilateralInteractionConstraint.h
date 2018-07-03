@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -42,6 +42,12 @@ namespace constraintset
 class UnilateralConstraintResolution : public core::behavior::ConstraintResolution
 {
 public:
+
+    UnilateralConstraintResolution() : core::behavior::ConstraintResolution(1)
+    {
+
+    }
+
     virtual void resolution(int line, double** w, double* d, double* force, double *dfree)
     {
         SOFA_UNUSED(dfree);
@@ -86,11 +92,11 @@ class SOFA_CONSTRAINT_API UnilateralConstraintResolutionWithFriction : public co
 {
 public:
     UnilateralConstraintResolutionWithFriction(double mu, PreviousForcesContainer* prev=NULL, bool* active = NULL)
-        : _mu(mu)
+        :core::behavior::ConstraintResolution(3)
+        , _mu(mu)
         , _prev(prev)
         , _active(active)
     {
-        this->nbLines=3;
     }
 
     virtual void init(int line, double** w, double* force);

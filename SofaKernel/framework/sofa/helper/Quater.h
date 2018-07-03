@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -54,6 +54,11 @@ public:
     template<class Real2>
     Quater(const Quater<Real2>& q) { for (int i=0; i<4; i++) _q[i] = (Real)q[i]; }
     Quater( const defaulttype::Vec<3,Real>& axis, Real angle );
+
+    /** Sets this quaternion to the rotation required to rotate direction vector vFrom to direction vector vTo.        
+        vFrom and vTo are assumed to be normalized.
+    */
+    Quater(const defaulttype::Vec<3, Real>& vFrom, const defaulttype::Vec<3, Real>& vTo);
 
     static Quater identity()
     {
@@ -289,6 +294,9 @@ public:
                                                         // this is done to keep the old behavior (before the
                                                         // correction of the toEulerVector function).
     }
+
+    /// Sets this quaternion to the rotation required to rotate direction vector vFrom to direction vector vTo. vFrom and vTo are assumed to be normalized.
+    void setFromUnitVectors(const defaulttype::Vec<3, Real>& vFrom, const defaulttype::Vec<3, Real>& vTo);
 
 
     // Print the quaternion (C style)

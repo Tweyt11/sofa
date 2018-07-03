@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -93,12 +93,14 @@ void MultiTagAnimationLoop::step(const sofa::core::ExecParams* params, SReal dt)
 
     sofa::core::objectmodel::TagSet::iterator it;
 
+    sofa::core::ConstraintParams cparams(*params);
+
     for (it = tagList.begin(); it != tagList.end(); ++it)
     {
         this->addTag (*it);
 
         dmsg_info() << "begin constraints reset" ;
-        sofa::simulation::MechanicalResetConstraintVisitor(params).execute(this->getContext());
+        sofa::simulation::MechanicalResetConstraintVisitor(&cparams).execute(this->getContext());
         dmsg_info() << "end constraints reset" ;
 
         dmsg_info() << "begin collision for tag: "<< *it ;

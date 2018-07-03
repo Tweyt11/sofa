@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -25,11 +25,7 @@
 
 #include <sofa/core/CollisionModel.h>
 #include <SofaBaseMechanics/MechanicalObject.h>
-#include <sofa/core/topology/BaseMeshTopology.h>
-#include <sofa/core/objectmodel/DataFileName.h>
 #include <sofa/defaulttype/VecTypes.h>
-#include <sofa/helper/accessor.h>
-//#include <SofaMeshCollision/RigidContactMapper.h>
 
 namespace sofa
 {
@@ -186,9 +182,9 @@ public:
     }
 
     //TODO(dmarchal) guideline de sofa.
-    Data< VecReal > radius;
-    Data< SReal > defaultRadius;
-    Data< bool > d_showImpostors;
+    Data< VecReal > radius; ///< Radius of each sphere
+    Data< SReal > defaultRadius; ///< Default Radius
+    Data< bool > d_showImpostors; ///< Draw spheres as impostors instead of "real" spheres
 
 
     virtual void computeBBox(const core::ExecParams* params, bool onlyVisible=false) override;
