@@ -83,6 +83,7 @@ void DAGNode::addChild(core::objectmodel::BaseNode::SPtr node)
     DAGNode::SPtr dagnode = sofa::core::objectmodel::SPtr_static_cast<DAGNode>(node);
     notifyAddChild(dagnode);
     doAddChild(dagnode);
+    notifyAddChild(dagnode, true);
 }
 
 /// Remove a child
@@ -132,10 +133,10 @@ void DAGNode::detachFromGraph()
 
 
 
-void DAGNode::notifyAddChild(Node::SPtr node)
+void DAGNode::notifyAddChild(Node::SPtr node, bool done)
 {
     setDirtyDescendancy();
-    Node::notifyAddChild(node);
+    Node::notifyAddChild(node, done);
 }
 
 void DAGNode::notifyRemoveChild(Node::SPtr node)

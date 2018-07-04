@@ -551,7 +551,7 @@ protected:
 
     std::stack<Visitor*> actionStack;
 
-    virtual void notifyAddChild(Node::SPtr node);
+    virtual void notifyAddChild(Node::SPtr node, bool done=false);
     virtual void notifyRemoveChild(Node::SPtr node);
     virtual void notifyMoveChild(Node::SPtr node, Node* prev);
     virtual void notifyAddObject(sofa::core::objectmodel::BaseObject::SPtr obj);

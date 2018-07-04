@@ -70,7 +70,7 @@ public:
     HeadlessRecorder();
     ~HeadlessRecorder();
 
-    int mainLoop();
+    int mainLoop() override;
 
     void step();
     void redraw();

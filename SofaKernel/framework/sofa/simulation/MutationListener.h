@@ -40,18 +40,21 @@ public:
     virtual ~MutationListener();
 
     virtual void addChild(Node* parent, Node* child);
+    virtual void addChildDone(Node* parent, Node* child);
 
     virtual void removeChild(Node* parent, Node* child);
 
     virtual void moveChild(Node* previous, Node* parent, Node* child);
 
     virtual void addObject(Node* parent, core::objectmodel::BaseObject* object);
+    virtual void addObjectDone(Node* parent, core::objectmodel::BaseObject* object);
 
     virtual void removeObject(Node* parent, core::objectmodel::BaseObject* object);
 
     virtual void moveObject(Node* previous, Node* parent, core::objectmodel::BaseObject* object);
 
     virtual void addSlave(core::objectmodel::BaseObject* master, core::objectmodel::BaseObject* slave);
+    virtual void addSlaveDone(core::objectmodel::BaseObject* master, core::objectmodel::BaseObject* slave);
 
     virtual void removeSlave(core::objectmodel::BaseObject* master, core::objectmodel::BaseObject* slave);
 

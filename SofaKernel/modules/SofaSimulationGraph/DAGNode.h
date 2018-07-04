@@ -187,7 +187,7 @@ protected:
 
 
     // need to update the ancestor descendancy
-    virtual void notifyAddChild(Node::SPtr node) override;
+    virtual void notifyAddChild(Node::SPtr node, bool done=false) override;
     // need to update the ancestor descendancy
     virtual void notifyRemoveChild(Node::SPtr node) override;
     // need to update the ancestor descendancy

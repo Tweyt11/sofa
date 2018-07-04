@@ -218,12 +218,15 @@ void Node::moveObject(BaseObject::SPtr obj)
 
 
 
-void Node::notifyAddChild(Node::SPtr node)
+void Node::notifyAddChild(Node::SPtr node, bool done)
 {
-    for (helper::vector<MutationListener*>::const_iterator it = listener.begin(); it != listener.end(); ++it)
-        (*it)->addChild(this, node.get());
+    if(!done)
+        for (helper::vector<MutationListener*>::const_iterator it = listener.begin(); it != listener.end(); ++it)
+            (*it)->addChild(this, node.get());
+    else
+        for (helper::vector<MutationListener*>::const_iterator it = listener.begin(); it != listener.end(); ++it)
+            (*it)->addChildDone(this, node.get());
 }
-
 
 void Node::notifyRemoveChild(Node::SPtr node)
 {
