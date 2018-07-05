@@ -31,6 +31,9 @@
 
 #include <sofa/helper/logging/Messaging.h>
 
+#include <sofa/helper/StringUtils.h>
+using sofa::helper::getAStringCopy ;
+
 #include "PythonFactory.h"
 #include "PythonToSofa.inl"
 
@@ -51,9 +54,17 @@ PSDEDataFactory* getFactoryInstance(){
     {
         s_localfactory = new PSDEDataFactory() ;
         s_localfactory->registerCreator("s", new DataCreator<std::string>());
-        s_localfactory->registerCreator("f", new DataCreator<float>());
         s_localfactory->registerCreator("b", new DataCreator<bool>());
-        s_localfactory->registerCreator("d", new DataCreator<int>());
+        s_localfactory->registerCreator("i", new DataCreator<int>());
+        s_localfactory->registerCreator("I", new DataCreator<unsigned int>());
+        s_localfactory->registerCreator("f", new DataCreator<float>());
+        s_localfactory->registerCreator("d", new DataCreator<double>());
+
+        s_localfactory->registerCreator("[i]", new DataCreator<vector<int>>());
+        s_localfactory->registerCreator("[I]", new DataCreator<vector<unsigned int>>());
+        s_localfactory->registerCreator("[f]", new DataCreator<vector<float>>());
+        s_localfactory->registerCreator("[d]", new DataCreator<vector<double>>());
+
         s_localfactory->registerCreator("t", new DataCreator<vector<Tetra>>());
         s_localfactory->registerCreator("p", new DataCreator<sofa::defaulttype::Vec3dTypes::VecCoord>());
     }
@@ -82,7 +93,7 @@ BaseData* helper_addNewData(PyObject *args, PyObject * kw, Base * obj) {
 
     char* dataRawType = new char;
     char* dataClass = new char;
-    char* dataHelp = new char;
+    char* dataHelp = "missing help";
     char * dataName = new char;
 
     PyObject* dataValue = nullptr;
@@ -115,6 +126,10 @@ BaseData* helper_addNewData(PyObject *args, PyObject * kw, Base * obj) {
     {
         return nullptr;
     }    
+
+    dataName = getStringCopy(dataName) ;
+    dataClass = getStringCopy(dataClass) ;
+    dataHelp  = getStringCopy(dataHelp) ;
 
     if(KwargsOrArgs) // parse kwargs
     {
@@ -172,7 +187,7 @@ BaseData* helper_addNewData(PyObject *args, PyObject * kw, Base * obj) {
             {
                 if(!bd->setParent(tmp.str()))
                 {
-                    msg_warning(obj) << "Could not setup link for Data, initialzing empty";
+                    msg_warning(obj) << "Could not setup link for Data, initializing empty " << tmp.str() ;
                 }
             }
             else

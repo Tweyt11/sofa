@@ -138,8 +138,21 @@ protected:
     /**
     * @brief Compute the compliance matrix
     */
-    virtual void computeJ(sofa::defaulttype::BaseMatrix* W, const MatrixDeriv& j);
+    virtual void computeJ(sofa::defaulttype::BaseMatrix* W);
 
+   /**
+     * @brief Compute dx correction from motion space force vector.
+     */
+    virtual void computeDx(sofa::core::MultiVecDerivId f);
+
+    ////////////////////////// Inherited attributes ////////////////////////////
+    /// https://gcc.gnu.org/onlinedocs/gcc/Name-lookup.html
+    /// Bring inherited attributes and function in the current lookup context.
+    /// otherwise any access to the base::attribute would require
+    /// the "this->" approach.
+    using Inherit::m_componentstate ;
+    using Inherit::mstate ;
+    ////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////// Inherited attributes ////////////////////////////
     /// https://gcc.gnu.org/onlinedocs/gcc/Name-lookup.html

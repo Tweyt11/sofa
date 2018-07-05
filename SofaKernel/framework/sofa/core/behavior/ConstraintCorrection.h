@@ -25,6 +25,8 @@
 #include <sofa/core/behavior/BaseConstraintCorrection.h>
 #include <sofa/core/behavior/MechanicalState.h>
 
+#include <sofa/defaulttype/VecTypes.h>
+#include <sofa/defaulttype/RigidTypes.h>
 
 
 namespace sofa
@@ -37,7 +39,7 @@ namespace behavior
 {
 
 /**
- * Component computing constraint forces within a simulated body using the compliance method.
+ * Component computing constrained forces within a simulated body using the compliance method.
  */
 template<class TDataTypes>
 class ConstraintCorrection : public BaseConstraintCorrection

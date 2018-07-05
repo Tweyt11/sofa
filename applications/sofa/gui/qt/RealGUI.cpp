@@ -792,8 +792,10 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile, bool reload )
     }
     if(reload)
         setSceneWithoutMonitor(mSimulation, filename.c_str(), temporaryFile);
-    else
+    else{
         setScene(mSimulation, filename.c_str(), temporaryFile);
+        m_docbrowser->loadHtml( filename ) ;
+    }
 
     configureGUI(mSimulation.get());
 
@@ -811,7 +813,13 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile, bool reload )
     /// But we don't want that to happen each reload in interactive mode.
     if(!reload)
     {
-        checker.validate(mSimulation.get());
+==== BASE ====
+        SceneCheckerVisitor checker(ExecParams::defaultInstance()) ;
+        checker.addCheck(simulation::SceneCheckAPIChange::newSPtr());
+        checker.addCheck(simulation::SceneCheckDuplicatedName::newSPtr());
+        checker.addCheck(simulation::SceneCheckMissingRequiredPlugin::newSPtr());
+        checker.validate(mSimulation.get()) ;
+==== BASE ====
     }
 }
 
