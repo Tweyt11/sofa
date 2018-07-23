@@ -1,0 +1,13 @@
+import Sofa
+import SofaEditor
+
+class UseSofaEditor(Sofa.PythonScriptController):
+        def __init__(self, node):
+                pass 
+        
+        def onDraw():
+                print("The selected component is: "+SofaEditor.getSelectedComponents())
+
+def createScene(root):
+        root.addObject( UseSofaEditor(root) )
+
