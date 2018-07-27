@@ -19,70 +19,61 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaEditor/config.h>
+/******************************************************************************
+ * Contributors:                                                              *
+ *    - damien.marchal@univ-lille1.fr                                         *
+ *****************************************************************************/
 
+#include <vector>
 
-namespace sofa
+#include <SofaTest/Python_test.h>
+using sofa::Python_test ;
+using sofa::Python_test_list ;
+using sofa::PrintTo ;
+
+#include <sofa/helper/system/PluginManager.h>
+using sofa::helper::system::PluginManager ;
+
+using std::vector;
+using std::string;
+
+namespace
 {
-namespace component
+
+class PythonSofaEditor_test : public Python_test
 {
-
-//Here are just several convenient functions to help user to know what contains the plugin
-
-extern "C" {
-    SOFAEDITOR_API void initExternalModule();
-    SOFAEDITOR_API const char* getModuleName();
-    SOFAEDITOR_API const char* getModuleVersion();
-    SOFAEDITOR_API const char* getModuleLicense();
-    SOFAEDITOR_API const char* getModuleDescription();
-    SOFAEDITOR_API const char* getModuleComponentList();
-}
-
-void initExternalModule()
-{
-    static bool first = true;
-    if (first)
-    {
-        first = false;
+public:
+    /// Be sure that SofaPython plugin is loaded.
+    static void SetUpTestCase(){
+        static bool _inited_ = false;
+        if(!_inited_){
+            PluginManager::getInstance().loadPlugin("SofaPython") ;
+        }
     }
-}
+};
 
-const char* getModuleName()
+/// static build of the test list
+static struct Tests : public Python_test_list
 {
-    return "SofaEditor";
-}
+    Tests()
+    {
+        static const std::string testPath = std::string(PYTHON_TESTFILES_DIR);
+        addTest( "SofaEditor_test.py", testPath, {} );
+    }
+} python_tests;
 
-const char* getModuleVersion()
+
+/// run test list
+INSTANTIATE_TEST_CASE_P(Batch,
+                        PythonSofaEditor_test,
+                        ::testing::ValuesIn(python_tests.list));
+
+
+
+TEST_P(PythonSofaEditor_test, all_tests)
 {
-    return "1.0";
-}
-
-const char* getModuleLicense()
-{
-    return "LGPL";
-}
-
-
-const char* getModuleDescription()
-{
-    return "TODO: replace this with the description of your plugin";
-}
-
-const char* getModuleComponentList()
-{
-    /// string containing the names of the classes provided by the plugin
-    return "";
-    //return "MyMappingPendulumInPlane, MyBehaviorModel, MyProjectiveConstraintSet";
-}
-
-
-
+    run(GetParam());
 }
 
 }
-
-/// Use the SOFA_LINK_CLASS macro for each class, to enable linking on all platforms
-//SOFA_LINK_CLASS(MyMappingPendulumInPlane)
-//SOFA_LINK_CLASS(MyBehaviorModel)
-//SOFA_LINK_CLASS(MyProjectiveConstraintSet)
 

@@ -31,4 +31,4 @@
 #  define SOFAEDITOR_API SOFA_IMPORT_DYNAMIC_LIBRARY
 #endif
 
-#endif
+#endif /// SOFAEDITOR_CONFIG_H

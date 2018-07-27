@@ -50,8 +50,6 @@ TEST(SofaEditorState, checkGetItFromEditorName)
     ASSERT_EQ(SofaEditor::getIdFromEditorName("invalidName"), SofaEditor::InvalidID);
 }
 
-
-
 TEST(SofaEditor, test_createId)
 {
     /// Insure that different calls are not returning the same ID.

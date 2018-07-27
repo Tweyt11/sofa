@@ -31,30 +31,54 @@
 
 #include <SofaEditor/config.h>
 
-
 namespace sofaeditor
 {
-    /// The SofaEditorStatic is holding information that sofa editors want to hold
-    /// so they can be used to communicate this information to sofa component or
-    /// controllers.
+    /// The SofaEditorStatic is holding information related to the editors
+    /// The informations can then be communicated to sofa component or controllers.
+    ///
+    /// Thread safetyness:
+    ///     The object is not thread safe, given the presence of getSelection it seems
+    ///     hard to make it so and preserving the API. A different class design may be needed.
+    ///
     class SOFAEDITOR_API SofaEditorState
     {
     public:
+        /// The name that identify the editor.
         std::string editorname ;
 
+        /// Create a new editor state with a given 'name' so multiple editor can coexist
+        /// by having different names;
         SofaEditorState(const std::string& name="");
         ~SofaEditorState();
 
+        /// Set the current selection from a vector of string contains the absolute paths to the
+        /// selected objects.
         void setSelectionFromPath(const std::vector<std::string>& paths );
+
+        /// get the current selection as a vector of absolute paths.
         const std::vector<std::string>& getSelection() const ;
 
     private:
-
         std::vector<std::string> m_currentSelection;
     };
 
-    /// Hold the editors properties. Each editors can attach its
-    /// properties that can be queries by the client side.
+    /// A static API that allows to share editors properties. The general idea is that each editors
+    /// can attach its properties to an ID that is stored in this object.
+    ///
+    /// Thread safetyness:
+    ///     The class is not (yet) thread safe. To make it such is relatively easy, each static
+    ///     function should be protected by a mutex.
+    ///
+    /// Example of use:
+    /// In the editor:
+    ///     SofaEditorState* s = new SofaEditorState("main");
+    ///     SofaEditor::ID id = SofaEditor:createId(s);
+    ///     s->setSelectionFromPath({"/root/child1/object1","root/child2/object2"})
+    ///
+    /// Somewhere else:
+    ///     SofaEditor::ID id = SofaEditor::getIdFromEditorName("main");
+    ///     SofaEditorState* state = SofaEditor::getState(id);
+    ///     state->getSelection();
     class SofaEditor
     {
     public:
@@ -70,10 +94,10 @@ namespace sofaeditor
         static ID createId(const SofaEditorState* s=nullptr);
         static bool attachState(ID editorId, const SofaEditorState* s);
         static const SofaEditorState* getState(ID editorId=0);
+
     private:
         static std::vector<const SofaEditorState*> s_editorsstate ;
     };
 }
-
 
 #endif // SOFAEDITOR_BASESOFAEDITOR_H
