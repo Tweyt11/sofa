@@ -32,6 +32,8 @@
 #include <CGALPlugin/config.h>
 #include <future>
 
+#include <CGAL/Bbox_3.h>
+
 /// Topology
 #include <SofaBaseTopology/MeshTopology.h>
 
@@ -66,7 +68,8 @@ public:
     SOFA_CLASS(MeshGenerationFromImplicitShape, BaseObject);
     MeshGenerationFromImplicitShape() ;
     virtual ~MeshGenerationFromImplicitShape() { }
-    int volumeMeshGeneration(double facet_angle, double facet_size, double facet_distance,
+    int volumeMeshGeneration(double edge_sizeP,
+                             double facet_angle, double facet_size, double facet_distance,
                              double cell_size, double cell_radius_edge_ratio);
 
     virtual void init() override ;
@@ -82,6 +85,7 @@ private:
                              double x_max, double y_max, double z_max);
 
     /// Inputs and atritbutes
+    Data<double> d_edgesize;
     Data<double> d_facetangle;
     Data<double> d_facetsize;
     Data<double> d_facetdistance;
@@ -91,12 +95,22 @@ private:
     Data<double> d_radius ;
     Data<Vec3d>  d_center ;
 
+    /// The polyline describing the features are given by a set of points
+    /// and a set of tuple
+    Data<helper::vector<Vec3d>> d_featurePoints ;
+    Data<helper::vector<int>>   d_featureSets ;
+
     /// Display
     Data<bool> d_drawtetras;
 
     /// Output
     Data<VecCoord> d_out_points;
     Data<SeqTetrahedra> d_out_tetrahedra;
+
+    /// State management to indicate that an object has changed.
+    Data<int> d_state ;
+
+    DataTracker m_datatracker ;
 
     /// Link
     typedef SingleLink< MeshGenerationFromImplicitShape, ScalarField, BaseLink::FLAG_STOREPATH|BaseLink::FLAG_STRONGLINK> LinkGrid;

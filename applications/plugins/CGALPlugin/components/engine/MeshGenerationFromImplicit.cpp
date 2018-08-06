@@ -37,7 +37,9 @@
 #include <CGAL/Mesh_triangulation_3.h>
 #include <CGAL/Mesh_complex_3_in_triangulation_3.h>
 #include <CGAL/Mesh_criteria_3.h>
+#include <CGAL/Mesh_domain_with_polyline_features_3.h>
 #include <CGAL/Implicit_to_labeling_function_wrapper.h>
+#include <CGAL/Implicit_mesh_domain_3.h>
 #include <CGAL/Labeled_mesh_domain_3.h>
 #include <CGAL/make_mesh_3.h>
 #include <CGAL/Bbox_3.h>
@@ -49,7 +51,7 @@
 #include <future>
 #include <thread>
 #include <chrono>
-
+#include <functional>
 namespace sofa
 {
 namespace component
@@ -86,9 +88,22 @@ public:
     }
 };
 
+// Domain
+class SphereFunction : public ImplicitFunction
+{
+public:
+    SphereFunction() : ImplicitFunction(nullptr){}
+    K::FT operator()(K::Point_3 p) const
+    {
+        return CGAL::squared_distance(p, K::Point_3(CGAL::ORIGIN))-1;
+    }
+};
+
 typedef CGAL::Implicit_multi_domain_to_labeling_function_wrapper<ImplicitFunction> Function_wrapper;
 typedef Function_wrapper::Function_vector Function_vector;
 typedef CGAL::Labeled_mesh_domain_3<Function_wrapper, K> Mesh_domain;
+//typedef CGAL::Implicit_mesh_domain_3<Function_wrapper, K> Mesh_domain;
+
 //Triangulation
 typedef CGAL::Mesh_triangulation_3<Mesh_domain>::type Tr;
 typedef CGAL::Mesh_complex_3_in_triangulation_3<Tr> C3t3;
@@ -110,7 +125,8 @@ struct Spherical_sizing_field
     typedef K::FT FT ;
     K::FT operator()(const K::Point_3& p, const int, const Index&) const
     {
-        return abs(cos(p.x()*10))+0.3;
+        std::cout << fmod( fabs(p.x()*4), 0.1 )+0.04 <<std::endl ;
+        return  fmod( fabs(p.x()*4), 0.1 )+0.04; //abs(cos(p.x()*10))+0.3;
     }
 };
 
@@ -128,6 +144,8 @@ CGAL::Bbox_3 MeshGenerationFromImplicitShape::BoundingBox(double x_min, double y
 
 MeshGenerationFromImplicitShape::MeshGenerationFromImplicitShape()
     : TrackedComponent(this)
+    , d_edgesize(initData(&d_edgesize,(double)1.0,"edge_size",
+                          "This parameter controls the size of the edges. (Default 1.0)"))
     , d_facetangle(initData(&d_facetangle,(double)30.0,"facet_angle",
                             "This parameter controls the shape of surface facets. Actually, "
                             "it is a lower bound for the angle (in degree) of surface facets.(Default 30.0)"))
@@ -153,6 +171,9 @@ MeshGenerationFromImplicitShape::MeshGenerationFromImplicitShape()
     , d_drawtetras(initData(&d_drawtetras,false,"drawTetras","display generated tetra mesh"))
     , d_out_points(initData(&d_out_points, "outputPoints", "position coordinates from the tetrahedral generation"))
     , d_out_tetrahedra(initData(&d_out_tetrahedra, "outputTetras", "list of tetrahedra"))
+    , d_state (initData(&d_state, 0, "state", "This is a number indicating change in this component."))
+    , d_featurePoints(initData(&d_featurePoints, "featurePoints", "The set of points forming the different features"))
+    , d_featureSets(initData(&d_featureSets, "featureSets", "Set of tuple (i0, i1) defining the interval of featurePoint to use."))
     , l_scalarfield(initLink("scalarfield", "The scalar field that defined the iso-function"))
 {
     f_listening.setValue(true);
@@ -180,14 +201,15 @@ void MeshGenerationFromImplicitShape::init()
     /// volumeMeshGeneration(in_facetsize.getValue(),in_approximation.getValue(),in_cellsize.getValue());
 
     /// future from an async()
-//    m_com = std::async(std::launch::async, [this](){
+    m_com = std::async(std::launch::async, [this](){
         unsigned int countervalue = this->l_scalarfield->getCounter() ;
-        this->volumeMeshGeneration(this->d_facetangle.getValue(),
+        this->volumeMeshGeneration(this->d_edgesize.getValue(),
+                                   this->d_facetangle.getValue(),
                                    this->d_facetsize.getValue(),
                                    this->d_facetdistance.getValue(),
                                    this->d_cellsize.getValue(),
                                    this->d_cell_radiusedge_ratio.getValue());
-//        return countervalue; });
+        return countervalue; });
 }
 
 void MeshGenerationFromImplicitShape::reinit()
@@ -217,7 +239,7 @@ void MeshGenerationFromImplicitShape::handleEvent(sofa::core::objectmodel::Event
 void MeshGenerationFromImplicitShape::update(bool forceUpdate)
 {
     /// The inputs have changed
-    if(  !m_com.valid() && hasChanged() || forceUpdate )
+    if(  !m_com.valid() && hasChanged() || forceUpdate  )
     {
         /// The inputs are not valid
         if(l_scalarfield->getStatus() != CStatus::Valid)
@@ -225,14 +247,15 @@ void MeshGenerationFromImplicitShape::update(bool forceUpdate)
 
         /// The inputs are valid & we should grab them.
         m_componentstate = ComponentState::Invalid ;
-//        m_com = std::async(std::launch::async, [this](){
+        m_com = std::async(std::launch::async, [this](){
             unsigned int countervalue = this->l_scalarfield->getCounter() ;
-            this->volumeMeshGeneration(this->d_facetangle.getValue(),
+            this->volumeMeshGeneration(this->d_edgesize.getValue(),
+                                       this->d_facetangle.getValue(),
                                        this->d_facetsize.getValue(),
                                        this->d_facetdistance.getValue(),
                                        this->d_cellsize.getValue(),
                                        this->d_cell_radiusedge_ratio.getValue());
-//            return countervalue; });
+            return countervalue; });
     }
 
     if( !m_com.valid() )
@@ -241,15 +264,36 @@ void MeshGenerationFromImplicitShape::update(bool forceUpdate)
     if( m_com.wait_for(std::chrono::microseconds::zero()) == std::future_status::ready )
     {
         m_componentstate = ComponentState::Valid ;
+        /// Copy the data into the output buffers.
         updateCounterAt(m_com.get());
-        dmsg_warning() << "Update component from source at " << m_com.get() ;
+        d_state.setValue(d_state.getValue()+1);
+
+        dmsg_warning() << "Update component from source at " << m_com.get() << "switching to state: " << d_state.getValue();
         m_com = std::future<unsigned int>() ;
     }
 }
 
+typedef CGAL::Exact_predicates_inexact_constructions_kernel TK;
+typedef TK::FT TFT;
+typedef TK::Point_3 TPoint;
+typedef std::function<TFT(const TPoint&)> TFunction;
+typedef CGAL::Mesh_domain_with_polyline_features_3<CGAL::Implicit_mesh_domain_3<TFunction,TK>> TMesh_domain;
+typedef CGAL::Sequential_tag TConcurrency_tag;
+// Triangulation
+typedef CGAL::Mesh_triangulation_3<TMesh_domain,CGAL::Default,TConcurrency_tag>::type TTr;
+typedef CGAL::Mesh_complex_3_in_triangulation_3<TTr> TC3t3;
+// Criteria
+typedef CGAL::Mesh_criteria_3<TTr> TMesh_criteria;
+// To avoid verbose function and named parameters call
+using namespace CGAL::parameters;
+// Function
+TFT sphere_function (const TPoint& p)
+{ return CGAL::squared_distance(p, TPoint(CGAL::ORIGIN))-1; }
+
 
 //mesh the implicit domain
-int MeshGenerationFromImplicitShape::volumeMeshGeneration(double facet_angleP, double facet_sizeP, double facet_distanceP,
+int MeshGenerationFromImplicitShape::volumeMeshGeneration(double edge_sizeP,
+                                                          double facet_angleP, double facet_sizeP, double facet_distanceP,
                                                           double cell_sizeP, double cell_radius_edge_ratioP)
 {
     //Domain
@@ -260,23 +304,67 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double facet_angleP, d
     while(l_scalarfield->getComponentState() != ComponentState::Valid ) ;
 
     ImplicitFunction function(l_scalarfield);
+    SphereFunction sf {};
     Function_vector v;
-    v.push_back(function);
+    v.push_back(sf);
+
     double dtmp=d_radius.getValue();
     const Vec3d& ctmp = d_center.getValue() ;
-    domain = new Mesh_domain(v, K::Sphere_3(K::Point_3(ctmp.x(), ctmp.y(), ctmp.z()), dtmp*dtmp), 1e-3);
+
+
+    if(function(K::Point_3(ctmp.x(), ctmp.y(), ctmp.z())) >= 0){
+        msg_error() << "The center of the meshing sphere is not inside the volume" ;
+        return 0;
+    }
+
+    auto tdomain = new TMesh_domain(
+                [this](const TPoint& p) -> TFT
+                {
+                    Vec3d tmp(p.x(),p.y(),p.z());
+                    return l_scalarfield->getValue(tmp);
+                }
+                , TK::Sphere_3(TK::Point_3(ctmp.x(), ctmp.y(), ctmp.z()), d_radius.getValue()), 1e-3);
+
+    // Polyline
+    typedef std::vector<TPoint>        Polyline_3;
+    typedef std::vector<Polyline_3>       Polylines;
+
+    int numberOfSets=d_featureSets.getValue().size()/2;
+    Polylines polylines {numberOfSets};
+    for(int j = 0;j<numberOfSets;++j)
+    {
+        Polyline_3& polyline2 = polylines[j];
+        for(int i = d_featureSets.getValue()[j*2]; i <= d_featureSets.getValue()[j*2+1]; ++i)
+        {
+            Vec3d tmp=d_featurePoints.getValue()[i];
+            TPoint p (tmp.x(), tmp.y(), tmp.z());
+            polyline2.push_back(p);
+        }
+    }
+
+    // Insert edge in domain
+    tdomain->add_features(polylines.begin(), polylines.end());
 
     //Criteria
     Spherical_sizing_field fsize ;
     //Facet_criteria facet_criteria(30, facet_size2, approximation); // angle, size, approximation
     //Cell_criteria cell_criteria(2., cell_size=fsize); // radius-edge ratio, size
     ///Mesh_criteria criteria(facet_criteria, cell_criteria);
-    Mesh_criteria criteria(facet_angle=facet_angleP, facet_size=facet_sizeP, facet_distance=facet_distanceP,
-                           cell_radius_edge_ratio=cell_radius_edge_ratioP, cell_size=cell_sizeP);
+    Mesh_criteria criteria(edge_size=edge_sizeP,
+                           facet_angle=facet_angleP, facet_size=facet_sizeP,
+                           facet_distance=facet_distanceP,
+                           cell_radius_edge_ratio=cell_radius_edge_ratioP,
+                           cell_size=cell_sizeP);
 
     //Mesh generation
-    C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(*domain, criteria, no_exude(), no_perturb());
-    delete domain;
+    C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(*tdomain, criteria,
+                                        no_exude(), no_perturb());
+//                                        lloyd(),
+//                                        odt(),
+  //                                      perturb(),
+  //                                      exude());
+
+    delete tdomain;
 
     //Topology
     sofa::helper::WriteAccessor< Data<VecCoord> > newPoints = d_out_points;
