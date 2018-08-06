@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
+cmake_policy(SET CMP0054 NEW)
+
 project(Sofa)
+
 
 set(SOFA_KERNEL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SofaKernel" CACHE STRING "Path to SofaKernel")
 
@@ -14,7 +17,6 @@ endif()
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
-
 
 # Enable the organisation in folders for generators that support
 # it. (E.g. some versions of Visual Studio have 'solution folders')
@@ -190,10 +192,13 @@ add_subdirectory(${SOFA_KERNEL_SOURCE_DIR}/SofaCommon)
 add_subdirectory(SofaGeneral)
 add_subdirectory(SofaAdvanced)
 add_subdirectory(SofaMisc)
-add_subdirectory(SofaGui)
 
 # SofaTest depends on SofaPython, so we add SofaPython before SofaTest.
-sofa_add_plugin( applications/plugins/SofaPython SofaPython )
+sofa_add_plugin(applications/plugins/SofaPython SofaPython)
+sofa_add_module(modules/SofaEditor SofaEditor ON)
+sofa_add_module(modules/SofaGeometry SofaGeometry ON)
+
+add_subdirectory(SofaGui)
 
 ## Scene creator option
 option(SOFA_BUILD_SCENECREATOR "Compile the C++ API located in applications/plugins/SceneCreator" OFF)
