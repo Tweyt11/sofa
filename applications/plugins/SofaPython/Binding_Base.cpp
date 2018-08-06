@@ -65,6 +65,7 @@ PSDEDataFactory* getFactoryInstance(){
         s_localfactory->registerCreator("[f]", new DataCreator<vector<float>>());
         s_localfactory->registerCreator("[d]", new DataCreator<vector<double>>());
 
+        s_localfactory->registerCreator("Vec3d", new DataCreator<sofa::defaulttype::Vec3d>());
         s_localfactory->registerCreator("t", new DataCreator<vector<Tetra>>());
         s_localfactory->registerCreator("p", new DataCreator<sofa::defaulttype::Vec3dTypes::VecCoord>());
     }
