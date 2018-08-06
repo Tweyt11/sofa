@@ -46,6 +46,8 @@
 #include <QWindow>
 #include <time.h>
 
+#include <SofaEditor/BaseSofaEditor.h>
+
 #include <sofa/helper/system/FileMonitor.h>
 
 // Recorder GUI is not used (broken in most scenes)
@@ -74,6 +76,9 @@ class BaseViewer;
 
 namespace qt
 {
+
+using sofaeditor::SofaEditorState ;
+using sofaeditor::SofaEditor;
 
 class DocBrowser ;
 
@@ -166,7 +171,7 @@ private:
 //-----------------DATAS MEMBER------------------------{
 public:
     //TODO: make a protected data with an accessor
-    QSofaListView* simulationGraph;
+    QSofaListView* m_hierarchicalview;
 
 protected:
     /// create a viewer by default, otherwise you have to manage your own viewer
@@ -317,6 +322,10 @@ protected:
 
     sofa::helper::system::FileEventListener* m_filelistener {nullptr};
 private:
+
+    SofaEditorState m_sofaEditorState ;
+    SofaEditor::ID  m_sofaEditorId;
+
     void addViewer();//? where is the implementation ?
 
     /// Parse options from the RealGUI constructor
@@ -337,6 +346,7 @@ public slots:
     virtual void ActivateNode(sofa::simulation::Node* , bool );
     virtual void setSleepingNode(sofa::simulation::Node*, bool);
     virtual void fileSaveAs(sofa::simulation::Node *node);
+    virtual void onSelectionChanged(sofa::core::objectmodel::Base* object);
     virtual void LockAnimation(bool);
     virtual void fileRecentlyOpened(QAction * action);
     virtual void playpauseGUI(bool value);

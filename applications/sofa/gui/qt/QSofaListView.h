@@ -103,6 +103,7 @@ public Q_SLOTS:
     void Export();
     void CloseAllDialogs();
     void UpdateOpenedDialogs();
+    void onSelectionChanged(QTreeWidgetItem*,QTreeWidgetItem*) ;
 
 Q_SIGNALS:
     void Close();
@@ -118,6 +119,7 @@ Q_SIGNALS:
     void focusChanged(sofa::core::objectmodel::BaseObject*);
     void focusChanged(sofa::core::objectmodel::BaseNode*);
     void dataModified( QString );
+    void selectionChanged(sofa::core::objectmodel::Base*);
 
 protected Q_SLOTS:
     void SaveNode();

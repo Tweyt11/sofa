@@ -97,6 +97,8 @@ QSofaListView::QSofaListView(const SofaListViewAttribute& attribute,
     connect(this,SIGNAL(customContextMenuRequested(const QPoint&)) ,this,SLOT(RunSofaRightClicked(const QPoint&)) );
     connect(this,SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int )), this, SLOT(RunSofaDoubleClicked(QTreeWidgetItem*, int)) );
     connect(this,SIGNAL(itemClicked(QTreeWidgetItem*,int) ), this, SLOT(updateMatchingObjectmodel(QTreeWidgetItem*, int)) );
+    connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+            this, SLOT(onSelectionChanged(QTreeWidgetItem*,QTreeWidgetItem*))) ;
 
 }
 
@@ -369,6 +371,16 @@ void QSofaListView::focusNode()
         emit( focusChanged(object_.ptr.Node));
 }
 
+
+void QSofaListView::onSelectionChanged(QTreeWidgetItem * current, QTreeWidgetItem * previous)
+{
+    SOFA_UNUSED(previous) ;
+    //Print Selected Item Indexes
+    Base* b= graphListener_->findObject(current)  ;
+    if(b){
+        emit selectionChanged(b) ;
+    }
+}
 
 /*****************************************************************************************************************/
 void QSofaListView::RunSofaRightClicked( const QPoint& point)

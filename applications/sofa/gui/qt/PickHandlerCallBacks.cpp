@@ -51,26 +51,26 @@ void InformationOnPickCallBack::execute(const sofa::component::collision::BodyPi
     core::objectmodel::BaseObject *objectPicked=NULL;
     if (body.body)
     {
-        QTreeWidgetItem* item=gui->simulationGraph->getListener()->items[body.body];
+        QTreeWidgetItem* item=gui->m_hierarchicalview->getListener()->items[body.body];
 //        gui->simulationGraph->ensureItemVisible(item);
-        gui->simulationGraph->scrollToItem(item);
-        gui->simulationGraph->clearSelection();
+        gui->m_hierarchicalview->scrollToItem(item);
+        gui->m_hierarchicalview->clearSelection();
 //        gui->simulationGraph->setSelected(item,true);
-        gui->simulationGraph->setCurrentItem(item);
+        gui->m_hierarchicalview->setCurrentItem(item);
         objectPicked=body.body;
     }
     else if (body.mstate)
     {
-        QTreeWidgetItem* item=gui->simulationGraph->getListener()->items[body.mstate];
+        QTreeWidgetItem* item=gui->m_hierarchicalview->getListener()->items[body.mstate];
 //        gui->simulationGraph->ensureItemVisible(item);
-        gui->simulationGraph->scrollToItem(item);
-        gui->simulationGraph->clearSelection();
+        gui->m_hierarchicalview->scrollToItem(item);
+        gui->m_hierarchicalview->clearSelection();
 //        gui->simulationGraph->setSelected(item,true);
-        gui->simulationGraph->setCurrentItem(item);
+        gui->m_hierarchicalview->setCurrentItem(item);
         objectPicked=body.mstate;
     }
     else
-        gui->simulationGraph->clearSelection();
+        gui->m_hierarchicalview->clearSelection();
 
     if (objectPicked)
     {

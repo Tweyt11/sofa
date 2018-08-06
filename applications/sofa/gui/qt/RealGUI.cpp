@@ -310,7 +310,7 @@ RealGUI::RealGUI ( const char* viewername)
       handleTraceVisitor(NULL),
       #endif
 
-      simulationGraph(NULL),
+      m_hierarchicalview(NULL),
       mCreateViewersOpt(true),
       mIsEmbeddedViewer(true),
       m_dumpState(false),
@@ -334,7 +334,8 @@ RealGUI::RealGUI ( const char* viewername)
       m_docbrowser(NULL),
       animationState(false),
       frameCounter(0),
-      m_viewerMSAANbSampling(1)
+      m_viewerMSAANbSampling(1),
+      m_sofaEditorState("maineditor")
 {
     setupUi(this);
 
@@ -464,6 +465,8 @@ RealGUI::RealGUI ( const char* viewername)
     connect(m_docbrowser, SIGNAL(visibilityChanged(bool)), this, SLOT(docBrowserVisibilityChanged(bool)));
 
     m_filelistener = new RealGUIFileListener(this);
+
+    m_sofaEditorId = SofaEditor::createId(&m_sofaEditorState) ;
 }
 
 //------------------------------------
@@ -751,8 +754,8 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile, bool reload )
     {
         saveView();
 
-        if(simulationGraph)
-            simulationGraph->getExpandedNodes(expandedNodes);
+        if(m_hierarchicalview)
+            m_hierarchicalview->getExpandedNodes(expandedNodes);
     }
     else
     {
@@ -805,7 +808,7 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile, bool reload )
 
     if(!expandedNodes.empty())
     {
-        simulationGraph->expandPathFrom(expandedNodes);
+        m_hierarchicalview->expandPathFrom(expandedNodes);
     }
 
     /// We want to warn user that there is component that are implemented in specific plugin
@@ -813,13 +816,14 @@ void RealGUI::fileOpen ( std::string filename, bool temporaryFile, bool reload )
     /// But we don't want that to happen each reload in interactive mode.
     if(!reload)
     {
-==== BASE ====
         SceneCheckerVisitor checker(ExecParams::defaultInstance()) ;
-        checker.addCheck(simulation::SceneCheckAPIChange::newSPtr());
-        checker.addCheck(simulation::SceneCheckDuplicatedName::newSPtr());
-        checker.addCheck(simulation::SceneCheckMissingRequiredPlugin::newSPtr());
+        checker.addCheck(SceneCheckAPIChange::newSPtr());
+        checker.addCheck(SceneCheckDuplicatedName::newSPtr());
+        checker.addCheck(SceneCheckMissingRequiredPlugin::newSPtr());
+        checker.addCheck(SceneCheckUsingAlias::newSPtr());
+
         checker.validate(mSimulation.get()) ;
-==== BASE ====
+
     }
 }
 
@@ -979,9 +983,9 @@ void RealGUI::setSceneWithoutMonitor (Node::SPtr root, const char* filename, boo
         eventNewTime();
         startButton->setChecked(root->getContext()->getAnimate() );
         dtEdit->setText ( QString::number ( root->getDt() ) );
-        simulationGraph->Clear(root.get());
-        simulationGraph->collapseAll();
-        simulationGraph->expandToDepth(0);
+        m_hierarchicalview->Clear(root.get());
+        m_hierarchicalview->collapseAll();
+        m_hierarchicalview->expandToDepth(0);
         statWidget->CreateStats(root.get());
 
 #ifndef SOFA_GUI_QT_NO_RECORDER
@@ -1707,10 +1711,10 @@ void RealGUI::initViewer(BaseViewer* _viewer)
         connect ( qtViewer->getQWidget(), SIGNAL ( resizeW ( int ) ), sizeW, SLOT ( setValue ( int ) ) );
         connect ( qtViewer->getQWidget(), SIGNAL ( resizeH ( int ) ), sizeH, SLOT ( setValue ( int ) ) );
         connect ( qtViewer->getQWidget(), SIGNAL ( quit (  ) ), this, SLOT ( fileExit (  ) ) );
-        connect(simulationGraph, SIGNAL(focusChanged(sofa::core::objectmodel::BaseObject*)),
+        connect(m_hierarchicalview, SIGNAL(focusChanged(sofa::core::objectmodel::BaseObject*)),
                 qtViewer->getQWidget(), SLOT(fitObjectBBox(sofa::core::objectmodel::BaseObject*))
                 );
-        connect(simulationGraph, SIGNAL( focusChanged(sofa::core::objectmodel::BaseNode*) ),
+        connect(m_hierarchicalview, SIGNAL( focusChanged(sofa::core::objectmodel::BaseNode*) ),
                 qtViewer->getQWidget(), SLOT( fitNodeBBox(sofa::core::objectmodel::BaseNode*) )
                 );
 
@@ -1818,22 +1822,37 @@ void RealGUI::createBackgroundGUIInfos()
 
 void RealGUI::createSimulationGraph()
 {
-    simulationGraph = new QSofaListView(SIMULATION,TabGraph,"SimuGraph");
-    TabGraph->layout()->addWidget(simulationGraph);
+    m_hierarchicalview = new QSofaListView(SIMULATION,TabGraph,"SimuGraph");
+    TabGraph->layout()->addWidget(m_hierarchicalview);
 
-    connect ( ExportGraphButton, SIGNAL ( clicked() ), simulationGraph, SLOT ( Export() ) );
-    connect(simulationGraph, SIGNAL( RootNodeChanged(sofa::simulation::Node*, const char*) ), this, SLOT ( NewRootNode(sofa::simulation::Node* , const char*) ) );
-    connect(simulationGraph, SIGNAL( NodeRemoved() ), this, SLOT( Update() ) );
-    connect(simulationGraph, SIGNAL( Lock(bool) ), this, SLOT( LockAnimation(bool) ) );
-    connect(simulationGraph, SIGNAL( RequestSaving(sofa::simulation::Node*) ), this, SLOT( fileSaveAs(sofa::simulation::Node*) ) );
-    connect(simulationGraph, SIGNAL( RequestExportOBJ(sofa::simulation::Node*, bool) ), this, SLOT( exportOBJ(sofa::simulation::Node*, bool) ) );
-    connect(simulationGraph, SIGNAL( RequestActivation(sofa::simulation::Node*, bool) ), this, SLOT( ActivateNode(sofa::simulation::Node*, bool) ) );
-    connect(simulationGraph, SIGNAL( RequestSleeping(sofa::simulation::Node*, bool) ), this, SLOT( setSleepingNode(sofa::simulation::Node*, bool) ) );
-    connect(simulationGraph, SIGNAL( Updated() ), this, SLOT( redraw() ) );
-    connect(simulationGraph, SIGNAL( NodeAdded() ), this, SLOT( Update() ) );
-    connect(simulationGraph, SIGNAL( dataModified( QString ) ), this, SLOT( appendToDataLogFile(QString ) ) );
-    connect(this, SIGNAL( newScene() ), simulationGraph, SLOT( CloseAllDialogs() ) );
-    connect(this, SIGNAL( newStep() ), simulationGraph, SLOT( UpdateOpenedDialogs() ) );
+    connect ( ExportGraphButton, SIGNAL ( clicked() ), m_hierarchicalview, SLOT ( Export() ) );
+    connect(m_hierarchicalview, SIGNAL( RootNodeChanged(sofa::simulation::Node*, const char*) ), this, SLOT ( NewRootNode(sofa::simulation::Node* , const char*) ) );
+    connect(m_hierarchicalview, SIGNAL( NodeRemoved() ), this, SLOT( Update() ) );
+    connect(m_hierarchicalview, SIGNAL( Lock(bool) ), this, SLOT( LockAnimation(bool) ) );
+    connect(m_hierarchicalview, SIGNAL( RequestSaving(sofa::simulation::Node*) ), this, SLOT( fileSaveAs(sofa::simulation::Node*) ) );
+    connect(m_hierarchicalview, SIGNAL( RequestExportOBJ(sofa::simulation::Node*, bool) ), this, SLOT( exportOBJ(sofa::simulation::Node*, bool) ) );
+    connect(m_hierarchicalview, SIGNAL( RequestActivation(sofa::simulation::Node*, bool) ), this, SLOT( ActivateNode(sofa::simulation::Node*, bool) ) );
+    connect(m_hierarchicalview, SIGNAL( RequestSleeping(sofa::simulation::Node*, bool) ), this, SLOT( setSleepingNode(sofa::simulation::Node*, bool) ) );
+    connect(m_hierarchicalview, SIGNAL( Updated() ), this, SLOT( redraw() ) );
+    connect(m_hierarchicalview, SIGNAL( NodeAdded() ), this, SLOT( Update() ) );
+    connect(m_hierarchicalview, SIGNAL( dataModified( QString ) ), this, SLOT( appendToDataLogFile(QString ) ) );
+    connect(m_hierarchicalview, SIGNAL( selectionChanged(sofa::core::objectmodel::Base*) ),
+            this, SLOT(onSelectionChanged(sofa::core::objectmodel::Base*)));
+    connect(this, SIGNAL( newScene() ), m_hierarchicalview, SLOT( CloseAllDialogs() ) );
+    connect(this, SIGNAL( newStep() ), m_hierarchicalview, SLOT( UpdateOpenedDialogs() ) );
+}
+
+void RealGUI::onSelectionChanged(core::objectmodel::Base *object)
+{
+    if(object->toBaseNode())
+    {
+        m_sofaEditorState.setSelectionFromPath({object->toBaseNode()->getPathName()});
+    }
+    else if(object->toBaseObject())
+    {
+        m_sofaEditorState.setSelectionFromPath({object->toBaseObject()->getPathName()});
+    }
+    return ;
 }
 
 void RealGUI::createPropertyWidget()
@@ -1851,7 +1870,7 @@ void RealGUI::createPropertyWidget()
 
     connect(dockProperty, SIGNAL(dockLocationChanged(QDockWidget::DockWidgetArea)),
             this, SLOT(propertyDockMoved(QDockWidget::DockWidgetArea)));
-    simulationGraph->setPropertyWidget(propertyWidget);
+    m_hierarchicalview->setPropertyWidget(propertyWidget);
 }
 
 //------------------------------------
@@ -1926,7 +1945,7 @@ void RealGUI::ActivateNode(sofa::simulation::Node* node, bool activate)
     nodeToChange.clear();
     Update();
 
-    if ( sofalistview == simulationGraph && activate )
+    if ( sofalistview == m_hierarchicalview && activate )
     {
         if ( node == currentSimulation() )
             simulation::getSimulation()->init(node);
@@ -2237,7 +2256,7 @@ void RealGUI::clear()
     if (recorder)
         recorder->Clear(currentSimulation());
 #endif
-    simulationGraph->Clear(currentSimulation());
+    m_hierarchicalview->Clear(currentSimulation());
     statWidget->CreateStats(currentSimulation());
 }
 
@@ -2358,9 +2377,9 @@ void RealGUI::currentTabChanged ( int index )
         currentTab = widget;
 
     if ( widget == TabGraph )
-        simulationGraph->Unfreeze( );
+        m_hierarchicalview->Unfreeze( );
     else if ( currentTab == TabGraph )
-        simulationGraph->Freeze();
+        m_hierarchicalview->Freeze();
     else if (widget == TabStats)
         statWidget->CreateStats(currentSimulation());
 
