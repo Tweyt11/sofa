@@ -12,9 +12,79 @@ const vec3 lightPos=vec3(1.0,1.0,1.0);
 //// This text will be replaced by the shape compiler before compiling the shader. 
 REPLACE_WITH_UNIFORMS
 
+vec3 sub(vec3 a, vec3 b)
+{
+        return a-b;
+}
+
+vec3 rotate(vec3 p, float angle)
+{
+        float c = cos(angle);
+        float s = sin(angle);
+        return vec3( p.x*c - p.y*s, p.x*s+p.y*c, p.z  );
+}
+
+
+vec3 add(vec3 a, vec3 b)
+{
+        return a+b;
+}
+
+vec3 mul(vec3 a, float b)
+{
+        return a*b;
+}
+
+vec3 div(vec3 a, float b)
+{
+        return a/b;
+}
+
+
+
+float mul(float a, float b)
+{
+        return a*b;
+}
+
+float div(float a, float b)
+{
+        return a/b;
+}
+
+float sdPlane( vec3 p, vec3 n, float w )
+{
+  // n must be normalized
+  return dot(p,n.xyz) + w;
+}
+
+float sdBox( vec3 p, vec3 b )
+{
+  vec3 d = abs(p) - b;
+  return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
+}
+
+vec3 spaceTiling( vec3 p, vec3 c )
+{
+    return mod(p,c)-0.5*c;
+}
+
+vec3 spaceTwist( vec3 p, float angle )
+{
+    float c = cos(-angle*p.y);
+    float s = sin(-angle*p.y);
+    mat2  m = mat2(c,-s,s,c);
+    return  vec3(m*p.xz,p.y);
+}
+
 float sdPlane( vec3 p )
 {
    return p.y;
+}
+
+float sdOffset(vec3 p, float input, float factor)
+{
+        return input+factor ;
 }
 
 float sdSphere( vec3 p, vec3 center, float radius )
@@ -24,7 +94,15 @@ float sdSphere( vec3 p, vec3 center, float radius )
 
 float sdDifference(float a, float b)
 {
-	return max(-a,b);
+	return max(-b,a);
+}
+
+
+
+
+float sdUnion( float d1, float d2 )
+{
+    return min(d1,d2);
 }
 
 vec4 minVec4( vec4 d1, vec4 d2 )
@@ -35,7 +113,7 @@ vec4 minVec4( vec4 d1, vec4 d2 )
 //// This text will be replaced by the shape compiler before compiling the shader. 
 vec4 map(in vec3 pos)
 {
-	return vec4(REPLACE_WITH_SHAPE, vec3(1.0,1.0,1.0)) ;
+	REPLACE_WITH_SHAPE
 }
 
 vec4 castRay( in vec3 ro, in vec3 rd )
