@@ -82,8 +82,8 @@ public:
     using ScalarField::getValue ;
     using ScalarField::getGradient ;
 
-    virtual double getValue(Vec3d& pos, int& domain) override ;
-    virtual Vec3d getGradient(Vec3d& pos, int& i) override ;
+    virtual double getValue(const Vec3d& pos, int &domain) override ;
+    virtual Vec3d getGradient(const Vec3d& pos, int& domain) override ;
 
     /// Returns a map with "id" and "glsl" textual code of the fragment.
     /// The idea is that we can tune what we take from python and how
@@ -106,7 +106,7 @@ public:
 
 protected:
     CustomField( ) ;
-    virtual ~CustomField() { }
+    virtual ~CustomField() ;
 
 private:
     CustomField(const CustomField& n) ;

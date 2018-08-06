@@ -9,13 +9,18 @@
     <Node name="N2">
         <OglSceneFrame/>
     	<CustomField name="field"  
-                     function="customfield.evalField" 
-                     glslFunction="customfield.glslFunction"/>
-
+                     function="shapetreedemo3.evalField" 
+                     glslFunction="shapetreedemo3.glslFunction"/>
         <Node name="shaderRender">
             <VisualTransform transform="-2.0 0.0 0.0 0.0 0.0 0.0 1.0"/>        
            <ImplicitFieldShaderVisualization name="implicitFieldShaderVisualization1"  
-                                              listening="1"  field="@field"/>  
+                            listening="1"  field="@field"/>  
         </Node>
+
+        <Node name="pc">
+            <VisualTransform transform="2.0 0.0 0.0 0.0 0.0 0.0 1.0"/>
+            <PointCloudImplicitFieldVisualization field="@field" box="-1 -1 -1 1 1 1"/>
+        </Node>
+
     </Node>
 </Node>

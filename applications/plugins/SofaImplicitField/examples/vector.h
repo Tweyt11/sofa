@@ -13,6 +13,25 @@ public:
 		z=az;
 	}
 	
+	double dot(const Vec3d b) const
+	{                
+                return x*b.x + y*b.y + z*b.z;        	
+	}
+        
+        Vec3d cross(const Vec3d b) const
+        {
+                return Vec3d(
+                        y*b.z - z*b.y,
+                        z*b.x - x*b.z,
+                        x*b.y - y*b.x
+                );
+        }
+        
+        Vec3d normalized() const {
+                double d = length();
+                return Vec3d(x/d, y/d, z/d);
+        }
+        
 	void set(double ax, double ay, double az)
 	{
 		x = ax;
@@ -36,7 +55,7 @@ public:
 		return Vec3d(x-v.x, y-v.y, z-v.z);
 	}
 	
-	double length(){
+	double length() const {
 		return sqrt(x*x+y*y+z*z) ;
 	}
 
@@ -62,7 +81,7 @@ public:
         }
 
 
-Vec3d abs()const {
+        Vec3d abs()const {
             return Vec3d( fabs(x), fabs(y), fabs(z) );
         }
 };

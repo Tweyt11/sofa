@@ -21,10 +21,15 @@
 ******************************************************************************/
 #include <fstream>
 
+#include <sofa/helper/system/Locale.h>
+using sofa::helper::system::TemporaryLocale;
+
 #include <sofa/core/ObjectFactory.h>
 using sofa::core::RegisterObject ;
 
 #include "DiscreteGridField.h"
+
+#include <sofa/core/visual/VisualParams.h>
 
 
 namespace sofa
@@ -77,7 +82,8 @@ DiscreteGridField::DiscreteGridField()
       d_maxDomains( initData( &d_maxDomains, 1, "maxDomains", "Number of domains available for caching" ) ),
       dx( initData( &dx, 0.0, "dx", "x translation" ) ),
       dy( initData( &dy, 0.0, "dy", "y translation" ) ),
-      dz( initData( &dz, 0.0, "dz", "z translation" ) )
+      dz( initData( &dz, 0.0, "dz", "z translation" ) ),
+      d_state (initData(&d_state, 0, "state", "This is a number indicating change in this component."))
 {
     m_usedDomains = 0;
     m_imgData = 0;
@@ -106,11 +112,15 @@ void DiscreteGridField::init()
     m_domainCache.resize( d_maxDomains.getValue() );
     bool ok = loadGridFromMHD( d_distanceMapHeader.getFullPath().c_str() );
     if (ok) printf( "Successfully loaded distance map.\n" );
+
+    d_state.setValue(d_state.getValue()+1);
 }
 
 
 bool DiscreteGridField::loadGridFromMHD( const char *filename )
 {
+    helper::system::TemporaryLocale locale(LC_NUMERIC, "C");
+
     m_imgMin[0]=m_imgMin[1]=m_imgMin[2] = 0;
     m_spacing[0]=m_spacing[1]=m_spacing[2] = 1;
     m_imgSize[0]=m_imgSize[1]=m_imgSize[2] = 0;
@@ -199,7 +209,7 @@ bool DiscreteGridField::loadGridFromMHD( const char *filename )
             value = strchr( buffer, '=' )+1;  while (*value==' ') value++;
             if (strncmp( value, "MET_FLOAT", 9) != 0)
             {
-                printf( "ERROR: Datatype is not supported.\n" );
+                printf( "ERROR: Datatype '%s'  is not supported.\n", value );
                 return false;
             }
         }
@@ -244,17 +254,26 @@ bool DiscreteGridField::loadGridFromMHD( const char *filename )
     data.read( (char*)m_imgData, numVoxels*sizeof(float) );
     if (data.bad()) return false;
     data.close();
+
+    msg_warning() << m_spacing[0] << ", " << m_spacing[1] << ", " << m_spacing[2] ;
+    msg_warning() << m_imgSize[0] << ", " << m_imgSize[1] << ", " << m_imgSize[2] ;
+    msg_warning() << m_imgMin[0] << ", " << m_imgMin[1] << ", " << m_imgMin[2] ;
+    msg_warning() << m_imgMax[0] << ", " << m_imgMax[1] << ", " << m_imgMax[2] ;
+
     return true;
 }
 
 void DiscreteGridField::updateCache( DomainCache *cache, Vec3d& pos )
 {
     cache->insideImg = true;
-    for (int d=0; d<3; d++) if (pos[d]<m_imgMin[d] || pos[d]>=m_imgMax[d])
+    for (int d=0; d<3; d++)
+    {
+        if (pos[d]<(m_imgMin[d]+m_spacing[d]) || pos[d]>=(m_imgMax[d]-m_spacing[d]))
         {
             cache->insideImg = false;
             break;
         }
+    }
     if (cache->insideImg)
     {
         int voxMinPos[3];
@@ -264,9 +283,10 @@ void DiscreteGridField::updateCache( DomainCache *cache, Vec3d& pos )
             cache->bbMin[d] = m_spacing[d]*(double)voxMinPos[d] + m_imgMin[d];
             cache->bbMax[d] = cache->bbMin[d] + m_spacing[d];
         }
-        unsigned int ofs = voxMinPos[0] + m_imgSize[0]*(voxMinPos[1] + m_imgSize[1]*voxMinPos[2]);
+        unsigned int ofs = voxMinPos[0] + m_imgSize[0]*(voxMinPos[1] + (m_imgSize[1]*voxMinPos[2]));
         cache->val[0] = m_imgData[ofs];
-        for (int i=1; i<8; i++) cache->val[i] = m_imgData[ofs+m_deltaOfs[i]];
+        for (int i=1; i<8; i++)
+            cache->val[i] = m_imgData[ofs+m_deltaOfs[i]];
     }
     else
     {
@@ -296,7 +316,7 @@ void DiscreteGridField::updateCache( DomainCache *cache, Vec3d& pos )
         }
         unsigned int ofs = voxMappedPos[0] + m_imgSize[0]*(voxMappedPos[1] + m_imgSize[1]*voxMappedPos[2]);
         // if cache lies outside image, the returned distance is not updated anymore, instead this boundary value is returned
-        cache->val[0] = m_imgData[ofs] + m_spacing[0]+m_spacing[1]+m_spacing[2];
+        cache->val[0] = 1000; //m_imgData[ofs] + m_spacing[0]+m_spacing[1]+m_spacing[2];
     }
 }
 
@@ -309,7 +329,7 @@ int DiscreteGridField::getNextDomain()
 }
 
 
-double DiscreteGridField::getValue( Vec3d &transformedPos, int &domain )
+double DiscreteGridField::getValue( const Vec3d &transformedPos, int &domain )
 {
     // use translation
     Vec3d pos;
@@ -326,6 +346,7 @@ double DiscreteGridField::getValue( Vec3d &transformedPos, int &domain )
     }
     else
     {
+
         cache = &(m_domainCache[domain]);
         for (int d=0; d<3; d++)
         {
@@ -338,7 +359,8 @@ double DiscreteGridField::getValue( Vec3d &transformedPos, int &domain )
     }
 
     // if cache lies outside image, the returned distance is not updated anymore, instead this boundary value is returned
-    if (!cache->insideImg) return cache->val[0];
+    if (!cache->insideImg)
+        return cache->val[0];
 
     // use trilinear interpolation on cached cube
     double weight[3];
@@ -357,10 +379,15 @@ double DiscreteGridField::getValue( Vec3d &transformedPos, int &domain )
 }
 
 
-double DiscreteGridField::getValue(defaulttype::Vec3d &transformedPos )
+double DiscreteGridField::getValue(const defaulttype::Vec3d &transformedPos )
 {
     static int domain=-1;
     return getValue( transformedPos, domain );
+}
+
+void DiscreteGridField::draw(const core::visual::VisualParams *vparams)
+{
+    vparams->drawTool()->drawBoundingBox(m_imgMin, m_imgMax) ;
 }
 
 ///factory register

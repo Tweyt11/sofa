@@ -34,21 +34,22 @@ namespace geometry
 namespace _scalarfield_
 {
 
-Vec3d ScalarField::getGradientByFinitDifference(Vec3d& pos, int& i)
+Vec3d ScalarField::getGradientByFinitDifference(const Vec3d& pos, int& i)
 {
+    Vec3d p=pos;
     double epsilon=0.0001;
     Vec3d Result;
-    pos[0] += epsilon;
-    Result[0] = getValue(pos, i);
-    pos[0] -= epsilon;
-    pos[1] += epsilon;
-    Result[1] = getValue(pos, i);
-    pos[1] -= epsilon;
-    pos[2] += epsilon;
-    Result[2] = getValue(pos, i);
-    pos[2] -= epsilon;
+    p[0] += epsilon;
+    Result[0] = getValue(p, i);
+    p[0] -= epsilon;
+    p[1] += epsilon;
+    Result[1] = getValue(p, i);
+    p[1] -= epsilon;
+    p[2] += epsilon;
+    Result[2] = getValue(p, i);
+    p[2] -= epsilon;
 
-    double v = getValue(pos, i);
+    double v = getValue(p, i);
     Result[0] = (Result[0]-v)/epsilon;
     Result[1] = (Result[1]-v)/epsilon;
     Result[2] = (Result[2]-v)/epsilon;
@@ -56,12 +57,12 @@ Vec3d ScalarField::getGradientByFinitDifference(Vec3d& pos, int& i)
     return Result;
 }
 
-Vec3d ScalarField::getGradient(Vec3d& pos, int& i)
+Vec3d ScalarField::getGradient(const Vec3d& pos, int& i)
 {
     return getGradientByFinitDifference(pos, i);
 }
 
-void ScalarField::getValueAndGradient(Vec3d& pos, double &value, Vec3d& grad, int& domain)
+void ScalarField::getValueAndGradient(const Vec3d& pos, double &value, Vec3d& grad, int &domain)
 {
   value = getValue(pos,domain);
   grad = getGradient(pos,domain);

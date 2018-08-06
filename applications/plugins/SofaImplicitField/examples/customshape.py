@@ -9,6 +9,8 @@ import dfgeom
 import math
 from math import sqrt
 
+kmap = {}
+
 def toPythonShape(node):
     print("TO PYY: "+str(node.name))
     type = node.getData("type")
@@ -39,11 +41,16 @@ def toPythonShape(node):
         right=toPythonShape(c[1])
         return dfgeom.Difference(left, right)
     elif node.type == "shape.Box":
-        return dfgeom.Box(node.size[0])
+        print("BOX ? "+str(node.size)+ "=================")
+        b = dfgeom.Box(node.size[0])
+        kmap[node.getLinkPath()]=(node, b)
+        return b
     elif node.type == "shape.Sphere":
         print("SPHERE GEOM: "+str(node.center[0]))
-        return dfgeom.Sphere(center=node.center[0], radius=node.radius[0][0])
-    Sofa.msg_error("Un-recognized type:"+str(node.type))
+        s = dfgeom.Sphere(center=node.center[0], radius=node.radius)
+        kmap[node.getLinkPath()]=(node, s)
+        return s
+    print("Un-recognized type:"+str(node.type))
     return None
 
 def buildShapeFromSofaTree(shapetree):

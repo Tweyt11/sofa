@@ -12,7 +12,7 @@ Node :
             right: ""
         }
         Node : {
-            name : p"'Difference('+str(name)+')'"
+            name : str('Difference(')+str(name)+')'
             Python : '''
                      import Sofa, pslengine, os
                      from pslengine import instanciate, processNode
@@ -35,22 +35,22 @@ Node :
         }
 
         Node : {
-            name : p"name"
-        Node : {
-            name : p"'ShapeTree('+name+')'"
-        Python : '''
-                 import Sofa, pslengine, os
-                 from pslengine import instanciate, processNode
-                 processNode(self, "Node", args, [], {"currentpath" : os.getcwd()}, False)
-                 self.addNewData("type", "Meta-type", "", "s", "shape.ShapeTree")
-                 '''
-        }
+            name : str(name)
+            Node : {
+                name : str("ShapeTree(")+str(name)+")"
+                Python : '''
+                         import Sofa, pslengine, os
+                         from pslengine import instanciate, processNode
+                         processNode(self, "Node", args, [], {"currentpath" : os.getcwd()}, False)
+                         self.addNewData("type", "Meta-type", "", "s", "shape.ShapeTree")
+                         '''
+            }
             CustomField : {
                 name : "myField"
                 function : "customshape.evalField"
             }
             PointCloudImplicitFieldVisualization : {
-                box : p"bbox"
+                box : bbox
                 field : "@myField"
             }
         }
@@ -67,7 +67,11 @@ Node :
             Python : '''
                      self.addNewData("type", "Meta-type", "", "s", "shape.Sphere")
                      for k,v in args:
-                        self.addNewData(k, "Shape", "The world position of the cube", "vec3", str(v))
+                        print("Processing: "+k+ " => "+str(v))
+                        if  type(v) == float:
+                                self.addNewData(k, "Shape", "The world position of the cube", "f", v)
+                        else:
+                                self.addNewData(k, "Shape", "The world position of the cube", "p", v)     
                      '''
         }
     }
@@ -83,27 +87,44 @@ Node :
             name : "shape.Box"
             Python : '''
                      self.addNewData("type", "Meta-type", "", "s", "shape.Box")
+                     
                      for k,v in args:
-                        self.addNewData(k, "Shape", "The world position of the cube", "vec3", str(v))
-
+                        print("Processing: "+k+ " => "+str(v))
+                        if type(v) == float:
+                                self.addNewData(k, "Shape", "The world position of the cube", "f", v)
+                        else:
+                                self.addNewData(k, "Shape", "The world position of the cube", "p", v)                        
                      '''
         }
     }
+    
+
 
     ShapeTree : {
         name : "shape2"
         Difference : {
             shape.Box : {
-                size: "0.5 1.0 1.0"
+                size: eval("[1.0, 1.0, 1.0]")
             }
             shape.Sphere : {
                 name : "sphere1"
-                center : "0.0 0.0 0.0"
-                radius : "1.02"
+                center : eval("[0.0, 0.0, 0.0]")
+                radius : 1.2
             }
        }
     }
 
+    PythonScriptController : 
+    {
+        name : "controller"
+        classname: str("Updater")
+        filename: str("updater.py")
+        
+    }   
+    Python : '''
+             import updater
+             updater.brin = root.shape2.myField
+             ''' 
 
 }
 

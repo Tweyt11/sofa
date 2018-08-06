@@ -44,12 +44,16 @@ set(SOURCE_FILES
 find_package(SofaPython QUIET)
 if(SofaPython_FOUND)
     list(APPEND HEADER_FILES
-        components/geometry/CustomField.h)
+        components/geometry/CustomField.h
+        )
 
     list(APPEND SOURCE_FILES
-        components/geometry/CustomField.cpp)
+        components/geometry/CustomField.cpp
+        python/SofaImplicitField/C_SofaImplicitField/C_SofaImplicitField.cpp
+        )
 
     add_definitions("-DDO_SOFAPYTHON_FEATURES=1")
+    sofa_set_python_directory(${PROJECT_NAME} "python")
 else()
     message(STATUS "SofaImplicitField: could not find SofaPython, won't build the component(s): <CustomField>.")
     add_definitions("-DDO_SOFAPYTHON_FEATURES=0")
@@ -79,6 +83,8 @@ set(EXTRA_FILES
     python/difigeometry/pyxsrc/primitives.pyx
     python/difigeometry/pyxsrc/primitives2D.pxd
     python/difigeometry/pyxsrc/primitives2D.pyx
+
+    python/SofaImplicitField/__init__.py
     )
 
 add_subdirectory(SofaImplicitField_test)

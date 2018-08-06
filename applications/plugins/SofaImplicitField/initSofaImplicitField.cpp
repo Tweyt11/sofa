@@ -34,11 +34,11 @@
 using sofa::helper::system::PluginManager ;
 
 
-namespace sofa
+namespace sofaimplicitfield
 {
 
-namespace component
-{
+void createAndInitSofaImplicitFieldPythonModule() ;
+
 extern "C" {
 SOFA_SOFAIMPLICITFIELD_API void initExternalModule();
 SOFA_SOFAIMPLICITFIELD_API const char* getModuleName();
@@ -57,7 +57,10 @@ void initExternalModule()
     }
 
     if(DO_SOFAPYTHON_FEATURES)
+    {
         PluginManager::getInstance().loadPlugin("SofaPython") ;
+        createAndInitSofaImplicitFieldPythonModule();
+    }
 }
 
 const char* getModuleName()
@@ -97,7 +100,5 @@ SOFA_LINK_CLASS(DiscreteGridField)
 SOFA_LINK_CLASS(PointCloudImplicitFieldVisualization)
 
 
-} /// component
-
-} /// sofa
+} /// sofaimplicitefield
 

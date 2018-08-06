@@ -153,7 +153,7 @@ public:
     /// Compute the gradient using a first order finite-difference scheme.
     /// This is of lower precision compared to analytical gradient computed by derivating
     /// the equations.
-    Vec3d getGradientByFinitDifference(Vec3d& pos, int& domain) ;
+    Vec3d getGradientByFinitDifference(const Vec3d& pos, int &domain) ;
 
     virtual int getDomain(Vec3d& pos, int domain) {
         SOFA_UNUSED(pos);
@@ -161,19 +161,19 @@ public:
         return -1;
     }
 
-    virtual double getValue(Vec3d& pos, int& domain) = 0;
-    inline double getValue(Vec3d& pos) { int domain=-1; return getValue(pos,domain); }
+    virtual double getValue(const Vec3d& pos, int& domain) = 0;
+    inline double getValue(const Vec3d& pos) { int domain=-1; return getValue(pos,domain); }
 
     /// By default compute the gradient using a first order finite difference approache
     /// If you have analytical derivative don't hesitate to override this function.
-    virtual Vec3d getGradient(Vec3d& pos, int& domain);
-    inline Vec3d getGradient(Vec3d& pos) {int domain=-1; return getGradient(pos,domain); }
+    virtual Vec3d getGradient(const Vec3d& pos, int &domain);
+    inline Vec3d getGradient(const Vec3d& pos) {int domain=-1; return getGradient(pos,domain); }
 
     /// Returns the value and the gradiant by evaluating one after an other.
     /// For some computation it is possible to implement more efficiently the computation
     /// By factoring the computing of the two...if you can do this please override this function.
-    virtual void getValueAndGradient(Vec3d& pos, double &value, Vec3d& grad, int& domain) ;
-    inline void getValueAndGradient(Vec3d& pos, double &value, Vec3d& grad)
+    virtual void getValueAndGradient(const Vec3d& pos, double &value, Vec3d& grad, int &domain) ;
+    inline void getValueAndGradient(const Vec3d& pos, double &value, Vec3d& grad)
     {
         int domain=-1;
         return getValueAndGradient(pos,value,grad,domain);

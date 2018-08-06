@@ -196,6 +196,7 @@ void PointCloudImplicitFieldVisualization::asyncCompute()
                 z=0;
                 for(unsigned int k=0;k<res;k++)
                 {
+
                     if(m_cmd==CMD_STOP)
                         return;
                     if(m_cmd==CMD_START)
@@ -223,6 +224,7 @@ void PointCloudImplicitFieldVisualization::asyncCompute()
             }
         } while (rndval != 1);
         endl:
+            m_cmd=CMD_IDLE;
             std::cout << "THREAD DONE" << std::endl ;
     }
 }
@@ -235,16 +237,22 @@ void PointCloudImplicitFieldVisualization::draw(const core::visual::VisualParams
     /// If the data have changed
     if(m_datatracker.isDirty())
     {
-        m_points.clear();
-        m_colors.clear();
-        m_field.clear();
-        m_normals.clear();
-        m_datatracker.clean();
+        if(m_cmd == CMD_PROCESS )
+        {
+            m_cmd = CMD_START ;
+        }
+        else{
+            m_points.clear();
+            m_colors.clear();
+            m_field.clear();
+            m_normals.clear();
+            m_datatracker.clean();
 
-        /// WE RESET THE COMPUTATION.
-        std::lock_guard<std::mutex> lk(m_cmdmutex);
-        m_cmd = CMD_START ;
-        m_cmdcond.notify_one();
+            /// WE RESET THE COMPUTATION.
+            std::lock_guard<std::mutex> lk(m_cmdmutex);
+            m_cmd = CMD_START ;
+            m_cmdcond.notify_one();
+        }
     }
 
 

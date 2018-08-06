@@ -96,6 +96,16 @@ CustomField::CustomField() :
     m_sourcefile = new MyFileListener(this) ;
 }
 
+CustomField::~CustomField()
+{
+    msg_warning() << "Delete customfield object" ;
+    if(m_sourcefile)
+    {
+        FileMonitor::removeListener(m_sourcefile);
+        delete m_sourcefile;
+        m_sourcefile = nullptr;
+    }
+}
 
 
 void CustomField::getCythonHook(PyObject*& module)
@@ -258,6 +268,7 @@ const std::map<std::string, std::vector<GLSLCodeFragment> > &CustomField::getGLS
 
 void CustomField::init()
 {
+    msg_warning() << "INITING...BECAUSE OF FILE CHANGE" ;
     setStatus(CStatus::Busy) ;
     PythonEnvironment::gil lock(__func__) ;
 
@@ -318,7 +329,7 @@ void CustomField::reinit()
 }
 
 
-double CustomField::getValue(Vec3d& pos, int& domain)
+double CustomField::getValue(const defaulttype::Vec3d &pos, int &domain)
 {
     SOFA_UNUSED(domain);
     assert(m_evalFunction!=nullptr) ;
@@ -377,7 +388,7 @@ double CustomField::getValue(Vec3d& pos, int& domain)
 }
 
 
-Vec3d CustomField::getGradient(Vec3d& pos, int& domain)
+Vec3d CustomField::getGradient(const Vec3d& pos, int &domain)
 {
     SOFA_UNUSED(domain);
     Vec3d tmp(std::nan(""),std::nan(""),std::nan("")) ;
