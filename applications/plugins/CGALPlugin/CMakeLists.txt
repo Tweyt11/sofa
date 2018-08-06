@@ -6,6 +6,7 @@ set(CGALPLUGIN_MINOR_VERSION 1)
 set(CGALPLUGIN_VERSION ${CGALPLUGIN_MAJOR_VERSION}.${CGALPLUGIN_MINOR_VERSION})
 
 set(HEADER_FILES
+    AsyncUpdate.h
     DecimateMesh.h
     DecimateMesh.inl
     MeshGenerationFromPolyhedron.h
@@ -15,6 +16,7 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
+    AsyncUpdate.cpp
     DecimateMesh.cpp
     MeshGenerationFromPolyhedron.cpp
     TriangularConvexHull3D.cpp
@@ -150,4 +152,4 @@ endif()
 sofa_create_package(CGALPlugin ${CGALPLUGIN_VERSION} CGALPlugin CGALPlugin)
 
 ## Install rules for the resources
-install(DIRECTORY scenes/ DESTINATION share/sofa/plugins/${PROJECT_NAME})
+install(DIRECTORY examples/ DESTINATION share/sofa/plugins/${PROJECT_NAME})

@@ -19,68 +19,49 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+/*
+ * MeshGenerationFromPolyhedron.h
+ *
+ *  Created on: 27 oct. 2009
+ *      Author: froy
+ */
+
+#ifndef ASYNCUPDATE_H
+#define ASYNCUPDATE_H
+
+#include <sofa/core/objectmodel/BaseObject.h>
+#include <sofa/core/objectmodel/Link.h>
+#include <CGALPlugin/components/engine/MeshGenerationFromImplicit.h>
+#include <SofaBaseTopology/TetrahedronSetTopologyModifier.h>
+#include <SofaBaseTopology/TetrahedronSetTopologyContainer.h>
 #include <CGALPlugin/config.h>
 
-#include <MeshGenerationFromPolyhedron.h>
-
-namespace sofa
+namespace cgalplugin
 {
 
-namespace component
+using sofa::core::objectmodel::BaseLink ;
+
+class AsyncUpdate : public sofa::core::objectmodel::BaseObject
 {
+public:
+    SOFA_CLASS(AsyncUpdate, sofa::core::objectmodel::BaseObject);
 
-//Here are just several convenient functions to help users know what the plugin contains 
+    AsyncUpdate();
+    virtual ~AsyncUpdate(){}
+    void init();
+    void reinit();
+    void update();
+    void draw(const sofa::core::visual::VisualParams* vparams);
 
-extern "C" {
-    SOFA_CGALPLUGIN_API void initExternalModule();
-    SOFA_CGALPLUGIN_API const char* getModuleName();
-    SOFA_CGALPLUGIN_API const char* getModuleVersion();
-    SOFA_CGALPLUGIN_API const char* getModuleLicense();
-    SOFA_CGALPLUGIN_API const char* getModuleDescription();
-    SOFA_CGALPLUGIN_API const char* getModuleComponentList();
-}
+    sofa::core::objectmodel::SingleLink< AsyncUpdate,
+                sofa::component::engine::MeshGenerationFromImplicitShape,
+                BaseLink::FLAG_STOREPATH|BaseLink::FLAG_STRONGLINK> m_source;
 
-void initExternalModule()
-{
-    static bool first = true;
-    if (first)
-    {
-        first = false;
-    }
-}
+    sofa::core::objectmodel::SingleLink< AsyncUpdate,
+                sofa::component::topology::TetrahedronSetTopologyContainer,
+                BaseLink::FLAG_STOREPATH|BaseLink::FLAG_STRONGLINK> m_dest;
+};
 
-const char* getModuleName()
-{
-    return "CGAL Plugin";
-}
+} //cgal
 
-const char* getModuleVersion()
-{
-    return "0.2";
-}
-
-const char* getModuleLicense()
-{
-    return "LGPL";
-}
-
-
-const char* getModuleDescription()
-{
-    return "Use CGAL functionnalities into SOFA";
-}
-
-const char* getModuleComponentList()
-{
-    return "MeshGenerationFromPolyhedron, TriangularConvexHull3D";
-}
-
-
-
-}
-
-}
-
-SOFA_LINK_CLASS(MeshGenerationFromPolyhedron)
-SOFA_LINK_CLASS(TriangularConvexHull3D)
-
+#endif /* CGALPLUGIN_MESHGENERATIONFROMPOLYHEDRON_H */
