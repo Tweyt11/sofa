@@ -76,7 +76,7 @@ public:
 
     virtual void addComplianceInConstraintSpace(const sofa::core::ConstraintParams *cparams, defaulttype::BaseMatrix* W) override;
 
-    virtual void getComplianceMatrix(defaulttype::BaseMatrix* ) const override;
+    virtual void getComplianceMatrix(defaulttype::BaseMatrix* ) const;
 
     virtual void computeMotionCorrection(const core::ConstraintParams* cparams, core::MultiVecDerivId dx, core::MultiVecDerivId f) override;
 
@@ -138,21 +138,8 @@ protected:
     /**
     * @brief Compute the compliance matrix
     */
-    virtual void computeJ(sofa::defaulttype::BaseMatrix* W);
+    virtual void computeJ(sofa::defaulttype::BaseMatrix* W, const MatrixDeriv& j);
 
-   /**
-     * @brief Compute dx correction from motion space force vector.
-     */
-    virtual void computeDx(sofa::core::MultiVecDerivId f);
-
-    ////////////////////////// Inherited attributes ////////////////////////////
-    /// https://gcc.gnu.org/onlinedocs/gcc/Name-lookup.html
-    /// Bring inherited attributes and function in the current lookup context.
-    /// otherwise any access to the base::attribute would require
-    /// the "this->" approach.
-    using Inherit::m_componentstate ;
-    using Inherit::mstate ;
-    ////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////// Inherited attributes ////////////////////////////
     /// https://gcc.gnu.org/onlinedocs/gcc/Name-lookup.html
