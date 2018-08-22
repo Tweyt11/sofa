@@ -36,6 +36,7 @@ set(SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/cpp_Plane.pxd
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/cpp_Ray.pxd
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/cpp_vector.pxd
+
 )
 
 set(EXAMPLES_FILES
@@ -50,6 +51,29 @@ sofa_add_python_module(TARGET PythonSofaGeometry
                        CYTHONIZE ${Cython_FOUND}
                        )
 
+                       
+set(SOURCE_FILES_CGAL
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/__init__.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/cpp_point2D.pxd
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/point2D.pxd
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/point2D.pyx
+)
+
+
+
+set(EXAMPLES_FILES_CGAL
+    ${CMAKE_CURRENT_SOURCE_DIR}/examples/example1.py
+    )
+
+# sofa_add_python_module( TARGET MyModule SOURCES ${SOURCE_FILES} DEPENDS Deps1 Deps2 CYTHONIZE True OUTPUT ${CMAKE_CURRENT_BIN_DIR})
+sofa_add_python_module(TARGET PythonSofaGeometry_CGAL
+                       SOURCES ${SOURCE_FILES_CGAL} ${EXAMPLES_FILES_CGAL}
+                       DEPENDS SofaGeometry
+                       OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL"
+                       CYTHONIZE ${Cython_FOUND}
+                       )                       
+                       
+                       
 ## Python configuration file (build tree), the lib in the source dir (easier while developping .py files)
 file(WRITE "${CMAKE_BINARY_DIR}/etc/sofa/python.d/SofaGeometry" "${CMAKE_CURRENT_SOURCE_DIR}")
 

@@ -73,7 +73,7 @@ function(sofa_add_python_module)
             # compile with -fno-strict-aliasing to prevent the compiler from relying on
             # those rules to optimize the code.
             if(${CMAKE_COMPILER_IS_GNUCC})
-                set(SOFAPYTHON_COMPILER_FLAGS "${SOFAPYTHON_COMPILER_FLAGS} -fno-strict-aliasing")
+#                set(SOFAPYTHON_COMPILER_FLAGS "${SOFAPYTHON_COMPILER_FLAGS} -fno-strict-aliasing")
             endif()
 
             target_link_libraries(${pyxtarget} ${_DEPENDS} ${PYTHON_LIBRARIES})

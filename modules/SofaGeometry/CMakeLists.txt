@@ -9,6 +9,7 @@ set(HEADER_FILES
     src/SofaGeometry/Plane.h
     src/SofaGeometry/Ray.h
     src/SofaGeometry/Constants.h
+    src/SofaGeometry/CGAL/Point2.h
 )
 
 set(SOURCE_FILES
@@ -24,7 +25,16 @@ set(EXTRA_FILES
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${EXTRA_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_SOFAGEOMETRY")
 
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaCore)
+find_package(CGAL REQUIRED)
+if(!CGAL_FOUND)
+    message(FATAL_ERROR "-- TEST")
+    return()
+else()
+    message(STATUS "CGAL FOUND")
+    target_include_directories(${PROJECT_NAME} PUBLIC ${CGAL_INCLUDE_DIRS})
+endif()
+
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaCore ${CGAL_LIBRARY})
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:include>")
 
@@ -36,6 +46,18 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples DESTINATION modules/SofaG
 
 ## When installing, copy the target into module/SofaGeometry
 install(TARGETS ${PROJECT_NAME} DESTINATION modules/SofaGeometry)
+
+add_executable(test_CGAL
+
+    src/SofaGeometry/CGAL/test_CGAL.cpp
+    src/SofaGeometry/CGAL/Point2.h
+
+)
+
+    ######  LIBRARY LINKS    ###########################################
+
+    target_link_libraries(test_CGAL ${CGAL_LIBRARY})
+
 
 ## Add the test subdirectory.
 add_subdirectory(tests)
