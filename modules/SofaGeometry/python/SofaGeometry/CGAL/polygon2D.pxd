@@ -6,6 +6,7 @@ from cython.operator cimport dereference as deref, preincrement as inc, address 
 from SofaGeometry.CGAL cimport point2D
 from SofaGeometry.CGAL cimport cpp_point2D
 from SofaGeometry.CGAL cimport cpp_polygon2D
+from SofaGeometry.CGAL cimport cpp_kernel
 cimport numpy as np
 
 cdef class Polygon2:

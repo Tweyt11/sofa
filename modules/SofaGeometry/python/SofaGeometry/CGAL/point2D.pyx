@@ -2,15 +2,16 @@
 from libcpp.memory cimport shared_ptr
 from cython.operator cimport typeid
 from cython.operator cimport dereference as deref, preincrement as inc, address as address
-from SofaGeometry.CGAL cimport  cpp_point2D
+#from SofaGeometry.CGAL cimport  cpp_point2D
 import numpy as np
-cimport numpy as np
+#cimport numpy as np
 
+STUFF = "Hi"
 cdef class Point2:
 
     def __init__(self, *args):
 
-        STUFF = "Hi"
+
 
 
         if not args:

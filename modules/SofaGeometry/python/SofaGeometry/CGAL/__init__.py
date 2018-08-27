@@ -1,2 +1,2 @@
-__all__ = ["point2D", "polygon2D"]
+__all__ = ["CGAL", "point2D", "polygon2D"]
 
