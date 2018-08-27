@@ -55,8 +55,13 @@ sofa_add_python_module(TARGET PythonSofaGeometry
 set(SOURCE_FILES_CGAL
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/__init__.py
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/cpp_point2D.pxd
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/cpp_kernel.pxd
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/cpp_polygon2D.pxd
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/point2D.pxd
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/point2D.pyx
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/polygon2D.pxd
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/polygon2D.pyx
+
 )
 
 

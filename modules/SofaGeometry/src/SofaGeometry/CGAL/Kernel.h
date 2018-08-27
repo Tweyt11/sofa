@@ -24,22 +24,23 @@
  *     - thomas.morzadec@inria.fr
  ****************************************************************************/
 
-#ifndef SOFAGEOMETRY_CGAL_POINT2_H
-#define SOFAGEOMETRY_CGAL_POINT2_H
+#ifndef SOFAGEOMETRY_CGAL_KERNEL_H
+#define SOFAGEOMETRY_CGAL_KERNEL_H
 
-#include <SofaGeometry/CGAL/Kernel.h>
-#include <CGAL/Point_2.h>
 
+#include <CGAL/Cartesian.h>
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/number_utils.h>
 
 
 namespace SofaGeometryCGAL
 {
+    typedef CGAL::Exact_predicates_inexact_constructions_kernel  Kernel;
+//    typedef CGAL::Simple_cartesian<double> Kernel;
+    typedef typename Kernel::FT FT;
 
-    typedef CGAL::Point_2< SofaGeometryCGAL::Kernel> Point2;
+//    double to_double (const FT& x){return CGAL::to_double(x);}
 
-    bool geq(const Point2& p1, const Point2& p2){return CGAL::operator>=(p1, p2);}
-    bool seq(const Point2& p1, const Point2& p2){return CGAL::operator<=(p1, p2);}
-    bool greater(const Point2& p1, const Point2& p2){return CGAL::operator>(p1, p2);}
-    bool smaller(const Point2& p1, const Point2& p2){return CGAL::operator<(p1, p2);}
 }
-#endif // SOFAGEOMETRY_CGAL_POINT2_H
+#endif // SOFAGEOMETRY_CGAL_KERNEL_H

@@ -1,2 +1,2 @@
-__all__ = ["vector","Plane","Ray"]
+__all__ = ["vector","Plane","Ray", "CGAL"]
 

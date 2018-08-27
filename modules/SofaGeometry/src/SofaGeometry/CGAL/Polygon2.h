@@ -24,22 +24,22 @@
  *     - thomas.morzadec@inria.fr
  ****************************************************************************/
 
-#ifndef SOFAGEOMETRY_CGAL_POINT2_H
-#define SOFAGEOMETRY_CGAL_POINT2_H
+#ifndef SOFAGEOMETRY_CGAL_POLYGON2_H
+#define SOFAGEOMETRY_CGAL_POLYGON2_H
 
 #include <SofaGeometry/CGAL/Kernel.h>
-#include <CGAL/Point_2.h>
-
+#include <SofaGeometry/CGAL/Point2.h>
+#include <CGAL/Polygon_2.h>
 
 
 namespace SofaGeometryCGAL
+
 {
+    typedef CGAL::Polygon_2<SofaGeometryCGAL::Kernel> Polygon2;
 
-    typedef CGAL::Point_2< SofaGeometryCGAL::Kernel> Point2;
+    bool eq(const Polygon2& p1, const Polygon2& p2){return CGAL::operator==(p1, p2);}
+    bool neq(const Polygon2& p1, const Polygon2& p2){return CGAL::operator!=(p1, p2);}
 
-    bool geq(const Point2& p1, const Point2& p2){return CGAL::operator>=(p1, p2);}
-    bool seq(const Point2& p1, const Point2& p2){return CGAL::operator<=(p1, p2);}
-    bool greater(const Point2& p1, const Point2& p2){return CGAL::operator>(p1, p2);}
-    bool smaller(const Point2& p1, const Point2& p2){return CGAL::operator<(p1, p2);}
+
 }
-#endif // SOFAGEOMETRY_CGAL_POINT2_H
+#endif // SOFAGEOMETRY_CGAL_POLYGON2_H
