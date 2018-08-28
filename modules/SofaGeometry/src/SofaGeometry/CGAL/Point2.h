@@ -28,6 +28,7 @@
 #define SOFAGEOMETRY_CGAL_POINT2_H
 
 #include <SofaGeometry/CGAL/Kernel.h>
+#include <SofaGeometry/CGAL/Vector2.h>
 #include <CGAL/Point_2.h>
 
 
@@ -41,5 +42,8 @@ namespace SofaGeometryCGAL
     bool seq(const Point2& p1, const Point2& p2){return CGAL::operator<=(p1, p2);}
     bool greater(const Point2& p1, const Point2& p2){return CGAL::operator>(p1, p2);}
     bool smaller(const Point2& p1, const Point2& p2){return CGAL::operator<(p1, p2);}
+
+    SofaGeometryCGAL::Vector2 diff (const Point2& p, const Point2& q){return CGAL::operator-(p, q);}
+    Point2 add(const Point2& p, const SofaGeometryCGAL::Vector2& v){return CGAL::operator+(p, v);}
 }
 #endif // SOFAGEOMETRY_CGAL_POINT2_H

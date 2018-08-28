@@ -24,41 +24,25 @@
  *     - thomas.morzadec@inria.fr
  ****************************************************************************/
 
-#ifndef SOFAGEOMETRY_CGAL_POLYGON2_H
-#define SOFAGEOMETRY_CGAL_POLYGON2_H
+#ifndef SOFAGEOMETRY_CGAL_VECTOR2_H
+#define SOFAGEOMETRY_CGAL_VECTOR2_H
 
+#include <CGAL/Vector_2.h>
 #include <SofaGeometry/CGAL/Kernel.h>
-#include <SofaGeometry/CGAL/Point2.h>
-#include <CGAL/Polygon_2.h>
-#include <CGAL/enum.h>
-
+#include <CGAL/Point_2.h>
 
 
 namespace SofaGeometryCGAL
-
 {
 
-class Polygon2: public CGAL::Polygon_2<SofaGeometryCGAL::Kernel>
-{
+    typedef CGAL::Vector_2<SofaGeometryCGAL::Kernel> Vector2;
 
-public:
-
-    Polygon2();
-
-    Polygon2(const Polygon2&);
-
-    Polygon2(std::vector<SofaGeometryCGAL::Point2>::iterator, std::vector<SofaGeometryCGAL::Point2>::iterator, SofaGeometryCGAL::Kernel);
+    Vector2 mul_right(const Vector2& v, const SofaGeometryCGAL::FT& s){return CGAL::operator* (v, s);}
 
 
-    bool contains(const SofaGeometryCGAL::Point2& p);
-
-};
-
-    bool eq(const Polygon2& p1, const Polygon2& p2){return CGAL::operator==(p1, p2);}
-    bool neq(const Polygon2& p1, const Polygon2& p2){return CGAL::operator!=(p1, p2);}
-
+    Vector2 mul_left(const SofaGeometryCGAL::FT& s, const Vector2& v){return CGAL::operator* (s, v);}
 
 
 
 }
-#endif // SOFAGEOMETRY_CGAL_POLYGON2_H
+#endif // SOFAGEOMETRY_CGAL_VECTOR2_H

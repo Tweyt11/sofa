@@ -1,5 +1,6 @@
 #cython: language=c++
 from libcpp.memory cimport shared_ptr
+from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref, preincrement as inc, address as address
 #from SofaGeometry.CGAL cimport cpp_kernel
 #from SofaGeometry.CGAL cimport cpp_point2D
@@ -26,7 +27,7 @@ cdef class Polygon2:
             self._init_1(*args)
 
         elif (len(args)==1) and (isinstance(args[0][0], point2D.Point2)):
-            print("non copy case")
+
             self._init_2(args[0])
 
         else:
@@ -39,22 +40,33 @@ cdef class Polygon2:
     def _init_1(self, Polygon2 pgn_0):
         self.inst = shared_ptr[cpp_polygon2D.Polygon2](new cpp_polygon2D.Polygon2((deref(pgn_0.inst.get()))))
 
-    def _init_2(self,  point2D.Point2[:] list_pts):
-        cdef int n = list_pts.shape[0]
-        print(str(n))
-        cdef shared_ptr[cpp_point2D.Point2[n]] ptr_vect = shared_ptr[cpp_point2D.Point2[n]](new cpp_point2D.Point2[n])
+    def _init_2(self, list_pts):
 
-        cdef int i
+        cdef int n = len(list_pts)
+
+        cdef _vector[cpp_point2D.Point2]* arr_pts = new _vector[cpp_point2D.Point2](0)
+
+        cdef _vector[cpp_point2D.Point2].iterator iter =  first
         cdef point2D.Point2 pt
+        cdef int i = 0
 
-        for i in range(n):
+
+        print(arr_pts.size())
+        while i < n:
+
             pt = list_pts[i]
-            ptr_vect.get()[i] = deref(pt.inst.get())
+            arr_pts.push_back(deref(pt.inst.get()) )
+            i+=1
 
-#        cdef _vector[cpp_point2D.Point2].iterator first = ptr_vect.get()
-#        cdef _vector[cpp_point2D.Point2].iterator last + nte     = #ptr_vect.get().end()
-        self.inst = shared_ptr[cpp_polygon2D.Polygon2](new cpp_polygon2D.Polygon2(ptr_vect.get(), ptr_vect.get() + n, cpp_kernel.Kernel()))
-        ptr_vect.reset()
+
+        cdef _vector[cpp_point2D.Point2].iterator first =  arr_pts.begin()
+        cdef _vector[cpp_point2D.Point2].iterator last = first + n
+
+        self.inst = shared_ptr[cpp_polygon2D.Polygon2](new cpp_polygon2D.Polygon2(first, last, cpp_kernel.Kernel()))
+        print("polygon")
+        del arr_pts
+
+
 
     def __dealloc__(self):
         print("dealloc called for polygon")
@@ -91,3 +103,6 @@ cdef class Polygon2:
 
     def reverse_orientation(self):
         self.inst.get().reverse_orientation()
+
+    def contains(self, point2D.Point2 p):
+        return self.inst.get().contains(deref(p.inst.get()))

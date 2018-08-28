@@ -12,6 +12,7 @@ set(HEADER_FILES
     src/SofaGeometry/CGAL/Kernel.h
     src/SofaGeometry/CGAL/Point2.h
     src/SofaGeometry/CGAL/Polygon2.h
+    src/SofaGeometry/CGAL/Vector2.h
     )
 
 
@@ -19,6 +20,7 @@ set(SOURCE_FILES
     src/SofaGeometry/Plane.cpp
     src/SofaGeometry/Ray.cpp
     src/SofaGeometry/Constants.cpp
+    src/SofaGeometry/CGAL/Polygon2.cpp
 
 )
 

@@ -8,3 +8,6 @@ cdef extern from "<SofaGeometry/CGAL/Kernel.h>" namespace "SofaGeometryCGAL":
 
     cdef cppclass FT "SofaGeometryCGAL::FT":
         FT() except +
+
+#    cdef cppclass NT "SofaGeometryCGAL::NT":
+#        NT(double i) except +

@@ -10,7 +10,7 @@ cdef extern from "<SofaGeometry/CGAL/Polygon2.h>" namespace "SofaGeometryCGAL":
 
         Polygon2() except +
 
-        Polygon2( Polygon2&) except +
+        Polygon2(const Polygon2&) except +
 
         Polygon2(vector[cpp_point2D.Point2].iterator, vector[cpp_point2D.Point2].iterator, cpp_kernel.Kernel) except +
 
@@ -21,7 +21,7 @@ cdef extern from "<SofaGeometry/CGAL/Polygon2.h>" namespace "SofaGeometryCGAL":
         bool is_simple()
         double orientation()
         void reverse_orientation ()
-
+        bool contains(const cpp_point2D.Point2&)
 
     bool eq (const Polygon2&, const Polygon2&)
     bool neq (const Polygon2&, const Polygon2&)

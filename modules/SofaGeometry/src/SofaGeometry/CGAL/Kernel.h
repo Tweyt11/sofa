@@ -31,6 +31,11 @@
 #include <CGAL/Cartesian.h>
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
+#include <CGAL/MP_Float.h>
+#include <CGAL/Lazy_exact_nt.h>
+#include <CGAL/Quotient.h>
+
 #include <CGAL/number_utils.h>
 
 
@@ -40,7 +45,11 @@ namespace SofaGeometryCGAL
 //    typedef CGAL::Simple_cartesian<double> Kernel;
     typedef typename Kernel::FT FT;
 
-//    double to_double (const FT& x){return CGAL::to_double(x);}
+//   /* typedef CGAL::Lazy_exact_nt<CGAL::Quotient<CGAL::MP_Float> > NT;
+//    typedef CGAL::Cartesian<NT> K;
+
+
+//    doubl*/e to_double (const NT& x){return CGAL::to_double(x);}
 
 }
 #endif // SOFAGEOMETRY_CGAL_KERNEL_H

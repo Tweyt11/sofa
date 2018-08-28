@@ -24,12 +24,9 @@
  *     - thomas.morzadec@inria.fr
  ****************************************************************************/
 
-#ifndef SOFAGEOMETRY_CGAL_POLYGON2_H
-#define SOFAGEOMETRY_CGAL_POLYGON2_H
-
+#include <SofaGeometry/CGAL/Polygon2.h>
 #include <SofaGeometry/CGAL/Kernel.h>
 #include <SofaGeometry/CGAL/Point2.h>
-#include <CGAL/Polygon_2.h>
 #include <CGAL/enum.h>
 
 
@@ -38,27 +35,28 @@ namespace SofaGeometryCGAL
 
 {
 
-class Polygon2: public CGAL::Polygon_2<SofaGeometryCGAL::Kernel>
-{
+Polygon2::Polygon2()
+    : CGAL::Polygon_2<SofaGeometryCGAL::Kernel>(){}
 
-public:
+Polygon2::Polygon2(const Polygon2& pgn)
+    : CGAL::Polygon_2<SofaGeometryCGAL::Kernel>(pgn) {}
 
-    Polygon2();
-
-    Polygon2(const Polygon2&);
-
-    Polygon2(std::vector<SofaGeometryCGAL::Point2>::iterator, std::vector<SofaGeometryCGAL::Point2>::iterator, SofaGeometryCGAL::Kernel);
+Polygon2::Polygon2(std::vector<SofaGeometryCGAL::Point2>::iterator first,  std::vector<SofaGeometryCGAL::Point2>::iterator last, SofaGeometryCGAL::Kernel traits)
+    : CGAL::Polygon_2<SofaGeometryCGAL::Kernel>(first, last, traits) {}
 
 
-    bool contains(const SofaGeometryCGAL::Point2& p);
+bool Polygon2::contains(const SofaGeometryCGAL::Point2& p){
 
-};
+    CGAL::Bounded_side side = this->bounded_side(p);
 
-    bool eq(const Polygon2& p1, const Polygon2& p2){return CGAL::operator==(p1, p2);}
-    bool neq(const Polygon2& p1, const Polygon2& p2){return CGAL::operator!=(p1, p2);}
+    std::cout<<side<<std::endl;
 
-
-
+    if (side == CGAL::ON_UNBOUNDED_SIDE) return false;
+    else return true;
+}
 
 }
-#endif // SOFAGEOMETRY_CGAL_POLYGON2_H
+
+
+
+
