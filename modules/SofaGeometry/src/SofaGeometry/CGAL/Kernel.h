@@ -45,11 +45,11 @@ namespace SofaGeometryCGAL
 //    typedef CGAL::Simple_cartesian<double> Kernel;
     typedef typename Kernel::FT FT;
 
-//   /* typedef CGAL::Lazy_exact_nt<CGAL::Quotient<CGAL::MP_Float> > NT;
-//    typedef CGAL::Cartesian<NT> K;
+    typedef CGAL::Lazy_exact_nt<FT> Exact_double;
 
 
-//    doubl*/e to_double (const NT& x){return CGAL::to_double(x);}
+
+    double to_double (const Exact_double& x){return CGAL::to_double(x);}
 
 }
 #endif // SOFAGEOMETRY_CGAL_KERNEL_H

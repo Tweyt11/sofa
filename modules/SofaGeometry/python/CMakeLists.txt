@@ -64,6 +64,8 @@ set(SOURCE_FILES_CGAL
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/polygon2D.pyx
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/vector2D.pxd
     ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/vector2D.pyx
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/kernel.pxd
+    ${CMAKE_CURRENT_SOURCE_DIR}/SofaGeometry/CGAL/kernel.pyx
 
 )
 

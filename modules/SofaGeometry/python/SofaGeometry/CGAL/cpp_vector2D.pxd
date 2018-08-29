@@ -16,8 +16,13 @@ cdef extern from "<SofaGeometry/CGAL/Vector2.h>" namespace "SofaGeometryCGAL":
 
         Vector2(const cpp_kernel.FT&, const cpp_kernel.FT&) except +
 
-    Vector2 mul_right(const Vector2&, const cpp_kernel.FT&)
+        double x()
 
-    Vector2 mul_left(const cpp_kernel.FT&, const Vector2&)
+        double y()
 
+    Vector2 mul(const Vector2&, const cpp_kernel.FT&)
+
+    Vector2 rmul(const cpp_kernel.FT&, const Vector2&)
+
+    cpp_kernel.FT squared_length ()
 

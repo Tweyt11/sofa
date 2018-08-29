@@ -37,10 +37,10 @@ namespace SofaGeometryCGAL
 
     typedef CGAL::Vector_2<SofaGeometryCGAL::Kernel> Vector2;
 
-    Vector2 mul_right(const Vector2& v, const SofaGeometryCGAL::FT& s){return CGAL::operator* (v, s);}
+    Vector2 mul(const Vector2& v, const SofaGeometryCGAL::FT& s){return CGAL::operator* (v, s);}
 
 
-    Vector2 mul_left(const SofaGeometryCGAL::FT& s, const Vector2& v){return CGAL::operator* (s, v);}
+    Vector2 rmul(const SofaGeometryCGAL::FT& s, const Vector2& v){return CGAL::operator* (s, v);}
 
 
 

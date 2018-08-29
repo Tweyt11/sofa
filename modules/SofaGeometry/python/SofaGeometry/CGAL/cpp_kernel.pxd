@@ -9,5 +9,8 @@ cdef extern from "<SofaGeometry/CGAL/Kernel.h>" namespace "SofaGeometryCGAL":
     cdef cppclass FT "SofaGeometryCGAL::FT":
         FT() except +
 
-#    cdef cppclass NT "SofaGeometryCGAL::NT":
-#        NT(double i) except +
+    cdef cppclass Exact_double "SofaGeometryCGAL::Exact_double":
+        Exact_double() except +
+        Exact_double(double i) except +
+        Exact_double(Exact_double) except +
+        FT exact()
