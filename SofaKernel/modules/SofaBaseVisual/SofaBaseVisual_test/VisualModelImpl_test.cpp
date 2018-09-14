@@ -20,11 +20,23 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 
-#include <gtest/gtest.h>
-#include <SofaBaseVisual/VisualModelImpl.h>
-#include <sofa/defaulttype/VecTypes.h>
+#include <sofa/helper/testing/BaseTest.h>
 
-namespace sofa {
+#include <sofa/defaulttype/VecTypes.h>
+using sofa::defaulttype::ResizableExtVector;
+
+#include <SofaBaseVisual/VisualModelImpl.h>
+using sofa::component::visualmodel::VisualModelImpl;
+using sofa::core::topology::BaseMeshTopology;
+using sofa::core::objectmodel::ComponentState;
+using sofa::core::objectmodel::DataFileName;
+using sofa::core::objectmodel::BaseData;
+using sofa::core::loader::Material;
+
+#include <SofaSimulationGraph/SimpleApi.h>
+namespace simpleapi = sofa::simpleapi;
+
+namespace {
 
 template <typename _DataTypes>
 struct VisualModelImpl_test : public ::testing::Test
@@ -38,24 +50,53 @@ struct VisualModelImpl_test : public ::testing::Test
 
 };
 
-struct StubVisualModelImpl : public component::visualmodel::VisualModelImpl {};
+struct StubVisualModelImpl : public VisualModelImpl {};
 
 // Define the list of DataTypes to instanciate
 using testing::Types;
 typedef Types<
-    defaulttype::Vec3Types
+    sofa::defaulttype::Vec3Types
 > DataTypes; // the types to instanciate.
 
 // Test suite for all the instanciations
 TYPED_TEST_CASE(VisualModelImpl_test, DataTypes);
 
 template <class T>
-bool ResizableVector_Comparison(defaulttype::ResizableExtVector< T > expected, defaulttype::ResizableExtVector< T > actual)
+bool ResizableVector_Comparison(ResizableExtVector< T > expected,
+                                ResizableExtVector< T > actual)
 {
     if (expected.size() != actual.size())
         return false;
     return true;
 }
+
+// Ctor test case
+TEST( VisualModelImpl_test , testInput )
+{
+    EXPECT_MSG_NOEMIT(Error, Warning) ;
+
+    auto simu = simpleapi::createSimulation();
+    auto node = simpleapi::createRootNode(simu, "Root");
+    auto visual = simpleapi::createObject(node, "VisualModel");
+
+    visual->init();
+    EXPECT_EQ( visual->getComponentState(), ComponentState::Valid );
+}
+
+// Ctor test case
+TEST( VisualModelImpl_test , testInvalidFileName )
+{
+    EXPECT_MSG_NOEMIT(Warning);
+    EXPECT_MSG_EMIT(Error);
+
+    auto simu = simpleapi::createSimulation();
+    auto node = simpleapi::createRootNode(simu, "Root");
+    auto visual = simpleapi::createObject(node, "VisualModel", {{"filename","invalid.ogl"}} );
+
+    visual->init();
+    EXPECT_EQ( visual->getComponentState(), ComponentState::Valid );
+}
+
 
 // Ctor test case
 TEST( VisualModelImpl_test , checkThatMembersAreCorrectlyConstructed )
@@ -78,25 +119,25 @@ TEST( VisualModelImpl_test , checkThatMembersAreCorrectlyConstructed )
     ASSERT_EQ(true_var,  visualModel.m_fixMergedUVSeams.getValue());
 
 
-    ASSERT_EQ(true_var, ResizableVector_Comparison(component::visualmodel::VisualModelImpl::VecCoord(), visualModel.m_vertices2.getValue()));
-    ASSERT_EQ(true_var, ResizableVector_Comparison(component::visualmodel::VisualModelImpl::VecCoord(), visualModel.m_vtangents.getValue()));
-    ASSERT_EQ(true_var, ResizableVector_Comparison(component::visualmodel::VisualModelImpl::VecCoord(), visualModel.m_vbitangents.getValue()));
+    ASSERT_EQ(true_var, ResizableVector_Comparison(VisualModelImpl::VecCoord(), visualModel.m_vertices2.getValue()));
+    ASSERT_EQ(true_var, ResizableVector_Comparison(VisualModelImpl::VecCoord(), visualModel.m_vtangents.getValue()));
+    ASSERT_EQ(true_var, ResizableVector_Comparison(VisualModelImpl::VecCoord(), visualModel.m_vbitangents.getValue()));
 
-    ASSERT_EQ(true_var, ResizableVector_Comparison(defaulttype::ResizableExtVector< sofa::core::topology::BaseMeshTopology::Edge >(), visualModel.m_edges.getValue()));
-    ASSERT_EQ(true_var, ResizableVector_Comparison(defaulttype::ResizableExtVector< sofa::core::topology::BaseMeshTopology::Triangle >(), visualModel.m_triangles.getValue()));
-    ASSERT_EQ(true_var, ResizableVector_Comparison(defaulttype::ResizableExtVector< sofa::core::topology::BaseMeshTopology::Quad >(), visualModel.m_quads.getValue()));
-    ASSERT_EQ(true_var, ResizableVector_Comparison(defaulttype::ResizableExtVector<int>(), visualModel.m_vertPosIdx.getValue()));
-    ASSERT_EQ(true_var, ResizableVector_Comparison(defaulttype::ResizableExtVector<int>(), visualModel.m_vertNormIdx.getValue()));
+    ASSERT_EQ(true_var, ResizableVector_Comparison(ResizableExtVector< BaseMeshTopology::Edge >(), visualModel.m_edges.getValue()));
+    ASSERT_EQ(true_var, ResizableVector_Comparison(ResizableExtVector< BaseMeshTopology::Triangle >(), visualModel.m_triangles.getValue()));
+    ASSERT_EQ(true_var, ResizableVector_Comparison(ResizableExtVector< BaseMeshTopology::Quad >(), visualModel.m_quads.getValue()));
+    ASSERT_EQ(true_var, ResizableVector_Comparison(ResizableExtVector<int>(), visualModel.m_vertPosIdx.getValue()));
+    ASSERT_EQ(true_var, ResizableVector_Comparison(ResizableExtVector<int>(), visualModel.m_vertNormIdx.getValue()));
 
-    ASSERT_EQ(core::objectmodel::DataFileName().getValue(), visualModel.fileMesh.getValue());
-    ASSERT_EQ(core::objectmodel::DataFileName().getValue(), visualModel.texturename.getValue());
-    ASSERT_EQ(component::visualmodel::VisualModelImpl::Vec3Real(), visualModel.m_translation.getValue());
-    ASSERT_EQ(component::visualmodel::VisualModelImpl::Vec3Real(), visualModel.m_rotation.getValue());
-    ASSERT_EQ(component::visualmodel::VisualModelImpl::Vec3Real(1.0,1.0,1.0), visualModel.m_scale.getValue());
-    ASSERT_EQ(component::visualmodel::VisualModelImpl::TexCoord(1.0,1.0), visualModel.m_scaleTex.getValue());
-    ASSERT_EQ(component::visualmodel::VisualModelImpl::TexCoord(0.0,0.0), visualModel.m_translationTex.getValue());
+    ASSERT_EQ(DataFileName().getValue(), visualModel.fileMesh.getValue());
+    ASSERT_EQ(DataFileName().getValue(), visualModel.texturename.getValue());
+    ASSERT_EQ(VisualModelImpl::Vec3Real(), visualModel.m_translation.getValue());
+    ASSERT_EQ(VisualModelImpl::Vec3Real(), visualModel.m_rotation.getValue());
+    ASSERT_EQ(VisualModelImpl::Vec3Real(1.0,1.0,1.0), visualModel.m_scale.getValue());
+    ASSERT_EQ(VisualModelImpl::TexCoord(1.0,1.0), visualModel.m_scaleTex.getValue());
+    ASSERT_EQ(VisualModelImpl::TexCoord(0.0,0.0), visualModel.m_translationTex.getValue());
 
-    ASSERT_EQ(core::loader::Material().name, visualModel.material.getValue().name);
+    ASSERT_EQ(Material().name, visualModel.material.getValue().name);
     ASSERT_EQ(false_var, visualModel.putOnlyTexCoords.getValue());
     ASSERT_EQ(false_var, visualModel.srgbTexturing.getValue());
     ASSERT_EQ(false_var, visualModel.xformsModified);
@@ -116,7 +157,7 @@ TEST( VisualModelImpl_test , checkThatMembersAreCorrectlyConstructed )
     ASSERT_EQ("Transformation", std::string(visualModel.m_rotation.getGroup()));
     ASSERT_EQ("Transformation", std::string(visualModel.m_scale.getGroup()));
 
-    ASSERT_EQ(false_var, visualModel.m_edges.getFlag(core::objectmodel::BaseData::FLAG_AUTOLINK));
+    ASSERT_EQ(false_var, visualModel.m_edges.getFlag(BaseData::FLAG_AUTOLINK));
 
     ASSERT_EQ(1u, visualModel.xforms.size());
 }
