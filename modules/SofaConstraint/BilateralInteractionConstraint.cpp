@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -81,7 +81,7 @@ public:
             qQ = Q.getOrientation();
             qP.normalize();
             qQ.normalize();
-            dQP = qDiff(qQ, qP);
+            dQP = qP.quatDiff(qQ, qP);
             dQP.normalize();
 
             qQ2 = qP*dQP;
@@ -109,7 +109,7 @@ public:
             resTab[offset] = new BilateralConstraintResolution3Dof();
             offset += 3;
             BilateralConstraintResolution3Dof* temp = new BilateralConstraintResolution3Dof();
-            temp->tolerance = tolerance;	// specific (smaller) tolerance for the rotation
+            temp->setTolerance(tolerance);	// specific (smaller) tolerance for the rotation
             resTab[offset] = temp;
             offset += 3;
         }

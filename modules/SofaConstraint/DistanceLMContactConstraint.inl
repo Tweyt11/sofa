@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -32,7 +32,6 @@
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/helper/vector.h>
-#include <sofa/helper/gl/template.h>
 #include <sofa/helper/accessor.h>
 #include <iostream>
 
@@ -327,6 +326,8 @@ void DistanceLMContactConstraint<DataTypes>::draw(const core::visual::VisualPara
 
     if (vparams->displayFlags().getShowBehaviorModels())
     {
+        vparams->drawTool()->saveLastState();
+
         const VecCoord &x1= this->constrainedObject1->read(core::ConstVecCoordId::position())->getValue();
         const VecCoord &x2= this->constrainedObject2->read(core::ConstVecCoordId::position())->getValue();
 
@@ -367,6 +368,7 @@ void DistanceLMContactConstraint<DataTypes>::draw(const core::visual::VisualPara
 
         vparams->drawTool()->drawLines(slidingConstraints, 1, colorsContactState.back());
 
+        vparams->drawTool()->restoreLastState();
 
     }
 }

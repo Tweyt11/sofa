@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -671,7 +671,7 @@ void HexahedronSetGeometryAlgorithms< DataTypes >::findNearestElements(const Vec
         helper::vector<defaulttype::Vector3>& baryC,
         helper::vector<Real>& dist) const
 {
-    for(unsigned int i=0; i<pos.size(); ++i)
+    for(size_t i=0; i<pos.size(); ++i)
     {
         elem[i] = findNearestElement(pos[i], baryC[i], dist[i]);
     }
@@ -703,7 +703,7 @@ int HexahedronSetGeometryAlgorithms< DataTypes >::findNearestElementInRestPos(co
 template< class DataTypes>
 void HexahedronSetGeometryAlgorithms< DataTypes >::findNearestElementsInRestPos( const VecCoord& pos, helper::vector<int>& elem, helper::vector<defaulttype::Vector3>& baryC, helper::vector<Real>& dist) const
 {
-    for(unsigned int i=0; i<pos.size(); ++i)
+    for(size_t i=0; i<pos.size(); ++i)
     {
         elem[i] = findNearestElementInRestPos(pos[i], baryC[i], dist[i]);
     }
@@ -817,7 +817,7 @@ void HexahedronSetGeometryAlgorithms<DataTypes>::writeMSHfile(const char *filena
 
     myfile << hea.size() <<"\n";
 
-    for(unsigned int i=0; i<hea.size(); ++i)
+    for(size_t i=0; i<hea.size(); ++i)
     {
         myfile << i+1 << " 5 1 1 8 " << hea[i][4]+1 << " " << hea[i][5]+1 << " "
                 << hea[i][1]+1 << " " << hea[i][0]+1 << " "
@@ -850,8 +850,8 @@ void HexahedronSetGeometryAlgorithms<DataTypes>::draw(const core::visual::Visual
 
         const sofa::helper::vector<Hexahedron> &hexaArray = this->m_topology->getHexahedra();
 
-        helper::vector<defaulttype::Vector3> positions;
-        for (unsigned int i =0; i<hexaArray.size(); i++)
+        std::vector<defaulttype::Vector3> positions;
+        for (size_t i =0; i<hexaArray.size(); i++)
         {
 
             Hexahedron the_hexa = hexaArray[i];
@@ -886,7 +886,7 @@ void HexahedronSetGeometryAlgorithms<DataTypes>::draw(const core::visual::Visual
 
         sofa::helper::vector <sofa::defaulttype::Vector3> hexaCoords;
 
-        for (unsigned int i = 0; i<hexaArray.size(); i++)
+        for (size_t i = 0; i<hexaArray.size(); i++)
         {
             const Hexahedron& H = hexaArray[i];
 

@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -147,17 +147,12 @@ void MeshSpringForceField<DataTypes>::init()
             {
                 s = this->cubesStiffness.getValue();
                 d = this->cubesDamping.getValue();
-#ifdef SOFA_NEW_HEXA
+
                 n = topology->getNbHexahedra();
                 for (int i=0; i<n; ++i)
                 {
                     sofa::core::topology::BaseMeshTopology::Hexa e = topology->getHexahedron(i);
-#else
-                n = topology->getNbCubes();
-                for (int i=0; i<n; ++i)
-                {
-                    sofa::core::topology::BaseMeshTopology::Cube e = topology->getCube(i);
-#endif
+
                     for (int i=0; i<8; i++)
                         for (int j=i+1; j<8; j++)
                         {

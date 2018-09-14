@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -37,14 +37,6 @@
 #include <sofa/core/ObjectFactory.h>
 #include <fstream> // for reading the file
 #include <iostream> //for debugging
-#include <sofa/helper/gl/template.h>
-#ifndef SOFA_NO_OPENGL
-#if defined (__APPLE__)
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-#endif
 #include <SofaBaseTopology/TopologyData.inl>
 #include <algorithm>
 #include <iterator>
@@ -617,31 +609,11 @@ void  StandardTetrahedralFEMForceField<DataTypes>::addKToMatrix(sofa::defaulttyp
 template<class DataTypes>
 void StandardTetrahedralFEMForceField<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
-#ifndef SOFA_NO_OPENGL
     //	unsigned int i;
     if (!vparams->displayFlags().getShowForceFields()) return;
     if (!this->mstate) return;
-
-    if (vparams->displayFlags().getShowWireFrame())
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    if (vparams->displayFlags().getShowWireFrame())
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-#endif /* SOFA_NO_OPENGL */
 }
 
-/*
-template<class DataTypes>
-defaulttype::Mat<3,3,double> StandardTetrahedralFEMForceField<DataTypes>::getPhi(int TetrahedronIndex)
-{
-    tetrahedronRestInfoVector& tetrahedronInf = *(tetrahedronInfo.beginEdit());
-    TetrahedronRestInformation *tetInfo;
-    tetInfo=&tetrahedronInf[TetrahedronIndex];
-    return tetInfo->deformationGradient;
-
-}
-*/
 template<class DataTypes>
 void StandardTetrahedralFEMForceField<DataTypes>::testDerivatives()
 {

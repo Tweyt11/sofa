@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -184,7 +184,7 @@ struct PlaneForceField_test : public Sofa_test<typename TTypeTuple::DataType::Re
         /// This list needs to be updated if you add an attribute.
         vector<string> attrnames = {
             "normal", "d", "stiffness", "damping", "maxForce", "bilateral", "localRange",
-            "draw", "color", "drawSize"
+            "showPlane", "planeColor", "showPlaneSize"
         };
 
         for(auto& attrname : attrnames)

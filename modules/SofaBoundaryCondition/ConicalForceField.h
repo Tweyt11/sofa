@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -105,14 +105,13 @@ protected:
 
 public:
 
-    Data<Coord> coneCenter;
-    Data<Coord> coneHeight;
-    Data<Real> coneAngle;
+    Data<Coord> coneCenter; ///< cone center
+    Data<Coord> coneHeight; ///< cone height
+    Data<Real> coneAngle; ///< cone angle
 
-    Data<Real> stiffness;
-    Data<Real> damping;
-    Data<defaulttype::RGBAColor> color;
-    Data<bool> bDraw;
+    Data<Real> stiffness; ///< force stiffness
+    Data<Real> damping; ///< force damping
+    Data<defaulttype::RGBAColor> color; ///< cone color. (default=0.0,0.0,0.0,1.0,1.0)
 protected:
     ConicalForceField()
         : coneCenter(initData(&coneCenter, "coneCenter", "cone center"))
@@ -122,7 +121,6 @@ protected:
         , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness"))
         , damping(initData(&damping, (Real)5, "damping", "force damping"))
         , color(initData(&color, defaulttype::RGBAColor(0.0f,0.0f,1.0f,1.0f), "color", "cone color. (default=0.0,0.0,0.0,1.0,1.0)"))
-        , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the cone"))
     {
     }
 public:

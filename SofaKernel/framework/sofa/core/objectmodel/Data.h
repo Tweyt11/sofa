@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -29,10 +29,6 @@
 #include <sofa/core/core.h>
 #include <sofa/core/objectmodel/BaseData.h>
 #include <sofa/helper/accessor.h>
-#include <sofa/helper/vector.h>
-#include <memory>
-#include <string>
-#include <sofa/helper/logging/Message.h>
 namespace sofa
 {
 
@@ -316,7 +312,6 @@ public:
 //    }
 };
 
-
 /** \brief Container that holds a variable for a component.
  *
  * This is a fundamental class template in Sofa.  Data are used to encapsulated
@@ -384,6 +379,9 @@ public:
 
         T value;
     };
+
+    // It's used for getting a new instance from an existing instance. This function is used by the communication plugin
+    virtual BaseData* getNewInstance() { return new Data();}
 
     /** \copydoc BaseData(const BaseData::BaseInitData& init) */
     explicit Data(const BaseData::BaseInitData& init)
@@ -549,6 +547,8 @@ private:
     Data(const Data& );
     Data& operator=(const Data& );
 };
+
+class EmptyData : public Data<void*> {};
 
 /// Specialization for reading strings
 template<>

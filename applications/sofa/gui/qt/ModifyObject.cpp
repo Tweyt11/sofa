@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU General Public License as published by the Free  *
@@ -202,6 +202,11 @@ void ModifyObject::createDialog(core::objectmodel::Base* base)
             std::string currentGroup=data->getGroup();
 
             if (currentGroup.empty()) currentGroup="Property";
+
+            // Ignore the data in group "Infos" so they can be putted in the real Infos panel that is
+            // handled in a different way (see QDataDescriptionWidget)
+            if (currentGroup == "Infos")
+                continue;
 
 #ifdef DEBUG_GUI
             std::cout << "GUI: add Data " << data->getName() << " in " << currentGroup << std::endl;

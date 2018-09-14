@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -107,27 +107,44 @@ public:
     bool solveSystem(const core::ConstraintParams * /*cParams*/, MultiVecId res1, MultiVecId res2=MultiVecId::null()) override;
 	bool applyCorrection(const core::ConstraintParams * /*cParams*/, MultiVecId res1, MultiVecId res2=MultiVecId::null()) override;
     void computeResidual(const core::ExecParams* /*params*/) override;
-
-	Data<bool> displayTime;
-	Data<int> maxIt;
-	Data<double> tolerance, sor;
-	Data<bool> scaleTolerance, allVerified, schemeCorrection;
-	Data<bool> unbuilt;
-	Data<bool> computeGraphs;
-	Data<std::map < std::string, sofa::helper::vector<double> > > graphErrors, graphConstraints, graphForces, graphViolations;
-
-	Data<int> currentNumConstraints;
-	Data<int> currentNumConstraintGroups;
-	Data<int> currentIterations;
-	Data<double> currentError;
-    Data<bool> reverseAccumulateOrder;
-
-	ConstraintProblem* getConstraintProblem() override;
-	void lockConstraintProblem(sofa::core::objectmodel::BaseObject* from, ConstraintProblem* p1, ConstraintProblem* p2=0) override;
-
+    ConstraintProblem* getConstraintProblem() override;
+    void lockConstraintProblem(sofa::core::objectmodel::BaseObject* from, ConstraintProblem* p1, ConstraintProblem* p2 = 0) override;
     virtual void removeConstraintCorrection(core::behavior::BaseConstraintCorrection *s) override;
 
+	Data<bool> displayTime; ///< Display time for each important step of GenericConstraintSolver.
+	Data<int> maxIt; ///< maximal number of iterations of the Gauss-Seidel algorithm
+	Data<double> tolerance; ///< residual error threshold for termination of the Gauss-Seidel algorithm
+	Data<double> sor; ///< Successive Over Relaxation parameter (0-2)
+	Data<bool> scaleTolerance; ///< Scale the error tolerance with the number of constraints
+	Data<bool> allVerified; ///< All contraints must be verified (each constraint's error < tolerance)
+	Data<bool> schemeCorrection; ///< Apply new scheme where compliance is progressively corrected
+	Data<bool> unbuilt; ///< Compliance is not fully built
+	Data<bool> computeGraphs; ///< Compute graphs of errors and forces during resolution
+	Data<std::map < std::string, sofa::helper::vector<double> > > graphErrors; ///< Sum of the constraints' errors at each iteration
+	Data<std::map < std::string, sofa::helper::vector<double> > > graphConstraints; ///< Graph of each constraint's error at the end of the resolution
+	Data<std::map < std::string, sofa::helper::vector<double> > > graphForces; ///< Graph of each constraint's force at each step of the resolution
+	Data<std::map < std::string, sofa::helper::vector<double> > > graphViolations; ///< Graph of each constraint's violation at each step of the resolution
+
+	Data<int> currentNumConstraints; ///< OUTPUT: current number of constraints
+	Data<int> currentNumConstraintGroups; ///< OUTPUT: current number of constraints
+	Data<int> currentIterations; ///< OUTPUT: current number of constraint groups
+	Data<double> currentError; ///< OUTPUT: current error
+    Data<bool> reverseAccumulateOrder; ///< True to accumulate constraints from nodes in reversed order (can be necessary when using multi-mappings or interaction constraints not following the node hierarchy)
+
+    virtual sofa::core::MultiVecDerivId getLambda() const override
+    {
+        return m_lambdaId;
+    }
+
+    virtual sofa::core::MultiVecDerivId getDx() const override
+    {
+        return m_dxId;
+    }
+
 protected:
+
+    void clearConstraintProblemLocks();
+
     enum { CP_BUFFER_SIZE = 10 };
     sofa::helper::fixed_array<GenericConstraintProblem,CP_BUFFER_SIZE> m_cpBuffer;
     sofa::helper::fixed_array<bool,CP_BUFFER_SIZE> m_cpIsLocked;
@@ -135,9 +152,11 @@ protected:
 	std::vector<core::behavior::BaseConstraintCorrection*> constraintCorrections;
 	std::vector<char> constraintCorrectionIsActive; // for each constraint correction, a boolean that is false if the parent node is sleeping
 
-    void clearConstraintProblemLocks();
 
 	simulation::Node *context;
+
+    sofa::core::MultiVecDerivId m_lambdaId;
+    sofa::core::MultiVecDerivId m_dxId;
 
     sofa::helper::system::thread::CTime timer;
     sofa::helper::system::thread::CTime timerTotal;

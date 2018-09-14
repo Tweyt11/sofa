@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -87,7 +87,7 @@ void PointSetTopologyContainer::setNbPoints(int n)
     nbPoints.setValue(n);  
 }
 
-unsigned int PointSetTopologyContainer::getNumberOfElements() const
+size_t PointSetTopologyContainer::getNumberOfElements() const
 {
     return nbPoints.getValue();
 }

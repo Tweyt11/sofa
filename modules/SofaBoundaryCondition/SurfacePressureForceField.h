@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -174,10 +174,6 @@ void SurfacePressureForceField<defaulttype::Rigid3dTypes>::addQuadSurfacePressur
 template<>
 void SurfacePressureForceField<defaulttype::Rigid3dTypes>::verifyDerivative(VecDeriv& v_plus, VecDeriv& v,  VecVec3DerivValues& DVval, VecVec3DerivIndices& DVind, const VecDeriv& Din);
 
-
-template<>
-void SurfacePressureForceField<defaulttype::Rigid3dTypes>::draw(const core::visual::VisualParams* vparams);
-
 #endif
 
 #ifndef SOFA_DOUBLE
@@ -195,9 +191,6 @@ void SurfacePressureForceField<defaulttype::Rigid3fTypes>::addQuadSurfacePressur
 
 template<>
 void SurfacePressureForceField<defaulttype::Rigid3fTypes>::verifyDerivative(VecDeriv& v_plus, VecDeriv& v,  VecVec3DerivValues& DVval, VecVec3DerivIndices& DVind, const VecDeriv& Din);
-
-template<>
-void SurfacePressureForceField<defaulttype::Rigid3fTypes>::draw(const core::visual::VisualParams* vparams);
 
 #endif
 

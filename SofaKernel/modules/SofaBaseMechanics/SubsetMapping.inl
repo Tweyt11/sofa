@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -75,21 +75,6 @@ int SubsetMapping<TIn, TOut>::addPoint(int index)
     f_indices.endEdit();
     return i;
 }
-
-// Handle topological changes
-/*
-template <class TIn, class TOut>
-void SubsetMapping<TIn, TOut>::handleTopologyChange(core::topology::Topology* t)
-{
-    core::topology::BaseMeshTopology* topoFrom = this->fromModel->getContext()->getMeshTopology();
-    if (t != topoFrom) return;
-
-    std::list<const core::topology::TopologyChange *>::const_iterator itBegin=topoFrom->beginChange();
-    std::list<const core::topology::TopologyChange *>::const_iterator itEnd=topoFrom->endChange();
-    f_indices.beginEdit()->handleTopologyEvents(itBegin,itEnd,this->fromModel->getSize());
-    f_indices.endEdit();
-}
-*/
 
 template <class TIn, class TOut>
 void SubsetMapping<TIn, TOut>::init()
@@ -292,22 +277,6 @@ void SubsetMapping<TIn, TOut>::applyJT ( const core::ConstraintParams * /*cparam
         }
     }
     dOut.endEdit();
-    //int offset = out.size();
-    //out.resize(offset+in.size());
-
-    //const IndexArray& indices = f_indices.getValue();
-    //for(unsigned int i = 0; i < in.size(); ++i)
-    //{
-    //  OutConstraintIterator itOut;
-    //  std::pair< OutConstraintIterator, OutConstraintIterator > iter=in[i].data();
-    //
-    //  for (itOut=iter.first;itOut!=iter.second;itOut++)
-    //    {
-    //      unsigned int indexIn = itOut->first;
-    //      OutDeriv data = (OutDeriv) itOut->second;
-    //      out[i+offset].add( indices[indexIn] , data );
-    //    }
-    //}
 }
 
 template<class TIn, class TOut>

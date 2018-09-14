@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -298,7 +298,6 @@ namespace helper
     static inline void eq(defaulttype::RigidDeriv<N,T1>& dest, const defaulttype::Vec<N,T2>& src)
     {
         dest.getVCenter() = src;
-        //dest.getVOrientation() = defaulttype::RigidDeriv<N,T1>::Rot(); //.clear();
     }
 
     template<int N, class T1, class T2>
@@ -308,7 +307,6 @@ namespace helper
     }
 
     // RigidCoord <-> Vec
-
     template<int N, class T1, class T2>
     static inline void eq(defaulttype::Vec<N,T1>& dest, const defaulttype::RigidCoord<N,T2>& src)
     {
@@ -325,7 +323,6 @@ namespace helper
     static inline void eq(defaulttype::RigidCoord<N,T1>& dest, const defaulttype::Vec<N,T2>& src)
     {
         dest.getCenter() = src;
-        //dest.getOrientation() = defaulttype::RigidCoord<N,T1>::Rot(); //.clear();
     }
 
     template<int N, class T1, class T2>

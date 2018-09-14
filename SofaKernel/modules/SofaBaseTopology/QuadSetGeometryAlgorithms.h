@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -24,7 +24,6 @@
 #include "config.h"
 
 #include <SofaBaseTopology/EdgeSetGeometryAlgorithms.h>
-#include <sofa/defaulttype/Vec.h>
 
 namespace sofa
 {
@@ -41,6 +40,7 @@ class QuadSetGeometryAlgorithms : public EdgeSetGeometryAlgorithms<DataTypes>
 public:
     SOFA_CLASS(SOFA_TEMPLATE(QuadSetGeometryAlgorithms,DataTypes),SOFA_TEMPLATE(EdgeSetGeometryAlgorithms,DataTypes));
 
+    typedef sofa::core::topology::BaseMeshTopology::PointID PointID;
     typedef sofa::core::topology::BaseMeshTopology::EdgeID EdgeID;
     typedef sofa::core::topology::BaseMeshTopology::Edge Edge;
     typedef sofa::core::topology::BaseMeshTopology::SeqEdges SeqEdges;
@@ -99,7 +99,7 @@ public:
     * is included or not in the plane defined by (ind_p, plane_vect)
     *
     */
-    bool isQuadInPlane(const QuadID ind_q, const unsigned int ind_p,
+    bool isQuadInPlane(const QuadID ind_q, const PointID ind_p,
             const defaulttype::Vec<3,Real>& plane_vect) const;
 
     bool isPointInQuad(const QuadID ind_q, const sofa::defaulttype::Vec<3,Real>& p) const;
@@ -111,9 +111,9 @@ public:
     virtual void draw(const core::visual::VisualParams* vparams) override;
 
 protected:
-    Data<bool> showQuadIndices;
-    Data<bool> _drawQuads;
-    Data<sofa::defaulttype::Vec3f> _drawColor;
+    Data<bool> showQuadIndices; ///< Debug : view Quad indices
+    Data<bool> _drawQuads; ///< if true, draw the quads in the topology
+    Data<sofa::defaulttype::Vec3f> _drawColor; ///< RGB code color used to draw quads.
 
 };
 

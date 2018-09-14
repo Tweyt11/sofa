@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -26,7 +26,6 @@
 #include <sofa/core/visual/VisualParams.h>
 #include <fstream> // for reading the file
 #include <iostream> //for debugging
-#include <sofa/helper/gl/template.h>
 #include <SofaBaseTopology/TopologyData.inl>
 #include <sofa/helper/decompose.h>
 
@@ -247,8 +246,6 @@ void FastTetrahedralCorotationalForceField<DataTypes>::updateTopologyInformation
     int i;
     unsigned int j;
 
-    int nbPoints = _topology->getNbPoints();
-    int nbEdges=_topology->getNbEdges();
     int nbTetrahedra=_topology->getNbTetrahedra();
 
     TetrahedronRestInformation *tetinfo;
@@ -441,9 +438,9 @@ void FastTetrahedralCorotationalForceField<DataTypes>::addDForce(const sofa::cor
         updateMatrix=false;
 
         // reset all edge matrices
-        for(i=0; i<edgeDfDx.size(); i++)
+        for(unsigned int j=0; j<edgeDfDx.size(); j++)
         {
-            edgeDfDx[i].clear();
+            edgeDfDx[j].clear();
         }
 
         for(i=0; i<nbTetrahedra; i++ )
@@ -475,7 +472,6 @@ void FastTetrahedralCorotationalForceField<DataTypes>::addDForce(const sofa::cor
     }
 
     const helper::vector<Mat3x3> &edgeDfDx = edgeInfo.getValue();
-    unsigned int v0,v1;
     Coord deltax;
 
     // use the already stored matrix
@@ -524,9 +520,9 @@ void FastTetrahedralCorotationalForceField<DataTypes>::addKToMatrix(sofa::defaul
         /// if not done in addDForce: update off-diagonal blocks ("edges") of each element matrix
         updateMatrix=false;
         // reset all edge matrices
-        for(i=0; i<edgeDfDx.size(); i++)
+        for(j=0; j<edgeDfDx.size(); j++)
         {
-            edgeDfDx[i].clear();
+            edgeDfDx[j].clear();
         }
 
         for(i=0; i<nbTetrahedra; i++ )
@@ -554,8 +550,8 @@ void FastTetrahedralCorotationalForceField<DataTypes>::addKToMatrix(sofa::defaul
     }
 
     /// must update point data since these are not computed in addDForce
-    for (i=0; i < pointDfDx.size(); i++)
-        pointDfDx[i].clear();
+    for (j=0; j < pointDfDx.size(); j++)
+        pointDfDx[j].clear();
 
     for(i=0; i<nbTetrahedra; i++ ) {
         tetinfo=&tetrahedronInf[i];
@@ -621,6 +617,8 @@ void FastTetrahedralCorotationalForceField<DataTypes>::draw(const core::visual::
     if (!this->mstate) return;
     if (!f_drawing.getValue()) return;
 
+    vparams->drawTool()->saveLastState();
+
     const VecCoord& x = this->mstate->read(core::ConstVecCoordId::position())->getValue();
 
     if (vparams->displayFlags().getShowWireFrame())
@@ -670,6 +668,8 @@ void FastTetrahedralCorotationalForceField<DataTypes>::draw(const core::visual::
 
     if (vparams->displayFlags().getShowWireFrame())
         vparams->drawTool()->setPolygonMode(0, false);
+
+    vparams->drawTool()->restoreLastState();
 
 }
 

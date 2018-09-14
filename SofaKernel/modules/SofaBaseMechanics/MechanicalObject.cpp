@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -36,34 +36,6 @@ namespace container
 
 using namespace core::behavior;
 using namespace defaulttype;
-
-//template <>
-//bool MechanicalObject<Vec3dTypes>::addBBox(SReal* minBBox, SReal* maxBBox)
-//{
-//    cerr << "MechanicalObject<Vec3dTypes>::addBBox, before min=" << *minBBox <<", max=" << *maxBBox << endl;
-
-//    // participating to bbox only if it is drawn
-//    if( !showObject.getValue() ) return false;
-
-//    const VecCoord& x = *this->read(sofa::core::ConstVecCoordId::position())->getValue();
-//    for( std::size_t i=0; i<x.size(); i++ )
-//    {
-//        Vec<3,Real> p;
-//        DataTypes::get( p[0], p[1], p[2], x[i] );
-//        cerr<<"MechanicalObject<Vec3dTypes>::addBBox, p=" << p << endl;
-
-//        assert( DataTypes::spatial_dimensions <= 3 );
-
-//        for( unsigned int j=0 ; j<DataTypes::spatial_dimensions; ++j )
-//        {
-//            if(p[j]<minBBox[j]) minBBox[j]=p[j];
-//            if(p[j]>maxBBox[j]) maxBBox[j]=p[j];
-//        }
-//    }
-//    cerr << "MechanicalObject<Vec3dTypes>::addBBox, after min=" << *minBBox <<", max=" << *maxBBox << endl;
-//    return true;
-//}
-
 
 SOFA_DECL_CLASS(MechanicalObject)
 

@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -76,7 +76,7 @@ public:
     /** \brief Returns the number of topological element of the current topology.
      * This function avoids to know which topological container is in used.
      */
-    virtual unsigned int getNumberOfElements() const;
+    virtual size_t getNumberOfElements() const;
 
     /** \brief Returns a reference to the Data of points array container. */
     Data<InitTypes::VecCoord>& getPointDataArray() {return d_initPoints;}
@@ -173,7 +173,7 @@ protected:
 
 public:
 
-    Data<InitTypes::VecCoord> d_initPoints;
+    Data<InitTypes::VecCoord> d_initPoints; ///< Initial position of points
 
 protected:
 
@@ -190,9 +190,9 @@ protected:
 
 private:
     
-    Data<unsigned int> nbPoints;
+    Data<unsigned int> nbPoints; ///< Number of points
 
-    Data<sofa::helper::vector<PointID> > points;
+    Data<sofa::helper::vector<PointID> > points; ///< List of point indices
 };
 
 } // namespace topology

@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -122,9 +122,9 @@ Visitor::Result AnimateVisitor::processNodeTopDown(simulation::Node* node)
     if (!firstNodeVisited)
     {
         firstNodeVisited=true;
-        sofa::core::MechanicalParams mparams(*this->params);
-        mparams.setDt(dt);
-        MechanicalResetConstraintVisitor resetConstraint(&mparams);
+        
+        sofa::core::ConstraintParams cparams(*this->params);
+        MechanicalResetConstraintVisitor resetConstraint(&cparams);
         node->execute(&resetConstraint);
     }
 

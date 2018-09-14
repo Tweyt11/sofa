@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -52,6 +52,7 @@ public:
 
 
     typedef core::topology::BaseMeshTopology::TetraID TetraID;
+    typedef core::topology::BaseMeshTopology::TetrahedronID TetrahedronID;
     typedef core::topology::BaseMeshTopology::Tetra Tetra;
     typedef core::topology::BaseMeshTopology::SeqTetrahedra SeqTetrahedra;
     typedef core::topology::BaseMeshTopology::SeqEdges SeqEdges;
@@ -110,13 +111,13 @@ public:
 
     /// finds the indices of all tetrahedra in the ball of center ind_ta and of radius dist(ind_ta, ind_tb)
     void getTetraInBall(const TetraID ind_ta, const TetraID ind_tb,
-            sofa::helper::vector<unsigned int> &indices) const;
+            sofa::helper::vector<TetrahedronID> &indices) const;
 
     /// finds the indices of all tetrahedra in the ball of center ind_ta and of radius dist(ind_ta, ind_tb)
     void getTetraInBall(const TetraID ind_ta, Real r,
-            sofa::helper::vector<unsigned int> &indices) const;
+            sofa::helper::vector<TetrahedronID> &indices) const;
     void getTetraInBall(const Coord& c, Real r,
-            sofa::helper::vector<unsigned int> &indices) const;
+            sofa::helper::vector<TetrahedronID> &indices) const;
     /** \brief Write the current mesh into a msh file
     */
     void writeMSHfile(const char *filename) const;
@@ -137,10 +138,10 @@ public:
     NumericalIntegrationDescriptor<Real,4> &getTetrahedronNumericalIntegrationDescriptor();
 
 protected:
-    Data<bool> d_showTetrahedraIndices;
-    Data<bool> d_drawTetrahedra;
-    Data<float> d_drawScaleTetrahedra;
-    Data<sofa::defaulttype::Vec4f> d_drawColorTetrahedra;
+    Data<bool> d_showTetrahedraIndices; ///< Debug : view Tetrahedrons indices
+    Data<bool> d_drawTetrahedra; ///< if true, draw the tetrahedra in the topology
+    Data<float> d_drawScaleTetrahedra; ///< Scale of the terahedra (between 0 and 1; if <1.0, it produces gaps between the tetrahedra)
+    Data<sofa::defaulttype::Vec4f> d_drawColorTetrahedra; ///< RGBA code color used to draw tetrahedra.
     /// include cubature points
     NumericalIntegrationDescriptor<Real,4> tetrahedronNumericalIntegration;
 };

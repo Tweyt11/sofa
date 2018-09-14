@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -23,12 +23,9 @@
 #define SOFA_COMPONENT_COLLISION_BASECONTACTMAPPER_H
 #include "config.h"
 
-#include <sofa/core/CollisionModel.h>
-#include <sofa/core/collision/DetectionOutput.h>
-#include <sofa/defaulttype/RigidTypes.h>
-//#include <SofaBaseMechanics/MechanicalObject.h>
-
 #include <sofa/helper/Factory.h>
+#include <sofa/core/CollisionModel.h>
+#include <sofa/defaulttype/RigidTypes.h>
 
 
 namespace sofa
@@ -50,7 +47,7 @@ namespace component
 namespace collision
 {
 
-class GenerateStirngID
+class GenerateStringID
 {
 public :
 

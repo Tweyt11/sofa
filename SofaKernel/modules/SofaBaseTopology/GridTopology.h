@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -180,7 +180,7 @@ public:
 
 
     /// Overload Method from @sa MeshTopology::getNbHexahedra
-    virtual int getNbHexahedra() override { return (d_n.getValue()[0]-1)*(d_n.getValue()[1]-1)*(d_n.getValue()[2]-1); }
+    virtual size_t getNbHexahedra() override { return (d_n.getValue()[0]-1)*(d_n.getValue()[1]-1)*(d_n.getValue()[2]-1); }
     /// Overload Method from @sa MeshTopology::getQuad
     Quad getQuad(int x, int y, int z);
 
@@ -188,11 +188,6 @@ public:
     Hexa getHexahedron(int x, int y, int z);
     Hexa getHexaCopy(int i);
     Quad getQuadCopy(int i);
-
-#ifndef SOFA_NEW_HEXA
-    Cube getCubeCopy(int i) { return getHexaCopy(i); }
-    Cube getCube(int x, int y, int z) { return getHexahedron(x,y,z); }
-#endif
 
     /// Get Point index in Grid, will call method @sa getIndex
     int point(int x, int y, int z) const { return getIndex(x,y,z); }
@@ -208,7 +203,10 @@ public:
     Data<Vec3i> d_n;
 
     /// Data bool to set option to compute topological elements
-    Data<bool> d_computeHexaList, d_computeQuadList, d_computeEdgeList, d_computePointList;
+    Data<bool> d_computeHexaList;
+    Data<bool> d_computeQuadList; ///< put true if the list of Quad is needed during init (default=true)
+    Data<bool> d_computeEdgeList; ///< put true if the list of Lines is needed during init (default=true)
+    Data<bool> d_computePointList; ///< put true if the list of Points is needed during init (default=true)
     /// Data bool to set option to compute texcoords
     Data<bool> d_createTexCoords;
 };

@@ -7,6 +7,7 @@ set(HEADER_FILES
     BackTrace.h
     cast.h
     ColorMap.h
+    ComponentChange.h
     DualQuat.h
     DualQuat.inl
     Factory.h
@@ -39,7 +40,6 @@ set(HEADER_FILES
     accessor.h
     decompose.h
     decompose.inl
-    deprecatedcomponents.h
     deque.h
     fixed_array.h
     hash.h
@@ -57,10 +57,8 @@ set(HEADER_FILES
     io/MassSpringLoader.h
     io/Mesh.h
     io/MeshOBJ.h
-    io/MeshSTL.h
+    io/MeshGmsh.h
     io/MeshTopologyLoader.h
-    io/MeshTrian.h
-    io/MeshVTK.h
     io/SphereLoader.h
     io/TriangleLoader.h
     io/bvh/BVHChannels.h
@@ -91,6 +89,7 @@ set(HEADER_FILES
     system/atomic.h
     system/config.h
     system/console.h
+    system/console_internal.h
     system/gl.h
     system/glu.h
     system/thread/CTime.h
@@ -125,6 +124,7 @@ set(HEADER_FILES
     logging/ClangStyleMessageFormatter.h
     logging/DefaultStyleMessageFormatter.h
     logging/ExceptionMessageHandler.h
+    messaging/FileMessage.h
 )
 
 set(SOURCE_FILES
@@ -132,6 +132,7 @@ set(SOURCE_FILES
     ArgumentParser.cpp
     BackTrace.cpp
     ColorMap.cpp
+    ComponentChange.cpp
     DualQuat.cpp
     Factory.cpp
     GenerateRigid.cpp
@@ -147,7 +148,6 @@ set(SOURCE_FILES
     UnitTest.cpp
     Utils.cpp
     decompose.cpp
-    deprecatedcomponents.cpp
     gl/Trackball.cpp
     gl/Transformation.cpp
     init.cpp
@@ -160,10 +160,8 @@ set(SOURCE_FILES
     io/MassSpringLoader.cpp
     io/Mesh.cpp
     io/MeshOBJ.cpp
-    io/MeshSTL.cpp
+    io/MeshGmsh.cpp
     io/MeshTopologyLoader.cpp
-    io/MeshTrian.cpp
-    io/MeshVTK.cpp
     io/SphereLoader.cpp
     io/TriangleLoader.cpp
     io/bvh/BVHJoint.cpp
@@ -191,6 +189,7 @@ set(SOURCE_FILES
     types/Material.cpp
     logging/Message.cpp
     logging/MessageDispatcher.cpp
+    logging/MessageFormatter.cpp
     logging/ComponentInfo.cpp
     logging/ClangMessageHandler.cpp
     logging/ClangStyleMessageFormatter.cpp
@@ -202,6 +201,7 @@ set(SOURCE_FILES
     logging/LoggingMessageHandler.cpp
     logging/RoutingMessageHandler.cpp
     logging/ExceptionMessageHandler.cpp
+    messaging/FileMessage.cpp
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL Linux)
@@ -271,12 +271,6 @@ if(NOT SOFA_NO_OPENGL)
         gl/glfont.cpp
         system/gl.cpp
     )
-
-    if(SOFA_HAVE_GLUT)
-        list(APPEND HEADER_FILES
-            system/glut.h
-        )
-    endif()
 
     if(SOFA_HAVE_GLEW)
         list(APPEND HEADER_FILES
@@ -367,12 +361,11 @@ if(APPLE)
     # on macOS, -framework CoreServices is needed for FileMonitor
     list(APPEND SOFAFRAMEWORK_DEPENDENCY_LINK "-framework CoreServices")
 endif()
-target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} ${Boost_LIBRARIES} )
 
 if(SOFA_BUILD_TESTS)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} ${Boost_LIBRARIES} gtest)
 else()
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} ${Boost_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK})
 endif()
 
 
@@ -393,7 +386,4 @@ set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${SOFAHELPER_COM
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION "${SOFAFRAMEWORK_VERSION}")
 
-sofa_install_targets(SofaFramework SofaHelper "")
-
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/" DESTINATION "include/sofa/helper"
-        FILES_MATCHING PATTERN "*.h" PATTERN "*.inl")
+sofa_install_targets(SofaFramework ${PROJECT_NAME} "sofa/helper")

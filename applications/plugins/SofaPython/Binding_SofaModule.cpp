@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -603,6 +603,33 @@ static PyObject * Sofa_getAliasesFor(PyObject * /*self*/, PyObject * args)
     return pyList;
 }
 
+static PyObject * Sofa_getComponentsFromTarget(PyObject *self, PyObject * args)
+{
+    SOFA_UNUSED(self) ;
+    char* targetname;
+    if (!PyArg_ParseTuple(args, "s", &targetname)) {
+        return nullptr;
+    }
+
+    std::vector<ObjectFactory::ClassEntry::SPtr> entries;
+    ObjectFactory::getInstance()->getEntriesFromTarget(entries, targetname);
+
+    PyObject *pyList = PyList_New(0);
+    for (auto& entry : entries){
+        PyObject* value = Py_BuildValue("s", entry->className.c_str()) ;
+        if(!PySequence_Contains(pyList, value))
+        {
+           PyList_Append(pyList, value);
+        }
+        else
+        {
+            Py_DECREF(value) ;
+        }
+    }
+
+    return pyList;
+}
+
 // -----------------
 
 
@@ -861,6 +888,7 @@ SP_MODULE_METHOD(Sofa,loadPlugin)
 SP_MODULE_METHOD(Sofa,path)
 SP_MODULE_METHOD_DOC(Sofa,getAvailableComponents, "Returns the list of the available components in the factory.")
 SP_MODULE_METHOD_DOC(Sofa,getAliasesFor, "Returns the list of the aliases for a given component")
+SP_MODULE_METHOD_DOC(Sofa,getComponentsFromTarget, "Returns a string with the component contained in a given targets (plugins)")
 SP_MODULE_METHOD_DOC(Sofa, timerClear, "Method : Sofa_clear \nDesc   : Wrapper for python usage. Clear the timer. \nParam  : PyObject*, self - Object of the python script \nReturn : return None")
 SP_MODULE_METHOD_DOC(Sofa, timerIsEnabled, "Method : Sofa_isEnabled \nDesc   : Wrapper for python usage. Return if the timer is enable or not. \nParam  : PyObject*, self - Object of the python script \nParam  : PyObject*, args - given arguments to apply to the method \nReturn : None")
 SP_MODULE_METHOD_DOC(Sofa, timerSetEnabled, "Method : Sofa_setEnabled \nDesc   : Wrapper for python usage. /!\\ Need to pass an int in arguments insteed of a bool in the python script. \nParam  : PyObject*, self - Object of the python script \nParam  : PyObject*, args - given arguments to apply to the method \nReturn : None")

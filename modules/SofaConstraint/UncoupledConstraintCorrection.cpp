@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -105,7 +105,7 @@ SOFA_CONSTRAINT_API void UncoupledConstraintCorrection< defaulttype::Rigid3Types
             UniformMass< Rigid3Types, Rigid3Mass > *um = dynamic_cast< UniformMass< Rigid3Types, Rigid3Mass >* > (m);
 
             if (um)
-                massValue = um->getMass();
+                massValue = um->getVertexMass();
             else
                 serr << "WARNING : no mass found" << sendl;
         }
@@ -181,7 +181,7 @@ SOFA_CONSTRAINT_API void UncoupledConstraintCorrection< defaulttype::Rigid3Types
 
 SOFA_DECL_CLASS(UncoupledConstraintCorrection)
 
-int UncoupledConstraintCorrectionClass = core::RegisterObject("Component computing contact forces within a simulated body using the compliance method.")
+int UncoupledConstraintCorrectionClass = core::RegisterObject("Component computing constraint forces within a simulated body using the compliance method.")
 #ifndef SOFA_FLOAT
         .add< UncoupledConstraintCorrection< Vec1dTypes > >()
         .add< UncoupledConstraintCorrection< Vec2dTypes > >()

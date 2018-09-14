@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -106,13 +106,8 @@ public:
     typedef helper::WriteAccessor< Data< VecDeriv > > WDataRefVecDeriv;
 
     typedef core::topology::BaseMeshTopology::index_type Index;
-#ifdef SOFA_NEW_HEXA
     typedef core::topology::BaseMeshTopology::Hexa Element;
     typedef core::topology::BaseMeshTopology::SeqHexahedra VecElement;
-#else
-    typedef core::topology::BaseMeshTopology::Cube Element;
-    typedef core::topology::BaseMeshTopology::SeqCubes VecElement;
-#endif
 
     enum
     {
@@ -133,7 +128,7 @@ protected:
 
     typedef defaulttype::Mat<24, 24, Real> ElementStiffness;
     typedef helper::vector<ElementStiffness> VecElementStiffness;
-    Data<VecElementStiffness> _elementStiffnesses;
+    Data<VecElementStiffness> _elementStiffnesses; ///< Stiffness matrices per element (K_i)
 
     typedef defaulttype::Mat<3, 3, Real> Mat33;
 
@@ -151,9 +146,6 @@ protected:
 
 
     defaulttype::Mat<8,3,int> _coef; ///< coef of each vertices to compute the strain stress matrix
-#ifndef SOFA_NEW_HEXA
-    static const int _indices[8]; ///< indices ordering is different than in topology node
-#endif
 
     HexahedronFEMForceFieldInternalData<DataTypes> *data;
     friend class HexahedronFEMForceFieldInternalData<DataTypes>;
@@ -169,10 +161,10 @@ public:
     Data<Real> f_youngModulus;
     Data<bool> f_updateStiffnessMatrix;
     Data<bool> f_assembling;
-    Data< sofa::helper::OptionsGroup > _gatherPt; //use in GPU version
-    Data< sofa::helper::OptionsGroup > _gatherBsize; //use in GPU version
-    Data<bool> f_drawing;
-    Data<Real> f_drawPercentageOffset;
+    Data< sofa::helper::OptionsGroup > _gatherPt; ///< use in GPU version
+    Data< sofa::helper::OptionsGroup > _gatherBsize; ///< use in GPU version
+    Data<bool> f_drawing; ///<  draw the forcefield if true
+    Data<Real> f_drawPercentageOffset; ///< size of the hexa
     bool needUpdateTopology;
 
 protected:
@@ -358,11 +350,7 @@ protected:
 
     inline const VecElement *getIndexedElements()
     {
-#ifdef SOFA_NEW_HEXA
         return & (_mesh->getHexahedra());
-#else
-        return & (_mesh->getCubes());
-#endif
     }
 
     virtual void computeElementStiffness( ElementStiffness &K, const MaterialStiffness &M, const helper::fixed_array<Coord,8> &nodes, const int elementIndice, double stiffnessFactor=1.0);

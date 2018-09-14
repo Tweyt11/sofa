@@ -34,7 +34,6 @@ set(MOC_HEADER_FILES
 
 # these header files do not need MOCcing
 set(HEADER_FILES
-    GuiDataRepository.h
     FileManagement.h
     GraphListenerQListView.h
     PickHandlerCallBacks.h
@@ -83,7 +82,6 @@ set(SOURCE_FILES
     WDoubleLineEdit.cpp
     viewer/SofaViewer.cpp
     panels/QDocBrowser.cpp
-    GuiDataRepository.cpp
 )
 
 set(UI_FILES
@@ -158,33 +156,29 @@ find_package(Qt5 COMPONENTS Core QUIET)
 if(Qt5Core_FOUND)
     message("SofaGUIQt: Using Qt5")
     set(QT5_NO_LINK_QTMAIN 1)
-
     find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 
+    set(QT_TARGETS Qt5::Core Qt5::Gui Qt5::OpenGL)
     set(EXT_QT_INCLUDES ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS})
-    # target_include_directories(${EXT_QT_INCLUDES})
-
     set(EXT_QT_LIBRARIES ${Qt5Core_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES})
+    # target_include_directories(${EXT_QT_INCLUDES})
 
     qt5_wrap_cpp(MOC_FILES ${MOC_HEADER_FILES})
     set(MOC_FILES_GROUP "Generated")
     qt5_wrap_ui(FORM_FILES ${UI_FILES})
     set(FORM_FILES_GROUP "Generated")
+endif()
 
+if(WIN32)
+    sofa_copy_libraries_from_targets(${QT_TARGETS})
+    sofa_install_libraries_from_targets(${QT_TARGETS})
 
-else()
-    message("SofaGUIQt: Using Qt4")
-
-    set(QT4_NO_LINK_QTMAIN 1)
-    find_package(Qt4 QUIET COMPONENTS qtcore qtgui qtopengl qtxml REQUIRED)
-
-    qt4_wrap_cpp(MOC_FILES ${MOC_HEADER_FILES})
-    set(MOC_FILES_GROUP "Generated")
-    qt4_wrap_ui(FORM_FILES ${UI_FILES})
-    set(FORM_FILES_GROUP "Generated")
-
-    set(EXT_QT_LIBRARIES ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTOPENGL_LIBRARY} ${QT_QTXML_LIBRARY})
-
+    # Installing Qt platforms dll the hard way (dirty)
+    list (GET QT_TARGETS 0 QtCore_target)
+    get_target_property(QtCore_location ${QtCore_target} LOCATION_${CMAKE_BUILD_TYPE})
+    string(REGEX REPLACE "\\/[^/]*/[^/]*$" "" Qt_location ${QtCore_location})
+    FILE(GLOB QT_PLUGINS "${Qt_location}/plugins/platforms/qwindows*.dll")
+    install(FILES ${QT_PLUGINS} DESTINATION "bin/platforms" COMPONENT applications)
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${MOC_HEADER_FILES} ${HEADER_FILES} ${MOC_FILES} ${FORM_FILES} ${SOURCE_FILES})
@@ -204,13 +198,16 @@ endif()
 # target_compile_definitions(${PROJECT_NAME} PUBLIC "QT3_SUPPORT")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_SOFAGUIQT")
-if(SOFA_ENABLE_QWT)
-    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_SOFAGUIQT")
-endif()
 
+sofa_install_targets(SofaGui SofaGuiQt "sofa/gui/qt")
 
-sofa_install_targets(SofaGui SofaGuiQt "")
+# Create build and install versions of .ini file for resources finding
+set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/etc/${PROJECT_NAME}.ini.in "${CMAKE_BINARY_DIR}/etc/${PROJECT_NAME}.ini")
+set(RESOURCES_DIR "../share/sofa/gui/qt")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/etc/${PROJECT_NAME}.ini.in "${CMAKE_BINARY_DIR}/etc/installed${PROJECT_NAME}.ini")
+install(FILES "${CMAKE_BINARY_DIR}/etc/installed${PROJECT_NAME}.ini" DESTINATION etc RENAME ${PROJECT_NAME}.ini COMPONENT applications)
 
-file(INSTALL "resources" DESTINATION "../../share/sofa/gui/qt")
-install(FILES ${HEADER_FILES} DESTINATION "include/sofa/gui/qt")
-install(FILES ${MOC_HEADER_FILES} DESTINATION "include/sofa/gui/qt")
+install(DIRECTORY "resources" DESTINATION "share/sofa/gui/qt" COMPONENT resources)
+install(FILES ${HEADER_FILES} DESTINATION "include/sofa/gui/qt" COMPONENT headers)
+install(FILES ${MOC_HEADER_FILES} DESTINATION "include/sofa/gui/qt" COMPONENT headers)

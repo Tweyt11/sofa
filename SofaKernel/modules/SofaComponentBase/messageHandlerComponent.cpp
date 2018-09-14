@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -91,7 +91,7 @@ void MessageHandlerComponent::parse ( core::objectmodel::BaseObjectDescription* 
 //    }else if(stype=="log"){
 //        MessageDispatcher::addHandler(new LoggerMessageHandler()) ;
     }else if(stype=="rich"){
-         MessageDispatcher::addHandler(new ConsoleMessageHandler(new RichConsoleStyleMessageFormatter())) ;
+         MessageDispatcher::addHandler(new ConsoleMessageHandler(&RichConsoleStyleMessageFormatter::getInstance())) ;
     }else if(stype=="silent"){
         MessageDispatcher::clearHandlers() ;
     }else{

@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -26,7 +26,6 @@
 #include <sofa/core/Mapping.h>
 #include <sofa/core/topology/BaseMeshTopology.h>
 #include <sofa/defaulttype/RigidTypes.h>
-#include <sofa/helper/gl/template.h>
 #include <sofa/defaulttype/Vec3Types.h>
 
 
@@ -111,17 +110,17 @@ protected:
     /*!
     	Set the neighborhood line level
     */
-    Data<unsigned int> nvNeighborhood;
+    Data<unsigned int> nvNeighborhood; ///< Set the neighborhood line level
 
     /*!
     	Set the number of most influenced lines by each vertice
     */
-    Data<unsigned int> numberInfluencedLines;
+    Data<unsigned int> numberInfluencedLines; ///< Set the number of most influenced lines by each vertice
 
     /*!
     	Set the coefficient used to compute the weight of lines
     */
-    Data<int> weightCoef;
+    Data<int> weightCoef; ///< Set the coefficient used to compute the weight of lines
 
 private:
 

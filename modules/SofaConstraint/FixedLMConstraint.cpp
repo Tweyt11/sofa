@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -59,56 +59,6 @@ template class SOFA_CONSTRAINT_API FixedLMConstraint<Rigid3dTypes>;
 template class SOFA_CONSTRAINT_API FixedLMConstraint<Vec3fTypes>;
 template class SOFA_CONSTRAINT_API FixedLMConstraint<Rigid3fTypes>;
 #endif
-
-
-#ifndef SOFA_FLOAT
-template <>
-void FixedLMConstraint<Rigid3dTypes>::draw(const core::visual::VisualParams* vparams)
-{
-#ifndef SOFA_NO_OPENGL
-    const SetIndexArray & indices = f_indices.getValue();
-    if (!vparams->displayFlags().getShowBehaviorModels()) return;
-    const VecCoord& x =constrainedObject1->read(core::ConstVecCoordId::position())->getValue();
-    glDisable (GL_LIGHTING);
-    glPointSize(10);
-    glColor4f (1,0.5,0.5,1);
-    glBegin (GL_POINTS);
-    for (SetIndex::const_iterator it = indices.begin(); it != indices.end(); ++it)
-        gl::glVertexT(x[*it].getCenter());
-    glEnd();
-#endif /* SOFA_NO_OPENGL */
-}
-
-#endif
-
-#ifndef SOFA_DOUBLE
-template <>
-void FixedLMConstraint<Rigid3fTypes>::draw(const core::visual::VisualParams* vparams)
-{
-    const SetIndexArray & indices = f_indices.getValue();
-    if (!vparams->displayFlags().getShowBehaviorModels()) return;
-    const VecCoord& x =constrainedObject1->read(core::ConstVecCoordId::position())->getValue();
-
-    std::vector< Vector3 > points;
-    for (SetIndexArray::const_iterator it = indices.begin();
-            it != indices.end();
-            ++it)
-    {
-        points.push_back(x[*it].getCenter());
-    }
-
-    if( _drawSize.getValue() == 0) // old classical drawing by points
-    {
-        vparams->drawTool()->drawPoints(points, 10, Vec<4,float>(1,0.5,0.5,1));
-    }
-    else
-    {
-        vparams->drawTool()->drawSpheres(points, (float)_drawSize.getValue(), Vec<4,float>(1.0f,0.35f,0.35f,1.0f));
-    }
-}
-
-#endif
-
 
 
 } // namespace constraintset

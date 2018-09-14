@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -36,6 +36,8 @@
 #include <SofaSimulationCommon/SceneLoaderXML.h>
 #include <SofaTest/TestMessageHandler.h>
 #include <sofa/helper/logging/Message.h>
+
+#include <SofaConstraint/GenericConstraintSolver.h>
 
 namespace sofa {
 
@@ -217,7 +219,9 @@ bool BilateralInteractionConstraint_test<Vec3Types>::test_Vec3ConstrainedPositio
             points[i] = meca[i]->read(core::ConstVecCoordId::position())->getValue()[0];
     }
 
-    if(points[0] == points[1]) return true;
+    component::constraintset::GenericConstraintSolver *test;
+    root->get(test);
+    if( vectorMaxDiff(points[0],points[1])<test->tolerance.getValue()) return true;
     else
     {
         ADD_FAILURE() << "Error while testing if two positions are correctly constrained" << std::endl;

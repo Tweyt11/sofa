@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2017 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -24,14 +24,6 @@
 
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <sofa/helper/list.h>
-#include <sofa/core/DataEngine.h>
-
-#include <sofa/helper/fixed_array.h>
-#include <iostream>
-#include <sofa/helper/vector.h>
-#include <cstdlib>
-#include <string>
-
 
 namespace sofa
 {
@@ -65,17 +57,18 @@ public:
     //typedef int index_type;
     typedef unsigned int index_type;
     enum { InvalidID = (unsigned)-1 };
-    typedef index_type	        	    PointID;
-    typedef index_type          		    EdgeID;
-    typedef index_type                          TriangleID;
-    typedef index_type                 	    QuadID;
-    typedef index_type	                    TetraID;
-    typedef index_type	                    TetrahedronID;
-    typedef index_type	                    HexaID;
-    typedef index_type	                    HexahedronID;
-    typedef index_type	                    PentahedronID;
-    typedef index_type	                    PentaID;
-    typedef index_type	                    PyramidID;
+    typedef index_type                 ElemID;
+    typedef index_type                 PointID;
+    typedef index_type                 EdgeID;
+    typedef index_type                 TriangleID;
+    typedef index_type                 QuadID;
+    typedef index_type                 TetraID;
+    typedef index_type                 TetrahedronID;
+    typedef index_type                 HexaID;
+    typedef index_type                 HexahedronID;
+    typedef index_type                 PentahedronID;
+    typedef index_type                 PentaID;
+    typedef index_type                 PyramidID;
 
 
     typedef sofa::helper::vector<index_type>                  SetIndex;
