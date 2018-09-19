@@ -216,6 +216,9 @@ void MeshGenerationFromImplicitShape::handleEvent(sofa::core::objectmodel::Event
 
 void MeshGenerationFromImplicitShape::update(bool forceUpdate)
 {
+    m_componentstate = ComponentState::Valid ;
+
+
     /// The inputs have changed
     if(  !m_com.valid() && hasChanged() || forceUpdate )
     {
@@ -233,6 +236,8 @@ void MeshGenerationFromImplicitShape::update(bool forceUpdate)
                                        this->d_cellsize.getValue(),
                                        this->d_cell_radiusedge_ratio.getValue());
 //            return countervalue; });
+            m_componentstate = ComponentState::Valid ;
+
     }
 
     if( !m_com.valid() )
@@ -338,8 +343,8 @@ void MeshGenerationFromImplicitShape::draw(const sofa::core::visual::VisualParam
     auto& box = f_bbox.getValue();
     vparams->drawTool()->drawBoundingBox(box.minBBox(), box.maxBBox()) ;
 
-    if(m_componentstate != ComponentState::Valid)
-        return;
+    //if(m_componentstate != ComponentState::Valid)
+    //    return;
 
     if(d_drawtetras.getValue()) {
         sofa::helper::ReadAccessor< Data<VecCoord> > x = d_out_points;
