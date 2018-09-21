@@ -176,6 +176,8 @@ public:
     template<class T>
     static bool canCreate(T* obj, objectmodel::BaseContext* context, objectmodel::BaseObjectDescription* arg)
     {
+        return true;
+        /*
         MechanicalState<DataTypes>* mstate1 = NULL;
         MechanicalState<DataTypes>* mstate2 = NULL;
         std::string object1 = arg->getAttribute("object1","@./");
@@ -191,7 +193,7 @@ public:
             return false;
         }
 
-        return BaseInteractionForceField::canCreate(obj, context, arg);
+        return BaseInteractionForceField::canCreate(obj, context, arg);*/
     }
 
     /// Construction method called by ObjectFactory.
