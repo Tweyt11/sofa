@@ -38,6 +38,7 @@
 #include <CGAL/Mesh_complex_3_in_triangulation_3.h>
 #include <CGAL/Mesh_criteria_3.h>
 #include <CGAL/Implicit_to_labeling_function_wrapper.h>
+#include <CGAL/Mesh_domain_with_polyline_features_3.h>
 #include <CGAL/Labeled_mesh_domain_3.h>
 #include <CGAL/make_mesh_3.h>
 #include <CGAL/Bbox_3.h>
@@ -89,6 +90,8 @@ public:
 typedef CGAL::Implicit_multi_domain_to_labeling_function_wrapper<ImplicitFunction> Function_wrapper;
 typedef Function_wrapper::Function_vector Function_vector;
 typedef CGAL::Labeled_mesh_domain_3<Function_wrapper, K> Mesh_domain;
+
+typedef CGAL::Mesh_domain_with_polyline_features_3<Mesh_domain> Mesh_domain_features;
 //Triangulation
 typedef CGAL::Mesh_triangulation_3<Mesh_domain>::type Tr;
 typedef CGAL::Mesh_complex_3_in_triangulation_3<Tr> C3t3;
@@ -150,10 +153,12 @@ MeshGenerationFromImplicitShape::MeshGenerationFromImplicitShape()
                                        "process is guaranteed to terminate for values of cell_radius_edge_ratio bigger than 2. (Default 2.1)"))
     , d_center(initData(&d_center, Vec3d(0,0,0), "meshingzone_center", "The center of the sphere where the meshing is done. (Default = 0,0,0)"))
     , d_radius(initData(&d_radius, (double)2.0,  "meshingzone_radius", "The radius of the sphere where the meshing is done. (Default = 2)"))
+    , d_listPolylines(initData(&d_listPolylines,"Features" , "list of polylines which are 1D-features"))
     , d_drawtetras(initData(&d_drawtetras,false,"drawTetras","display generated tetra mesh"))
     , d_out_points(initData(&d_out_points, "outputPoints", "position coordinates from the tetrahedral generation"))
     , d_out_tetrahedra(initData(&d_out_tetrahedra, "outputTetras", "list of tetrahedra"))
     , l_scalarfield(initLink("scalarfield", "The scalar field that defined the iso-function"))
+
 {
     f_listening.setValue(true);
 }
@@ -258,7 +263,7 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double facet_angleP, d
                                                           double cell_sizeP, double cell_radius_edge_ratioP)
 {
     //Domain
-    Mesh_domain *domain = NULL;
+    Mesh_domain_features *domain = NULL;
     if(l_scalarfield.empty())
         return 0;
 
@@ -267,9 +272,33 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double facet_angleP, d
     ImplicitFunction function(l_scalarfield);
     Function_vector v;
     v.push_back(function);
+
+
+    const helper::vector<helper::vector<Vec3d>>& d_listPolylines_tmp = d_listPolylines.getValue() ;
+    helper::vector<helper::vector<K::Point_3>> _1dFeatureS;
+    helper::vector<K::Point_3> _1dFeature;
+    K::Point_3 ptmp;
+
+    for (int i=0; i<d_listPolylines_tmp.size(); i++) {
+
+        _1dFeature.clear();
+
+        for (int j=0; j<d_listPolylines_tmp[i].size(); j++){
+
+            ptmp = K::Point_3(d_listPolylines_tmp[i][j].x(), d_listPolylines_tmp[i][j].y(), d_listPolylines_tmp[i][j].z());
+            _1dFeature.push_back(ptmp);
+        }
+        _1dFeature.push_back(_1dFeature.front());
+        _1dFeatureS.push_back(_1dFeature);
+
+    }
+
+
+
+
     double dtmp=d_radius.getValue();
     const Vec3d& ctmp = d_center.getValue() ;
-    domain = new Mesh_domain(v, K::Sphere_3(K::Point_3(ctmp.x(), ctmp.y(), ctmp.z()), dtmp*dtmp), 1e-3);
+    domain = new Mesh_domain_features(v, K::Sphere_3(K::Point_3(ctmp.x(), ctmp.y(), ctmp.z()), dtmp*dtmp), 1e-3);
 
     //Criteria
     Spherical_sizing_field fsize ;
@@ -278,6 +307,15 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double facet_angleP, d
     ///Mesh_criteria criteria(facet_criteria, cell_criteria);
     Mesh_criteria criteria(facet_angle=facet_angleP, facet_size=facet_sizeP, facet_distance=facet_distanceP,
                            cell_radius_edge_ratio=cell_radius_edge_ratioP, cell_size=cell_sizeP);
+
+
+
+
+//    1DFeatures
+
+
+    domain->add_features(_1dFeatureS.begin(), _1dFeatureS.end());       // Insert edge in domain
+
 
     //Mesh generation
     C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(*domain, criteria, no_exude(), no_perturb());

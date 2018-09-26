@@ -91,6 +91,8 @@ private:
     Data<double> d_radius ;
     Data<Vec3d>  d_center ;
 
+    Data<helper::vector<helper::vector<Vec3d>>> d_listPolylines ;
+
     /// Display
     Data<bool> d_drawtetras;
 
