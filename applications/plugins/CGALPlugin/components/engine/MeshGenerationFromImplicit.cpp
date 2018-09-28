@@ -40,8 +40,10 @@
 #include <CGAL/Implicit_to_labeling_function_wrapper.h>
 #include <CGAL/Mesh_domain_with_polyline_features_3.h>
 #include <CGAL/Labeled_mesh_domain_3.h>
+#include <CGAL/refine_mesh_3.h>
 #include <CGAL/make_mesh_3.h>
 #include <CGAL/Bbox_3.h>
+
 
 #include "MeshGenerationFromImplicit.h"
 #include <sofa/core/objectmodel/IdleEvent.h>
@@ -131,6 +133,9 @@ CGAL::Bbox_3 MeshGenerationFromImplicitShape::BoundingBox(double x_min, double y
 
 MeshGenerationFromImplicitShape::MeshGenerationFromImplicitShape()
     : TrackedComponent(this)
+
+    , d_edgesize(initData(&d_edgesize,(double)1.0,"edge_size", "This parameter controls the size of the edges. (Default 1.0)"))
+
     , d_facetangle(initData(&d_facetangle,(double)30.0,"facet_angle",
                             "This parameter controls the shape of surface facets. Actually, "
                             "it is a lower bound for the angle (in degree) of surface facets.(Default 30.0)"))
@@ -153,7 +158,8 @@ MeshGenerationFromImplicitShape::MeshGenerationFromImplicitShape()
                                        "process is guaranteed to terminate for values of cell_radius_edge_ratio bigger than 2. (Default 2.1)"))
     , d_center(initData(&d_center, Vec3d(0,0,0), "meshingzone_center", "The center of the sphere where the meshing is done. (Default = 0,0,0)"))
     , d_radius(initData(&d_radius, (double)2.0,  "meshingzone_radius", "The radius of the sphere where the meshing is done. (Default = 2)"))
-    , d_listPolylines(initData(&d_listPolylines,"Features" , "list of polylines which are 1D-features"))
+    , d_polylinesPoints(initData(&d_polylinesPoints,"polylinesPoints" , "list of points in the polylines which are 1D-features"))
+    , d_polylinesDimensions(initData(&d_polylinesDimensions,"polylinesDimensions" , "list of dimensions of the polylines which are 1D-features"))
     , d_drawtetras(initData(&d_drawtetras,false,"drawTetras","display generated tetra mesh"))
     , d_out_points(initData(&d_out_points, "outputPoints", "position coordinates from the tetrahedral generation"))
     , d_out_tetrahedra(initData(&d_out_tetrahedra, "outputTetras", "list of tetrahedra"))
@@ -164,7 +170,9 @@ MeshGenerationFromImplicitShape::MeshGenerationFromImplicitShape()
 }
 
 void MeshGenerationFromImplicitShape::init()
+
 {
+
     if(l_scalarfield.empty())
     {
         m_componentstate = ComponentState::Invalid ;
@@ -187,11 +195,13 @@ void MeshGenerationFromImplicitShape::init()
     /// future from an async()
 //    m_com = std::async(std::launch::async, [this](){
         unsigned int countervalue = this->l_scalarfield->getCounter() ;
-        this->volumeMeshGeneration(this->d_facetangle.getValue(),
+        this->volumeMeshGeneration(this->d_edgesize.getValue(),
+                                   this->d_facetangle.getValue(),
                                    this->d_facetsize.getValue(),
                                    this->d_facetdistance.getValue(),
                                    this->d_cellsize.getValue(),
                                    this->d_cell_radiusedge_ratio.getValue());
+
 //        return countervalue; });
 }
 
@@ -234,8 +244,9 @@ void MeshGenerationFromImplicitShape::update(bool forceUpdate)
         /// The inputs are valid & we should grab them.
         m_componentstate = ComponentState::Invalid ;
 //        m_com = std::async(std::launch::async, [this](){
-            unsigned int countervalue = this->l_scalarfield->getCounter() ;
-            this->volumeMeshGeneration(this->d_facetangle.getValue(),
+            //unsigned int countervalue = this->l_scalarfield->getCounter() ;
+            this->volumeMeshGeneration(this->d_edgesize.getValue(),
+                                       this->d_facetangle.getValue(),
                                        this->d_facetsize.getValue(),
                                        this->d_facetdistance.getValue(),
                                        this->d_cellsize.getValue(),
@@ -259,7 +270,7 @@ void MeshGenerationFromImplicitShape::update(bool forceUpdate)
 
 
 //mesh the implicit domain
-int MeshGenerationFromImplicitShape::volumeMeshGeneration(double facet_angleP, double facet_sizeP, double facet_distanceP,
+int MeshGenerationFromImplicitShape::volumeMeshGeneration(double edge_sizeP, double facet_angleP, double facet_sizeP, double facet_distanceP,
                                                           double cell_sizeP, double cell_radius_edge_ratioP)
 {
     //Domain
@@ -271,25 +282,56 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double facet_angleP, d
 
     ImplicitFunction function(l_scalarfield);
     Function_vector v;
+
+    Vec3d tmp = d_center.getValue();
+
+    if (l_scalarfield->getValue(tmp) >= 0.0){
+
+        msg_error()<<"the center is not in the shape";
+        return 0;
+
+
+    }
     v.push_back(function);
 
 
-    const helper::vector<helper::vector<Vec3d>>& d_listPolylines_tmp = d_listPolylines.getValue() ;
-    helper::vector<helper::vector<K::Point_3>> _1dFeatureS;
-    helper::vector<K::Point_3> _1dFeature;
+    const helper::vector<Vec3d>& d_polylinesPoints_tmp = d_polylinesPoints.getValue() ;
+    const helper::vector<int>& d_polylinesDimensions_tmp = d_polylinesDimensions.getValue() ;
+
+    helper::vector<helper::vector<K::Point_3>> _1dFeatures(0);
+
     K::Point_3 ptmp;
 
-    for (int i=0; i<d_listPolylines_tmp.size(); i++) {
+    int sum = 0;
+    for (unsigned int k = 0; k < d_polylinesDimensions_tmp.size(); k++){
 
-        _1dFeature.clear();
+        sum = sum + d_polylinesDimensions_tmp[k];
 
-        for (int j=0; j<d_listPolylines_tmp[i].size(); j++){
+    }
 
-            ptmp = K::Point_3(d_listPolylines_tmp[i][j].x(), d_listPolylines_tmp[i][j].y(), d_listPolylines_tmp[i][j].z());
-            _1dFeature.push_back(ptmp);
+    if (sum != d_polylinesPoints_tmp.size()){
+
+        msg_error()<<"the dimensions of the entries for polylines are not compatible";
+        return 0;
+    }
+    sum = 0;
+
+    _1dFeatures.resize(0);
+
+    for (unsigned int i = 0; i < d_polylinesDimensions_tmp.size(); i++) {
+
+        _1dFeatures.resize(_1dFeatures.size()+1);
+
+        std::vector<K::Point_3>& polyline = _1dFeatures.back();
+
+        for (unsigned int j = sum; j < sum + d_polylinesDimensions_tmp[i]; j++){
+
+            ptmp = K::Point_3(d_polylinesPoints_tmp[j].x(), d_polylinesPoints_tmp[j].y(), d_polylinesPoints_tmp[j].z());
+            polyline.push_back(ptmp);
         }
-        _1dFeature.push_back(_1dFeature.front());
-        _1dFeatureS.push_back(_1dFeature);
+
+        polyline.push_back(polyline.front());
+        sum = sum + d_polylinesDimensions_tmp[i];
 
     }
 
@@ -300,25 +342,27 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double facet_angleP, d
     const Vec3d& ctmp = d_center.getValue() ;
     domain = new Mesh_domain_features(v, K::Sphere_3(K::Point_3(ctmp.x(), ctmp.y(), ctmp.z()), dtmp*dtmp), 1e-3);
 
+    //    1DFeatures
+
+    domain->add_features(_1dFeatures.begin(), _1dFeatures.end());       // Insert edge in domain
+
+    CGAL::parameters::features(domain);
+
     //Criteria
-    Spherical_sizing_field fsize ;
+    //Spherical_sizing_field fsize ;
     //Facet_criteria facet_criteria(30, facet_size2, approximation); // angle, size, approximation
     //Cell_criteria cell_criteria(2., cell_size=fsize); // radius-edge ratio, size
     ///Mesh_criteria criteria(facet_criteria, cell_criteria);
     Mesh_criteria criteria(facet_angle=facet_angleP, facet_size=facet_sizeP, facet_distance=facet_distanceP,
                            cell_radius_edge_ratio=cell_radius_edge_ratioP, cell_size=cell_sizeP);
 
-
-
-
-//    1DFeatures
-
-
-    domain->add_features(_1dFeatureS.begin(), _1dFeatureS.end());       // Insert edge in domain
-
-
     //Mesh generation
     C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(*domain, criteria, no_exude(), no_perturb());
+
+    std::ofstream medit_file("out_1.mesh");
+    c3t3.output_to_medit(medit_file);
+    medit_file.close();
+
     delete domain;
 
     //Topology

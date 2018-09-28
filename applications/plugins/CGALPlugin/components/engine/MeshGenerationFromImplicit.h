@@ -66,7 +66,7 @@ public:
     SOFA_CLASS(MeshGenerationFromImplicitShape, BaseObject);
     MeshGenerationFromImplicitShape() ;
     virtual ~MeshGenerationFromImplicitShape() { }
-    int volumeMeshGeneration(double facet_angle, double facet_size, double facet_distance,
+    int volumeMeshGeneration(double edge_sizeP, double facet_angle, double facet_size, double facet_distance,
                              double cell_size, double cell_radius_edge_ratio);
 
     virtual void init() override ;
@@ -82,6 +82,7 @@ private:
                              double x_max, double y_max, double z_max);
 
     /// Inputs and atritbutes
+    Data<double> d_edgesize;
     Data<double> d_facetangle;
     Data<double> d_facetsize;
     Data<double> d_facetdistance;
@@ -91,7 +92,8 @@ private:
     Data<double> d_radius ;
     Data<Vec3d>  d_center ;
 
-    Data<helper::vector<helper::vector<Vec3d>>> d_listPolylines ;
+    Data<helper::vector<Vec3d>> d_polylinesPoints ;
+    Data<helper::vector<int>> d_polylinesDimensions ;
 
     /// Display
     Data<bool> d_drawtetras;
