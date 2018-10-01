@@ -72,6 +72,10 @@ using sofa::defaulttype::Vec3d ;
 
 // Domain
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+
+// Polyline
+typedef std::vector<K::Point_3>        Polyline_3;
+typedef std::list<Polyline_3>          Polylines;
 using namespace CGAL::parameters;
 class ImplicitFunction : public std::unary_function<K::Point_3, K::FT> {
 
@@ -81,6 +85,7 @@ private:
 public:
     typedef result_type return_type;
     typedef K::Point_3 Point;
+
     ImplicitFunction(ScalarField* shape) {m_shape=shape;}
     K::FT operator()(Point p) const
     {
@@ -298,11 +303,12 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double edge_sizeP, dou
     const helper::vector<Vec3d>& d_polylinesPoints_tmp = d_polylinesPoints.getValue() ;
     const helper::vector<int>& d_polylinesDimensions_tmp = d_polylinesDimensions.getValue() ;
 
-    helper::vector<helper::vector<K::Point_3>> _1dFeatures(0);
+    Polylines polylines(0);
 
     K::Point_3 ptmp;
 
     int sum = 0;
+
     for (unsigned int k = 0; k < d_polylinesDimensions_tmp.size(); k++){
 
         sum = sum + d_polylinesDimensions_tmp[k];
@@ -316,13 +322,13 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double edge_sizeP, dou
     }
     sum = 0;
 
-    _1dFeatures.resize(0);
+    polylines.resize(0);
 
     for (unsigned int i = 0; i < d_polylinesDimensions_tmp.size(); i++) {
 
-        _1dFeatures.resize(_1dFeatures.size()+1);
+        Polyline_3 polyline;
 
-        std::vector<K::Point_3>& polyline = _1dFeatures.back();
+        polyline.resize(0);
 
         for (unsigned int j = sum; j < sum + d_polylinesDimensions_tmp[i]; j++){
 
@@ -331,6 +337,7 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double edge_sizeP, dou
         }
 
         polyline.push_back(polyline.front());
+        polylines.push_back(polyline);
         sum = sum + d_polylinesDimensions_tmp[i];
 
     }
@@ -338,13 +345,13 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double edge_sizeP, dou
 
 
 
-    double dtmp=d_radius.getValue();
+    double dtmp = d_radius.getValue();
     const Vec3d& ctmp = d_center.getValue() ;
     domain = new Mesh_domain_features(v, K::Sphere_3(K::Point_3(ctmp.x(), ctmp.y(), ctmp.z()), dtmp*dtmp), 1e-3);
 
     //    1DFeatures
 
-    domain->add_features(_1dFeatures.begin(), _1dFeatures.end());       // Insert edge in domain
+    domain->add_features(polylines.begin(), polylines.end());       // Insert edge in domain
 
     CGAL::parameters::features(domain);
 
@@ -353,8 +360,10 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double edge_sizeP, dou
     //Facet_criteria facet_criteria(30, facet_size2, approximation); // angle, size, approximation
     //Cell_criteria cell_criteria(2., cell_size=fsize); // radius-edge ratio, size
     ///Mesh_criteria criteria(facet_criteria, cell_criteria);
-    Mesh_criteria criteria(facet_angle=facet_angleP, facet_size=facet_sizeP, facet_distance=facet_distanceP,
+    ///
+    Mesh_criteria criteria(facet_angle=facet_angleP, facet_size=facet_sizeP, facet_distance=facet_distanceP, edge_size = edge_sizeP,
                            cell_radius_edge_ratio=cell_radius_edge_ratioP, cell_size=cell_sizeP);
+
 
     //Mesh generation
     C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(*domain, criteria, no_exude(), no_perturb());
