@@ -368,9 +368,9 @@ int MeshGenerationFromImplicitShape::volumeMeshGeneration(double edge_sizeP, dou
     //Mesh generation
     C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(*domain, criteria, no_exude(), no_perturb());
 
-    std::ofstream medit_file("out_1.mesh");
-    c3t3.output_to_medit(medit_file);
-    medit_file.close();
+//    std::ofstream medit_file("out_1.mesh");
+//    c3t3.output_to_medit(medit_file);
+//    medit_file.close();
 
     delete domain;
 
