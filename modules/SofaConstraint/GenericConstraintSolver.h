@@ -120,6 +120,7 @@ public:
 	Data<bool> schemeCorrection; ///< Apply new scheme where compliance is progressively corrected
 	Data<bool> unbuilt; ///< Compliance is not fully built
 	Data<bool> computeGraphs; ///< Compute graphs of errors and forces during resolution
+    Data<helper::vector<double>> d_constraintForces;
 	Data<std::map < std::string, sofa::helper::vector<double> > > graphErrors; ///< Sum of the constraints' errors at each iteration
 	Data<std::map < std::string, sofa::helper::vector<double> > > graphConstraints; ///< Graph of each constraint's error at the end of the resolution
 	Data<std::map < std::string, sofa::helper::vector<double> > > graphForces; ///< Graph of each constraint's force at each step of the resolution

@@ -43,7 +43,7 @@ void SlidingConstraint<DataTypes>::init()
     assert(this->mstate1);
     assert(this->mstate2);
 
-    m_thirdConstraint = 0;
+    m_thirdConstraint = 0.0;
 }
 
 
@@ -87,19 +87,19 @@ void SlidingConstraint<DataTypes>::buildConstraintMatrix(const core::ConstraintP
     c1_it.addCol(tm1, m_dirProj);
 
     MatrixDerivRowIterator c2_it = c2.writeLine(m_cid);
-    c2_it.addCol(tm2a, -m_dirProj * (1-r2));
+    c2_it.addCol(tm2a, -m_dirProj * (1.0 - r2));
     c2_it.addCol(tm2b, -m_dirProj * r2);
 
     c1_it = c1.writeLine(m_cid + 1);
     c1_it.setCol(tm1, m_dirOrtho);
 
     c2_it = c2.writeLine(m_cid + 1);
-    c2_it.addCol(tm2a, -m_dirOrtho * (1-r2));
+    c2_it.addCol(tm2a, -m_dirOrtho * (1.0 - r2));
     c2_it.addCol(tm2b, -m_dirOrtho * r2);
 
-    m_thirdConstraint = 0;
+    m_thirdConstraint = 0.0;
 
-    if (r < 0)
+    if (r < 0.0)
     {
         m_thirdConstraint = r;
         cIndex++;
@@ -136,10 +136,10 @@ void SlidingConstraint<DataTypes>::getConstraintViolation(const core::Constraint
 
     if(m_thirdConstraint)
     {
-        if(m_thirdConstraint>0)
-            v->set(m_cid+2, -m_thirdConstraint);
+        if(m_thirdConstraint > 0.0 )
+            v->set(m_cid + 2, -m_thirdConstraint);
         else
-            v->set(m_cid+2, m_thirdConstraint);
+            v->set(m_cid + 2, m_thirdConstraint);
     }
 }
 
@@ -188,9 +188,9 @@ void SlidingConstraint<DataTypes>::draw(const core::visual::VisualParams* vparam
 
     sofa::defaulttype::RGBAColor color;
 
-    if(m_thirdConstraint<0)
+    if(m_thirdConstraint < 0.0)
         color = sofa::defaulttype::RGBAColor::yellow();
-    else if(m_thirdConstraint>0)
+    else if(m_thirdConstraint > 0.0)
         color = sofa::defaulttype::RGBAColor::green();
     else
         color = sofa::defaulttype::RGBAColor::magenta();

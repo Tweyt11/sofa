@@ -79,6 +79,7 @@ GenericConstraintSolver::GenericConstraintSolver()
 , currentIterations(initData(&currentIterations, 0, "currentIterations", "OUTPUT: current number of constraint groups"))
 , currentError(initData(&currentError, 0.0, "currentError", "OUTPUT: current error"))
 , reverseAccumulateOrder(initData(&reverseAccumulateOrder, false, "reverseAccumulateOrder", "True to accumulate constraints from nodes in reversed order (can be necessary when using multi-mappings or interaction constraints not following the node hierarchy)"))
+, d_constraintForces(initData(&d_constraintForces,"constraintForces", ""))
 , current_cp(&m_cpBuffer[0])
 , last_cp(NULL)
 {
@@ -391,6 +392,14 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
         sofa::helper::AdvancedTimer::stepBegin("ConstraintsGaussSeidel");
         current_cp->gaussSeidel(0, this);
         sofa::helper::AdvancedTimer::stepEnd("ConstraintsGaussSeidel");
+
+        double* force = current_cp->getF();
+        unsigned int dimension = current_cp->getDimension();
+        helper::vector<double> constraintForces;
+        constraintForces.resize(dimension);
+        for(unsigned int i=0; i<dimension; i ++)
+            constraintForces[i]=force[i];
+        d_constraintForces.setValue(constraintForces);
     }
 
     this->currentError.setValue(current_cp->currentError);
