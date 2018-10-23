@@ -160,7 +160,7 @@ void SlidingConstraint<DataTypes>::getConstraintResolution(const ConstraintParam
 template<class DataTypes>
 void SlidingConstraint<DataTypes>::storeLambda(const ConstraintParams* /*cParams*/, sofa::core::MultiVecDerivId /*res*/, const sofa::defaulttype::BaseVector* lambda)
 {
-    Real lamb1,lamb2, lamb3;
+    Real lamb1,lamb2, lamb3 = 0.0;
 
     lamb1 = lambda->element(m_cid);
     lamb2 = lambda->element(m_cid+1);
@@ -174,6 +174,8 @@ void SlidingConstraint<DataTypes>::storeLambda(const ConstraintParams* /*cParams
     {
         d_force.setValue( m_dirProj* lamb1 + m_dirOrtho * lamb2 );
     }
+
+    d_lambda.setValue(Deriv(lamb1, lamb2, lamb3));
 }
 
 template<class DataTypes>

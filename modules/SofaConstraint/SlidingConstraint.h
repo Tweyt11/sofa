@@ -64,6 +64,7 @@ protected:
     Data<int> d_m2a; ///< index of one end of the sliding axis
     Data<int> d_m2b; ///< index of the other end of the sliding axis
     Data<Deriv> d_force; ///< interaction force
+    Data<Deriv> d_lambda; /// brut force
 
     Real m_dist;	// constraint violation
     Real m_thirdConstraint; // 0 if A<proj<B, -1 if proj<A, 1 if B<proj
@@ -77,6 +78,7 @@ protected:
         , d_m2a(initData(&d_m2a, 0, "axis_1","index of one end of the sliding axis"))
         , d_m2b(initData(&d_m2b, 0, "axis_2","index of the other end of the sliding axis"))
         , d_force(initData(&d_force,"force","force (impulse) used to solve the constraint"))
+        , d_lambda(initData(&d_lambda,"lambda","brut forces (impulse) used to calculate the force"))
         , m_yetIntegrated(false)
     {
     }
@@ -87,6 +89,7 @@ protected:
         , d_m2a(initData(&d_m2a, 0, "axis_1","index of one end of the sliding axis"))
         , d_m2b(initData(&d_m2b, 0, "axis_2","index of the other end of the sliding axis"))
         , d_force(initData(&d_force,"force","force (impulse) used to solve the constraint"))
+        , d_lambda(initData(&d_lambda,"lambda","brut forces (impulse) used to calculate the force"))
         , m_yetIntegrated(false)
     {
     }
@@ -96,6 +99,7 @@ protected:
         , d_m2a(initData(&d_m2a, 0, "axis_1","index of one end of the sliding axis"))
         , d_m2b(initData(&d_m2b, 0, "axis_2","index of the other end of the sliding axis"))
         , d_force(initData(&d_force,"force","force (impulse) used to solve the constraint"))
+        , d_lambda(initData(&d_lambda,"lambda","brut forces (impulse) used to calculate the force"))
         , m_yetIntegrated(false)
     {
     }
