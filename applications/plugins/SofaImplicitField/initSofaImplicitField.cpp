@@ -96,7 +96,6 @@ SOFA_LINK_CLASS(SphericalField)
 SOFA_LINK_CLASS(DiscreteGridField)
 SOFA_LINK_CLASS(PointCloudImplicitFieldVisualization)
 
-
 } /// component
 
 } /// sofa

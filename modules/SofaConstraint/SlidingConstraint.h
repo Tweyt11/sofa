@@ -64,6 +64,8 @@ protected:
     Data<int> d_m2a; ///< index of one end of the sliding axis
     Data<int> d_m2b; ///< index of the other end of the sliding axis
     Data<Deriv> d_force; ///< interaction force
+
+    
     Data<Deriv> d_lambda; /// brut force
 
     Real m_dist;	// constraint violation
@@ -72,41 +74,16 @@ protected:
     unsigned int m_cid;
 
 
-    SlidingConstraint(MechanicalState* object1, MechanicalState* object2)
-        : Inherit(object1, object2)
-        , d_m1(initData(&d_m1, 0, "sliding_point","index of the spliding point on the first model"))
-        , d_m2a(initData(&d_m2a, 0, "axis_1","index of one end of the sliding axis"))
-        , d_m2b(initData(&d_m2b, 0, "axis_2","index of the other end of the sliding axis"))
-        , d_force(initData(&d_force,"force","force (impulse) used to solve the constraint"))
-        , d_lambda(initData(&d_lambda,"lambda","brut forces (impulse) used to calculate the force"))
-        , m_yetIntegrated(false)
-    {
-    }
+    SlidingConstraint(MechanicalState* object1, MechanicalState* object2);
 
-    SlidingConstraint(MechanicalState* object)
-        : Inherit(object, object)
-        , d_m1(initData(&d_m1, 0, "sliding_point","index of the spliding point on the first model"))
-        , d_m2a(initData(&d_m2a, 0, "axis_1","index of one end of the sliding axis"))
-        , d_m2b(initData(&d_m2b, 0, "axis_2","index of the other end of the sliding axis"))
-        , d_force(initData(&d_force,"force","force (impulse) used to solve the constraint"))
-        , d_lambda(initData(&d_lambda,"lambda","brut forces (impulse) used to calculate the force"))
-        , m_yetIntegrated(false)
-    {
-    }
+    SlidingConstraint(MechanicalState* object);
 
-    SlidingConstraint()
-        : d_m1(initData(&d_m1, 0, "sliding_point","index of the spliding point on the first model"))
-        , d_m2a(initData(&d_m2a, 0, "axis_1","index of one end of the sliding axis"))
-        , d_m2b(initData(&d_m2b, 0, "axis_2","index of the other end of the sliding axis"))
-        , d_force(initData(&d_force,"force","force (impulse) used to solve the constraint"))
-        , d_lambda(initData(&d_lambda,"lambda","brut forces (impulse) used to calculate the force"))
-        , m_yetIntegrated(false)
-    {
-    }
+    SlidingConstraint();
 
     virtual ~SlidingConstraint()
     {
     }
+
 public:
     virtual void init() override;
 
@@ -131,7 +108,7 @@ private:
 
 };
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_CONSTRAINTSET_SLIDINGCONSTRAINT_CPP)
+#if  !defined(SOFA_COMPONENT_CONSTRAINTSET_SLIDINGCONSTRAINT_CPP)
 #ifndef SOFA_FLOAT
 extern template class SOFA_CONSTRAINT_API SlidingConstraint< defaulttype::Vec3dTypes >;
 #endif

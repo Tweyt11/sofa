@@ -38,12 +38,45 @@ namespace constraintset
 {
 
 template<class DataTypes>
+SlidingConstraint<DataTypes>::SlidingConstraint(MechanicalState* object1, MechanicalState* object2)
+    : Inherit(object1, object2)
+    , d_m1(initData(&d_m1, 0, "sliding_point","index of the spliding point on the first model"))
+    , d_m2a(initData(&d_m2a, 0, "axis_1","index of one end of the sliding axis"))
+    , d_m2b(initData(&d_m2b, 0, "axis_2","index of the other end of the sliding axis"))
+    , d_force(initData(&d_force,"force","force (impulse) used to solve the constraint"))
+    , m_yetIntegrated(false)
+{
+}
+
+template<class DataTypes>
+SlidingConstraint<DataTypes>::SlidingConstraint(MechanicalState* object)
+    : Inherit(object, object)
+    , d_m1(initData(&d_m1, 0, "sliding_point","index of the spliding point on the first model"))
+    , d_m2a(initData(&d_m2a, 0, "axis_1","index of one end of the sliding axis"))
+    , d_m2b(initData(&d_m2b, 0, "axis_2","index of the other end of the sliding axis"))
+    , d_force(initData(&d_force,"force","force (impulse) used to solve the constraint"))
+    , m_yetIntegrated(false)
+{
+}
+
+template<class DataTypes>
+SlidingConstraint<DataTypes>::SlidingConstraint()
+    : d_m1(initData(&d_m1, 0, "sliding_point","index of the spliding point on the first model"))
+    , d_m2a(initData(&d_m2a, 0, "axis_1","index of one end of the sliding axis"))
+    , d_m2b(initData(&d_m2b, 0, "axis_2","index of the other end of the sliding axis"))
+    , d_force(initData(&d_force,"force","force (impulse) used to solve the constraint"))
+    , m_yetIntegrated(false)
+{
+}
+
+template<class DataTypes>
 void SlidingConstraint<DataTypes>::init()
 {
     assert(this->mstate1);
     assert(this->mstate2);
 
     m_thirdConstraint = 0.0;
+    
 }
 
 
@@ -87,6 +120,7 @@ void SlidingConstraint<DataTypes>::buildConstraintMatrix(const core::ConstraintP
     c1_it.addCol(tm1, m_dirProj);
 
     MatrixDerivRowIterator c2_it = c2.writeLine(m_cid);
+
     c2_it.addCol(tm2a, -m_dirProj * (1.0 - r2));
     c2_it.addCol(tm2b, -m_dirProj * r2);
 
@@ -94,6 +128,7 @@ void SlidingConstraint<DataTypes>::buildConstraintMatrix(const core::ConstraintP
     c1_it.setCol(tm1, m_dirOrtho);
 
     c2_it = c2.writeLine(m_cid + 1);
+
     c2_it.addCol(tm2a, -m_dirOrtho * (1.0 - r2));
     c2_it.addCol(tm2b, -m_dirOrtho * r2);
 
@@ -136,6 +171,7 @@ void SlidingConstraint<DataTypes>::getConstraintViolation(const core::Constraint
 
     if(m_thirdConstraint)
     {
+
         if(m_thirdConstraint > 0.0 )
             v->set(m_cid + 2, -m_thirdConstraint);
         else
@@ -160,6 +196,7 @@ void SlidingConstraint<DataTypes>::getConstraintResolution(const ConstraintParam
 template<class DataTypes>
 void SlidingConstraint<DataTypes>::storeLambda(const ConstraintParams* /*cParams*/, sofa::core::MultiVecDerivId /*res*/, const sofa::defaulttype::BaseVector* lambda)
 {
+
     Real lamb1,lamb2, lamb3 = 0.0;
 
     lamb1 = lambda->element(m_cid);
@@ -174,6 +211,7 @@ void SlidingConstraint<DataTypes>::storeLambda(const ConstraintParams* /*cParams
     {
         d_force.setValue( m_dirProj* lamb1 + m_dirOrtho * lamb2 );
     }
+
 
     d_lambda.setValue(Deriv(lamb1, lamb2, lamb3));
 }
@@ -190,9 +228,11 @@ void SlidingConstraint<DataTypes>::draw(const core::visual::VisualParams* vparam
 
     sofa::defaulttype::RGBAColor color;
 
+
     if(m_thirdConstraint < 0.0)
         color = sofa::defaulttype::RGBAColor::yellow();
     else if(m_thirdConstraint > 0.0)
+
         color = sofa::defaulttype::RGBAColor::green();
     else
         color = sofa::defaulttype::RGBAColor::magenta();

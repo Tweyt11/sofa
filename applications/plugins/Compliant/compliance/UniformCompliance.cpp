@@ -1,3 +1,5 @@
+#define SOFA_COMPONENT_COMPLIANCE_UNIFORMCOMPLIANCE_CPP
+
 #include "UniformCompliance.inl"
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/core/ObjectFactory.h>
@@ -30,8 +32,6 @@ int UniformComplianceClass = core::RegisterObject("Uniform compliance")
         .add< UniformCompliance< Vec6fTypes > >()
 #endif
         ;
-
-SOFA_DECL_CLASS(UniformCompliance)
 
 #ifndef SOFA_FLOAT
 template class SOFA_Compliant_API UniformCompliance<Vec1dTypes>;

@@ -233,7 +233,7 @@ void PointCloudImplicitFieldVisualization::draw(const core::visual::VisualParams
         return ;
 
     /// If the data have changed
-    if(m_datatracker.isDirty())
+    if(m_datatracker.hasChanged())
     {
         m_points.clear();
         m_colors.clear();

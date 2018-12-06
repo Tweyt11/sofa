@@ -95,7 +95,7 @@ void ImplicitFieldShaderVisualization::stop()
     {
 
         DataTracker* tmp = *it;
-        if(tmp->isDirty())
+        if(tmp->hasChanged())
         {
             changedFromDataField = true;
             tmp->clean();
@@ -148,7 +148,7 @@ void ImplicitFieldShaderVisualization::start()
     // decimal separator is a dot '.').
     helper::system::TemporaryLocale locale(LC_NUMERIC, "C");
 
-    if(m_datatracker.isDirty())
+    if(m_datatracker.hasChanged())
     {
         std::ofstream myfile;
         myfile.open (d_fragFilename.getFullPath());
