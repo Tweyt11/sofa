@@ -12,6 +12,7 @@ set(HEADER_FILES
     DualQuat.inl
     Factory.h
     Factory.inl
+    TypeInfo.h
     FnDispatcher.h
     FnDispatcher.inl
     GenerateRigid.h
@@ -57,10 +58,8 @@ set(HEADER_FILES
     io/MassSpringLoader.h
     io/Mesh.h
     io/MeshOBJ.h
-    io/MeshSTL.h
+    io/MeshGmsh.h
     io/MeshTopologyLoader.h
-    io/MeshTrian.h
-    io/MeshVTK.h
     io/SphereLoader.h
     io/TriangleLoader.h
     io/bvh/BVHChannels.h
@@ -91,6 +90,7 @@ set(HEADER_FILES
     system/atomic.h
     system/config.h
     system/console.h
+    system/console_internal.h
     system/gl.h
     system/glu.h
     system/thread/CTime.h
@@ -161,10 +161,8 @@ set(SOURCE_FILES
     io/MassSpringLoader.cpp
     io/Mesh.cpp
     io/MeshOBJ.cpp
-    io/MeshSTL.cpp
+    io/MeshGmsh.cpp
     io/MeshTopologyLoader.cpp
-    io/MeshTrian.cpp
-    io/MeshVTK.cpp
     io/SphereLoader.cpp
     io/TriangleLoader.cpp
     io/bvh/BVHJoint.cpp
@@ -192,6 +190,7 @@ set(SOURCE_FILES
     types/Material.cpp
     logging/Message.cpp
     logging/MessageDispatcher.cpp
+    logging/MessageFormatter.cpp
     logging/ComponentInfo.cpp
     logging/ClangMessageHandler.cpp
     logging/ClangStyleMessageFormatter.cpp
@@ -299,13 +298,6 @@ endif()
         include_directories(${SOFA-EXTERNAL_FFMPEG_PATH}/include)
 endif()
 
-
-if(PS3)
-    list(APPEND HEADER_FILES gl/ps3gl_compat.h)
-    list(APPEND SOURCE_FILES gl/ps3gl_compat.cpp)
-endif()
-
-
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SHADER_FILES} ${SOURCE_FILES})
 if(WIN32)
     # Windows library, used in system::FileSystem
@@ -363,12 +355,11 @@ if(APPLE)
     # on macOS, -framework CoreServices is needed for FileMonitor
     list(APPEND SOFAFRAMEWORK_DEPENDENCY_LINK "-framework CoreServices")
 endif()
-target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} ${Boost_LIBRARIES} )
 
 if(SOFA_BUILD_TESTS)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} ${Boost_LIBRARIES} gtest)
 else()
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK} ${Boost_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${SOFAFRAMEWORK_DEPENDENCY_LINK})
 endif()
 
 
@@ -389,7 +380,4 @@ set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${SOFAHELPER_COM
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION "${SOFAFRAMEWORK_VERSION}")
 
-sofa_install_targets(SofaFramework SofaHelper "")
-
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/" DESTINATION "include/sofa/helper"
-        FILES_MATCHING PATTERN "*.h" PATTERN "*.inl")
+sofa_install_targets(SofaFramework ${PROJECT_NAME} "sofa/helper")

@@ -196,7 +196,6 @@ public:
     Data<std::string> f_method; ///< the computation method of the displacements
     Data<Real> f_poissonRatio;
     Data<Real> f_youngModulus;
-    Data<bool> f_drawing; ///<  draw the forcefield if true
     /// container that stotes all requires information for each hexahedron
     topology::HexahedronData<sofa::helper::vector<HexahedronInformation> > hexahedronInfo;
 
@@ -227,13 +226,9 @@ protected:
     defaulttype::Mat<8,3,int> _coef; ///< coef of each vertices to compute the strain stress matrix
 };
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_HEXAHEDRALFEMFORCEFIELD_CPP)
-#ifndef SOFA_FLOAT
-extern template class SOFA_GENERAL_SIMPLE_FEM_API HexahedralFEMForceField<defaulttype::Vec3dTypes>;
-#endif
-#ifndef SOFA_DOUBLE
-extern template class SOFA_GENERAL_SIMPLE_FEM_API HexahedralFEMForceField<defaulttype::Vec3fTypes>;
-#endif
+#if  !defined(SOFA_COMPONENT_FORCEFIELD_HEXAHEDRALFEMFORCEFIELD_CPP)
+extern template class SOFA_GENERAL_SIMPLE_FEM_API HexahedralFEMForceField<defaulttype::Vec3Types>;
+
 #endif
 
 } // namespace forcefield

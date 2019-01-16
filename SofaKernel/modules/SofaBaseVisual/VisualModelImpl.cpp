@@ -40,7 +40,6 @@
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/io/Mesh.h>
 #include <sofa/helper/io/MeshOBJ.h>
-#include <sofa/helper/io/MeshSTL.h>
 #include <sofa/helper/rmath.h>
 #include <sofa/helper/accessor.h>
 #include <sstream>
@@ -60,6 +59,72 @@ using namespace sofa::defaulttype;
 using namespace sofa::core::topology;
 using namespace sofa::core::loader;
 using helper::vector;
+
+ExtVec3State::ExtVec3State()
+    : m_positions(initData(&m_positions, "position", "Vertices coordinates"))
+    , m_restPositions(initData(&m_restPositions, "restPosition", "Vertices rest coordinates"))
+    , m_vnormals (initData (&m_vnormals, "normal", "Normals of the model"))
+    , modified(false)
+{
+    m_positions.setGroup("Vector");
+    m_restPositions.setGroup("Vector");
+    m_vnormals.setGroup("Vector");
+}
+
+void ExtVec3State::resize(size_t vsize)
+{
+    helper::WriteOnlyAccessor< Data<sofa::defaulttype::ResizableExtVector<Coord> > > positions = m_positions;
+    if( positions.size() == vsize ) return;
+    helper::WriteOnlyAccessor< Data<sofa::defaulttype::ResizableExtVector<Coord> > > restPositions = m_restPositions;
+    helper::WriteOnlyAccessor< Data<sofa::defaulttype::ResizableExtVector<Deriv> > > normals = m_vnormals;
+
+    positions.resize(vsize);
+    restPositions.resize(vsize); // todo allocate restpos only when it is necessary
+    normals.resize(vsize);
+
+    modified = true;
+}
+
+size_t ExtVec3State::getSize() const { return m_positions.getValue().size(); }
+
+Data<ExtVec3State::VecCoord>* ExtVec3State::write(     core::VecCoordId  v )
+{
+    modified = true;
+
+    if( v == core::VecCoordId::position() )
+        return &m_positions;
+    if( v == core::VecCoordId::restPosition() )
+        return &m_restPositions;
+
+    return NULL;
+}
+
+const Data<ExtVec3State::VecCoord>* ExtVec3State::read(core::ConstVecCoordId  v )  const
+{
+    if( v == core::VecCoordId::position() )
+        return &m_positions;
+    if( v == core::VecCoordId::restPosition() )
+        return &m_restPositions;
+
+    return NULL;
+}
+
+Data<ExtVec3State::VecDeriv>*	ExtVec3State::write(core::VecDerivId v )
+{
+    if( v == core::VecDerivId::normal() )
+        return &m_vnormals;
+
+    return NULL;
+}
+
+const Data<ExtVec3State::VecDeriv>* ExtVec3State::read(core::ConstVecDerivId v ) const
+{
+    if( v == core::VecDerivId::normal() )
+        return &m_vnormals;
+
+    return NULL;
+}
+
 
 void VisualModelImpl::parse(core::objectmodel::BaseObjectDescription* arg)
 {
@@ -110,8 +175,6 @@ void VisualModelImpl::parse(core::objectmodel::BaseObjectDescription* arg)
                                   (Real)arg->getAttributeAsFloat("sz",1.0)));
     }
 }
-
-SOFA_DECL_CLASS(VisualModelImpl)
 
 int VisualModelImplClass = core::RegisterObject("Generic visual model. If a viewer is active it will replace the VisualModel alias, otherwise nothing will be displayed.")
         .add< VisualModelImpl >()
@@ -522,20 +585,29 @@ bool VisualModelImpl::load(const std::string& filename, const std::string& loade
 
             if (objLoader.get() == 0)
             {
+                msg_error() << "Mesh creation failed. Loading mesh file directly inside the VisualModel is not maintained anymore. Use a MeshLoader and link the Data to the VisualModel. E.g:" << msgendl
+                    << "<MeshObjLoader name='myLoader' filename='myFilePath.obj'/>" << msgendl
+                    << "<OglModel src='@myLoader'/>";
                 return false;
             }
             else
-            {
-                //if( MeshSTL *Loader = dynamic_cast< MeshSTL *>(objLoader.get()) )
-                if(objLoader.get()->loaderType == "stl" || objLoader.get()->loaderType == "vtu")
-                {
-                    setMesh(*objLoader, false);
-                }
-                else
+            {				
+                if(objLoader.get()->loaderType == "obj")
                 {
                     //Modified: previously, the texture coordinates were not loaded correctly if no texture name was specified.
                     //setMesh(*objLoader,tex);
-                    setMesh(*objLoader, true);
+                    msg_warning() << "Loading obj mesh file directly inside the VisualModel will be deprecated soon. Use a MeshObjLoader and link the Data to the VisualModel. E.g:" << msgendl
+                        << "<MeshObjLoader name='myLoader' filename='myFilePath.obj'/>" << msgendl
+                        << "<OglModel src='@myLoader'/>";
+                    
+                    setMesh(*objLoader, true); 
+                }
+                else
+                {
+                    msg_error() << "Loading mesh file directly inside the VisualModel is not anymore supported since release 18.06. Use a MeshLoader and link the Data to the VisualModel. E.g:" << msgendl
+                        << "<MeshObjLoader name='myLoader' filename='myFilePath.obj'/>" << msgendl
+                        << "<OglModel src='@myLoader'/>";
+                    return false;
                 }
             }
 
@@ -765,8 +837,34 @@ void VisualModelImpl::addTopoHandler(topology::PointData<VecType>* data, int alg
 
 void VisualModelImpl::init()
 {
-    load(fileMesh.getFullPath(), "", texturename.getFullPath());
     m_topology = getContext()->getMeshTopology();
+    if (m_vertPosIdx.getValue().size() > 0 && m_vertices2.getValue().empty())
+    { // handle case where vertPosIdx was initialized through a loader
+        m_vertices2.setValue(m_positions.getValue());
+        if (m_positions.getParent())
+        {
+            m_positions.delInput(m_positions.getParent()); // remove any link to positions, as we need to recompute it
+        }
+        helper::WriteAccessor<Data<VecCoord>> vIn = m_positions;
+        helper::ReadAccessor<Data<VecCoord>> vOut = m_vertices2;
+        helper::ReadAccessor<Data<sofa::defaulttype::ResizableExtVector<int>>> vertPosIdx = m_vertPosIdx;
+        int nbVIn = 0;
+        for (int i = 0; i < (int)vertPosIdx.size(); ++i)
+        {
+            if (vertPosIdx[i] >= nbVIn)
+            {
+                nbVIn = vertPosIdx[i]+1;
+            }
+        }
+        vIn.resize(nbVIn);
+        for (int i = 0; i < (int)vertPosIdx.size(); ++i)
+        {
+            vIn[vertPosIdx[i]] = vOut[i];
+        }
+        m_topology = nullptr; // make sure we don't use the topology
+    }
+
+    load(fileMesh.getFullPath(), "", texturename.getFullPath());
 
     if (m_topology == 0 || (m_positions.getValue().size()!=0 && m_positions.getValue().size() != (unsigned int)m_topology->getNbPoints()))
     {
@@ -1504,12 +1602,12 @@ void VisualModelImpl::handleTopologyChange()
 
                             if(is_forgotten)
                             {
-                                int ind_forgotten = j_loc;
+                                unsigned int ind_forgotten = j_loc;
 
                                 bool is_in_shell = false;
                                 for (unsigned int j_glob=0; j_glob<shell.size(); ++j_glob)
                                 {
-                                    is_in_shell = is_in_shell || ((int)shell[j_glob] == ind_forgotten);
+                                    is_in_shell = is_in_shell || (shell[j_glob] == ind_forgotten);
                                 }
 
                                 if(!is_in_shell)

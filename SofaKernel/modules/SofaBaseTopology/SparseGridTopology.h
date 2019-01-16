@@ -211,10 +211,7 @@ public:
     Data< unsigned int >    marchingCubeStep; ///< Step of the Marching Cube algorithm
     Data< unsigned int >    convolutionSize; ///< Dimension of the convolution kernel to smooth the voxels. 0 if no smoothing is required.
 
-    Data< helper::vector< Vector3 > >    vertices; ///< Input mesh vertices
     Data< helper::vector < helper::vector <int> > >facets; ///< Input mesh facets
-    Data< SeqTriangles > input_triangles; ///< Input mesh triangles
-    Data< SeqQuads > input_quads; ///< Input mesh quads
 
     /** Create the data structure based on resolution, size and filling.
           \param numPoints  Number of points in the x,y,and z directions
@@ -226,7 +223,6 @@ public:
 protected:
     virtual void updateEdges();
     virtual void updateQuads();
-    virtual void updateHexahedra() override;
 
     sofa::helper::MarchingCubeUtility                 marchingCubes;
     bool                                _usingMC;
@@ -299,71 +295,26 @@ protected:
     };
 
 
-    /*	/// to compute valid cubes (intersection between mesh segments and cubes)
-    typedef struct segmentForIntersection{
-    Vector3 center;
-    Vector3 dir;
-    SReal norm;
-    segmentForIntersection(const Vector3& s0, const Vector3& s1)
-    {
-    center = (s0+s1)*.5;
-    dir = center-s0;
-    norm = dir.norm();
-    dir /= norm;
-    };
-    } SegmentForIntersection;
-    struct ltSegmentForIntersection // for set of SegmentForIntersection
-    {
-    bool operator()(const SegmentForIntersection& s0, const SegmentForIntersection& s1) const
-    {
-    return s0.center < s1.center || s0.norm < s1.norm;
-    }
-    };
-    typedef struct cubeForIntersection{
-    Vector3 center;
-    fixed_array<Vector3,3> dir;
-    Vector3 norm;
-    cubeForIntersection( const CubeCorners&  corners )
-    {
-    center = (corners[7] + corners[0]) * .5;
-
-    norm[0] = (center[0] - corners[0][0]);
-    dir[0] = Vector3(1,0,0);
-
-    norm[1] = (center[1] - corners[0][1]);
-    dir[1] = Vector3(0,1,0);
-
-    norm[2] = (center[2] - corners[0][2]);
-    dir[2] = Vector3(0,0,1);
-    }
-    } CubeForIntersection;
-    /// return true if there is an intersection between a SegmentForIntersection and a CubeForIntersection
-    bool intersectionSegmentBox( const SegmentForIntersection& seg, const CubeForIntersection& cube  ); */
 
     bool _alreadyInit;
 
 public :
 
-#ifdef SOFA_NEW_HEXA
+
     virtual const SeqHexahedra& getHexahedra() override
     {
         if( !_alreadyInit ) init();
         return sofa::component::topology::MeshTopology::getHexahedra();
     }
-#else
-    virtual const SeqCubes& getHexahedra()
-    {
-        if( !_alreadyInit ) init();
-        return sofa::component::topology::MeshTopology::getHexahedra();
-    }
-#endif
+
     virtual int getNbPoints() const override
     {
         if( !_alreadyInit ) const_cast<SparseGridTopology*>(this)->init();
         return sofa::component::topology::MeshTopology::getNbPoints();
     }
 
-    virtual int getNbHexahedra() override { return (int)this->getHexahedra().size();}
+    /// TODO 2018-07-23 epernod: check why this method is override to return the same result as parent class.
+    virtual size_t getNbHexahedra() override { return this->getHexahedra().size();}
 };
 
 } // namespace topology

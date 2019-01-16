@@ -22,13 +22,8 @@
 #ifndef SOFA_COMPONENT_ENGINE_MERGEPOINTS_INL
 #define SOFA_COMPONENT_ENGINE_MERGEPOINTS_INL
 
-#if !defined(__GNUC__) || (__GNUC__ > 3 || (_GNUC__ == 3 && __GNUC_MINOR__ > 3))
-#pragma once
-#endif
-
 #include <SofaGeneralEngine/MergePoints.h>
 #include <sofa/core/visual/VisualParams.h>
-#include <sofa/helper/gl/template.h>
 
 namespace sofa
 {
@@ -70,7 +65,7 @@ void MergePoints<DataTypes>::reinit()
 }
 
 template <class DataTypes>
-void MergePoints<DataTypes>::update()
+void MergePoints<DataTypes>::doUpdate()
 {
     if (f_noUpdate.getValue() && initDone)
         return;
@@ -137,8 +132,6 @@ void MergePoints<DataTypes>::update()
             indices2.push_back(index+i);
         }
     }
-
-    cleanDirty();
 
     f_indices1.endEdit();
     f_indices2.endEdit();

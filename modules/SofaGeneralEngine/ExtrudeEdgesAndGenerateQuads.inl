@@ -22,14 +22,8 @@
 #ifndef SOFA_COMPONENT_ENGINE_EXTRUDEEDGESANDGENERATEQUADS_INL
 #define SOFA_COMPONENT_ENGINE_EXTRUDEEDGESANDGENERATEQUADS_INL
 
-#if !defined(__GNUC__) || (__GNUC__ > 3 || (_GNUC__ == 3 && __GNUC_MINOR__ > 3))
-#pragma once
-#endif
-
 #include <SofaGeneralEngine/ExtrudeEdgesAndGenerateQuads.h>
 #include <sofa/core/visual/VisualParams.h>
-#include <sofa/helper/gl/template.h>
-#include <sofa/helper/gl/BasicShapes.h>
 #include <sofa/helper/logging/Messaging.h>
 
 namespace sofa
@@ -99,7 +93,7 @@ void ExtrudeEdgesAndGenerateQuads<DataTypes>::checkInput()
 }
 
 template <class DataTypes>
-void ExtrudeEdgesAndGenerateQuads<DataTypes>::update()
+void ExtrudeEdgesAndGenerateQuads<DataTypes>::doUpdate()
 {
     const vector<BaseMeshTopology::Edge>& curveEdges = d_curveEdges.getValue();
     const VecCoord& curveVertices = d_curveVertices.getValue();
@@ -111,8 +105,6 @@ void ExtrudeEdgesAndGenerateQuads<DataTypes>::update()
 
         return;
     }
-
-    cleanDirty();
 
     VecCoord* extrudedVertices = d_extrudedVertices.beginWriteOnly();
     extrudedVertices->clear();

@@ -776,8 +776,6 @@ bool BaseCamera::importParametersFromFile(const std::string& viewFilename)
     if (!root)
         result = false;
 
-    //std::string camVersion;
-    //root->QueryStringAttribute ("version", &camVersion);
     if(result)
     {
         BaseCameraXMLImportSingleParameter(root, p_position, this);
@@ -832,10 +830,8 @@ void BaseCamera::handleEvent(sofa::core::objectmodel::Event* event)
         updateOutputData();
 }
 
-void BaseCamera::draw(const sofa::core::visual::VisualParams* params)
+void BaseCamera::draw(const sofa::core::visual::VisualParams* /*params*/)
 {
-    params->drawTool()->drawPoint( p_position.getValue(), RGBAColor::red() );
-    params->drawTool()->drawLine( p_position.getValue(), p_lookAt.getValue(), RGBAColor::red() );
 }
 
 

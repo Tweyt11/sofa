@@ -91,7 +91,7 @@ void MessageHandlerComponent::parse ( core::objectmodel::BaseObjectDescription* 
 //    }else if(stype=="log"){
 //        MessageDispatcher::addHandler(new LoggerMessageHandler()) ;
     }else if(stype=="rich"){
-         MessageDispatcher::addHandler(new ConsoleMessageHandler(new RichConsoleStyleMessageFormatter())) ;
+         MessageDispatcher::addHandler(new ConsoleMessageHandler(&RichConsoleStyleMessageFormatter::getInstance())) ;
     }else if(stype=="silent"){
         MessageDispatcher::clearHandlers() ;
     }else{
@@ -106,8 +106,6 @@ void MessageHandlerComponent::parse ( core::objectmodel::BaseObjectDescription* 
 
     m_isValid = true ;
 }
-
-SOFA_DECL_CLASS(MessageHandlerComponent)
 
 int MessageHandlerComponentClass = RegisterObject("This object controls the way Sofa print's "
                                                   "info/warning/error/fatal messages. ")
@@ -162,8 +160,6 @@ void FileMessageHandlerComponent::parse ( core::objectmodel::BaseObjectDescripti
 
     m_isValid = true ;
 }
-
-SOFA_DECL_CLASS(FileMessageHandlerComponent)
 
 int FileMessageHandlerComponentClass = RegisterObject("This component dump all the messages into"
                                                       "a file.")

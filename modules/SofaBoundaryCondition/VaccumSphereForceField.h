@@ -100,7 +100,6 @@ public:
     Data<Real> stiffness; ///< force stiffness
     Data<Real> damping; ///< force damping
     Data<defaulttype::RGBAColor> color; ///< sphere color. (default=[0,0,1,1])
-    Data<bool> bDraw; ///< enable/disable drawing of the sphere
     Data<std::string> centerState; ///< path to the MechanicalState controlling the center point
     Data < bool > active; ///< Activate this object. Note that this can be dynamically controlled by using a key
     Data < char > keyEvent; ///< key to press to activate this object until the key is released
@@ -114,7 +113,6 @@ protected:
         , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness"))
         , damping(initData(&damping, (Real)5, "damping", "force damping"))
         , color(initData(&color, defaulttype::RGBAColor(0.0f,0.0f,1.0f,1.0f), "color", "sphere color. (default=[0,0,1,1])"))
-        , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the sphere"))
         , centerState(initData(&centerState, "centerState", "path to the MechanicalState controlling the center point"))
         , active( initData(&active, false, "active", "Activate this object.\nNote that this can be dynamically controlled by using a key") )
         , keyEvent( initData(&keyEvent, '1', "key", "key to press to activate this object until the key is released") )
@@ -156,21 +154,14 @@ protected:
     void draw(const core::visual::VisualParams* vparams) override;
 };
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_VACCUMSPHEREFORCEFIELD_CPP)
+#if  !defined(SOFA_COMPONENT_FORCEFIELD_VACCUMSPHEREFORCEFIELD_CPP)
 
-#ifndef SOFA_FLOAT
-extern template class SOFA_BOUNDARY_CONDITION_API VaccumSphereForceField<sofa::defaulttype::Vec3dTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API VaccumSphereForceField<sofa::defaulttype::Vec2dTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API VaccumSphereForceField<sofa::defaulttype::Vec1dTypes>;
-#endif
+extern template class SOFA_BOUNDARY_CONDITION_API VaccumSphereForceField<sofa::defaulttype::Vec3Types>;
+extern template class SOFA_BOUNDARY_CONDITION_API VaccumSphereForceField<sofa::defaulttype::Vec2Types>;
+extern template class SOFA_BOUNDARY_CONDITION_API VaccumSphereForceField<sofa::defaulttype::Vec1Types>;
 
-#ifndef SOFA_DOUBLE
-extern template class SOFA_BOUNDARY_CONDITION_API VaccumSphereForceField<sofa::defaulttype::Vec3fTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API VaccumSphereForceField<sofa::defaulttype::Vec2fTypes>;
-extern template class SOFA_BOUNDARY_CONDITION_API VaccumSphereForceField<sofa::defaulttype::Vec1fTypes>;
-#endif
 
-#endif // defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_VACCUMSPHEREFORCEFIELD_CPP)
+#endif //  !defined(SOFA_COMPONENT_FORCEFIELD_VACCUMSPHEREFORCEFIELD_CPP)
 
 } // namespace forcefield
 

@@ -21,11 +21,11 @@ public:
 
 public:
 
-    typedef core::topology::Topology::Triangle Triangle;
+    typedef sofa::core::topology::Topology::Triangle Triangle;
     STEPShapeExtractor(loader::MeshSTEPLoader* loader=NULL,topology::MeshTopology* topology=NULL);
 
     void init();
-    void update();
+    void doUpdate();
 
     Data<unsigned int> shapeNumber; ///< Shape number to be loaded
     Data<unsigned int > indexBegin; ///< The begin index for this shape with respect to the global mesh

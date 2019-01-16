@@ -29,7 +29,6 @@
 #include <sofa/core/CollisionElement.h>
 #include <sofa/core/ObjectFactory.h>
 #include <vector>
-#include <sofa/helper/gl/template.h>
 #include <iostream>
 
 #include <sofa/core/topology/TopologyChange.h>
@@ -49,8 +48,6 @@ namespace collision
 using namespace sofa::core::topology;
 using namespace sofa::defaulttype;
 using helper::vector;
-
-SOFA_DECL_CLASS ( TriangleInRegularGrid )
 
 int TriangleModelInRegularGridClass = core::RegisterObject ( "collision model using a triangular mesh in a regular grid, as described in BaseMeshTopology" )
         .add< TriangleModelInRegularGrid >()

@@ -22,12 +22,7 @@
 #ifndef SOFA_COMPONENT_ENGINE_HAUSDORFFDISTANCE_INL
 #define SOFA_COMPONENT_ENGINE_HAUSDORFFDISTANCE_INL
 
-#if !defined(__GNUC__) || (__GNUC__ > 3 || (_GNUC__ == 3 && __GNUC_MINOR__ > 3))
-#pragma once
-#endif
-
 #include "HausdorffDistance.h"
-#include <sofa/helper/gl/template.h>
 #include <iostream>
 #include <sofa/core/objectmodel/Event.h>
 #include <sofa/simulation/AnimateBeginEvent.h>
@@ -74,10 +69,8 @@ void HausdorffDistance<DataTypes>::reinit()
 }
 
 template <class DataTypes>
-void HausdorffDistance<DataTypes>::update()
+void HausdorffDistance<DataTypes>::doUpdate()
 {
-    cleanDirty();
-
     if (f_update.getValue())
         computeDistances();
 }

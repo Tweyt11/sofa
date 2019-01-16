@@ -23,8 +23,6 @@
 #define SOFA_COMPONENT_MECHANICALOBJECT_H
 #include "config.h"
 
-#include <sofa/config/build_option_experimental_features.h>
-
 #include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/core/topology/BaseMeshTopology.h>
 
@@ -147,9 +145,7 @@ public:
     Data< VecDeriv > vfree; ///< free velocity coordinates of the degrees of freedom
     Data< VecCoord > x0; ///< rest position coordinates of the degrees of freedom
     Data< MatrixDeriv > c; ///< constraints applied to the degrees of freedom
-#if(SOFA_WITH_EXPERIMENTAL_FEATURES()==1)
     Data< MatrixDeriv > m; ///< mappingJacobian applied to the degrees of freedom
-#endif
     Data< VecCoord > reset_position; ///< reset position coordinates of the degrees of freedom
     Data< VecDeriv > reset_velocity; ///< reset velocity coordinates of the degrees of freedom
 #endif
@@ -308,10 +304,6 @@ public:
 
     /// @}
 
-    /// Renumber the constraint ids with the given permutation vector
-    void renumberConstraintId(const sofa::helper::vector< unsigned >& renumbering) override;
-
-
     /// @name Integration related methods
     /// @{
 
@@ -378,9 +370,8 @@ public:
     virtual void resetConstraint(const core::ConstraintParams* cparams) override;
 
     virtual void getConstraintJacobian(const core::ConstraintParams* cparams, sofa::defaulttype::BaseMatrix* J,unsigned int & off) override;
-#if(SOFA_WITH_EXPERIMENTAL_FEATURES()==1)
+
     virtual void buildIdentityBlocksInJacobian(const sofa::helper::vector<unsigned int>& list_n, core::MatrixDerivId &mID) override;
-#endif
     /// @}
 
     /// @name Debug
@@ -475,60 +466,31 @@ protected :
 
 };
 
-#ifndef SOFA_FLOAT
 template<> SOFA_BASE_MECHANICS_API
-void MechanicalObject<defaulttype::Rigid3dTypes>::applyRotation (const defaulttype::Quat q);
-#endif
-#ifndef SOFA_DOUBLE
-template<> SOFA_BASE_MECHANICS_API
-void MechanicalObject<defaulttype::Rigid3fTypes>::applyRotation (const defaulttype::Quat q);
-#endif
-#ifndef SOFA_FLOAT
-template<> SOFA_BASE_MECHANICS_API
-void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorSameSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset );
-#endif
-#ifndef SOFA_DOUBLE
-template<> SOFA_BASE_MECHANICS_API
-void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorSameSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset );
-#endif
+void MechanicalObject<defaulttype::Rigid3Types>::applyRotation (const defaulttype::Quat q);
 
-#ifndef SOFA_FLOAT
 template<> SOFA_BASE_MECHANICS_API
-void MechanicalObject<defaulttype::Rigid3dTypes>::addFromBaseVectorDifferentSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset );
-#endif
-#ifndef SOFA_DOUBLE
-template<> SOFA_BASE_MECHANICS_API
-void MechanicalObject<defaulttype::Rigid3fTypes>::addFromBaseVectorDifferentSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset );
-#endif
+void MechanicalObject<defaulttype::Rigid3Types>::addFromBaseVectorSameSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset );
 
-#ifndef SOFA_FLOAT
+
 template<> SOFA_BASE_MECHANICS_API
-void MechanicalObject<defaulttype::Rigid3dTypes>::draw(const core::visual::VisualParams* vparams);
-#endif
-#ifndef SOFA_DOUBLE
+void MechanicalObject<defaulttype::Rigid3Types>::addFromBaseVectorDifferentSize(core::VecId dest, const defaulttype::BaseVector* src, unsigned int &offset );
+
+
 template<> SOFA_BASE_MECHANICS_API
-void MechanicalObject<defaulttype::Rigid3fTypes>::draw(const core::visual::VisualParams* vparams);
-#endif
+void MechanicalObject<defaulttype::Rigid3Types>::draw(const core::visual::VisualParams* vparams);
 
 
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_CONTAINER_MECHANICALOBJECT_CPP)
-#ifndef SOFA_FLOAT
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec3dTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec2dTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec1dTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec6dTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Rigid3dTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Rigid2dTypes>;
-#endif
-#ifndef SOFA_DOUBLE
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec3fTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec2fTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec1fTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec6fTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Rigid3fTypes>;
-extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Rigid2fTypes>;
-#endif
+
+#if  !defined(SOFA_COMPONENT_CONTAINER_MECHANICALOBJECT_CPP)
+extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec3Types>;
+extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec2Types>;
+extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec1Types>;
+extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Vec6Types>;
+extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Rigid3Types>;
+extern template class SOFA_BASE_MECHANICS_API MechanicalObject<defaulttype::Rigid2Types>;
+
 #endif
 
 } // namespace container

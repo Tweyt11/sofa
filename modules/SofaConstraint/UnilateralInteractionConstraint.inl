@@ -25,7 +25,8 @@
 #include <SofaConstraint/UnilateralInteractionConstraint.h>
 #include <sofa/core/visual/VisualParams.h>
 #include <sofa/defaulttype/Vec.h>
-#include <sofa/helper/gl/template.h>
+#include <sofa/defaulttype/RGBAColor.h>
+
 namespace sofa
 {
 
@@ -34,6 +35,52 @@ namespace component
 
 namespace constraintset
 {
+
+template<class DataTypes>
+UnilateralInteractionConstraint<DataTypes>::UnilateralInteractionConstraint(MechanicalState* object1, MechanicalState* object2)
+    : Inherit(object1, object2)
+    , epsilon(Real(0.001))
+    , yetIntegrated(false)
+    , customTolerance(0.0)
+    , contactsStatus(NULL)
+{
+}
+
+template<class DataTypes>
+UnilateralInteractionConstraint<DataTypes>::~UnilateralInteractionConstraint()
+{
+    if(contactsStatus)
+        delete[] contactsStatus;
+}
+
+template<class DataTypes>
+void UnilateralInteractionConstraint<DataTypes>::clear(int reserve)
+{
+    contacts.clear();
+    if (reserve)
+        contacts.reserve(reserve);
+}
+
+template<class DataTypes>
+void UnilateralInteractionConstraint<DataTypes>::addContact(double mu, Deriv norm, Coord P, Coord Q, Real contactDistance, int m1, int m2, long id, PersistentID localid)
+{
+    addContact(mu, norm, P, Q, contactDistance, m1, m2,
+            this->getMState2()->read(core::ConstVecCoordId::freePosition())->getValue()[m2],
+            this->getMState1()->read(core::ConstVecCoordId::freePosition())->getValue()[m1],
+            id, localid);
+}
+
+template<class DataTypes>
+void UnilateralInteractionConstraint<DataTypes>::addContact(double mu, Deriv norm, Real contactDistance, int m1, int m2, long id, PersistentID localid)
+{
+    addContact(mu, norm,
+            this->getMState2()->read(core::ConstVecCoordId::position())->getValue()[m2],
+            this->getMState1()->read(core::ConstVecCoordId::position())->getValue()[m1],
+            contactDistance, m1, m2,
+            this->getMState2()->read(core::ConstVecCoordId::freePosition())->getValue()[m2],
+            this->getMState1()->read(core::ConstVecCoordId::freePosition())->getValue()[m1],
+            id, localid);
+}
 
 template<class DataTypes>
 void UnilateralInteractionConstraint<DataTypes>::addContact(double mu, Deriv norm, Coord P, Coord Q, Real contactDistance, int m1, int m2, Coord /*Pfree*/, Coord /*Qfree*/, long id, PersistentID localid)
@@ -326,13 +373,11 @@ void UnilateralInteractionConstraint<DataTypes>::getConstraintResolution(const c
         Contact& c = contacts[i];
         if(c.mu > 0.0)
         {
-//			bool& temp = contactsStatus.at(i);
             UnilateralConstraintResolutionWithFriction* ucrwf = new UnilateralConstraintResolutionWithFriction(c.mu, NULL, &contactsStatus[i]);
             ucrwf->setTolerance(customTolerance);
             resTab[offset] = ucrwf;
 
             // TODO : cette méthode de stockage des forces peu mal fonctionner avec 2 threads quand on utilise l'haptique
-//			resTab[offset] = new UnilateralConstraintResolutionWithFriction(c.mu, &prevForces, &contactsStatus[i]);
             offset += 3;
         }
         else
@@ -353,61 +398,42 @@ bool UnilateralInteractionConstraint<DataTypes>::isActive() const
 template<class DataTypes>
 void UnilateralInteractionConstraint<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
-#ifndef SOFA_NO_OPENGL
-//	return; // TEMP
-    if (!vparams->displayFlags().getShowInteractionForceFields()) return;
-    if (!vparams->isSupported(sofa::core::visual::API_OpenGL)) return;
 
-    glDisable(GL_LIGHTING);
+    if (!vparams->displayFlags().getShowInteractionForceFields()) return;
+
+    vparams->drawTool()->saveLastState();
+
+    vparams->drawTool()->disableLighting();
+    vparams->drawTool()->saveLastState();
+
+    std::vector<sofa::defaulttype::Vector3> redVertices;
+    std::vector<sofa::defaulttype::Vector3> otherVertices;
+    std::vector<sofa::defaulttype::Vec4f> otherColors;
 
     for (unsigned int i=0; i<contacts.size(); i++)
     {
         const Contact& c = contacts[i];
 
-//		if(contactsStatus && contactsStatus[i]) glColor4f(1,0,0,1); else
-//		if(c.dfree < 0) glColor4f(1,0,1,1); else
-//		glColor4f(1,0.5,0,1);
+        redVertices.push_back(c.P);
+        redVertices.push_back(c.Q);
 
-        glLineWidth(5);
-        glBegin(GL_LINES);
+        otherVertices.push_back(c.P);
+        otherColors.push_back(sofa::defaulttype::RGBAColor::white());
+        otherVertices.push_back(c.P + c.norm);
+        otherColors.push_back(sofa::defaulttype::RGBAColor(0,0.5,0.5,1));
 
-        glColor4f(1,0,0,1);
-        helper::gl::glVertexT(c.P);
-        helper::gl::glVertexT(c.Q);
+        otherVertices.push_back(c.Q);
+        otherColors.push_back(sofa::defaulttype::RGBAColor::black());
+        otherVertices.push_back(c.Q - c.norm);
+        otherColors.push_back(sofa::defaulttype::RGBAColor(0,0.5,0.5,1));
 
-        glEnd();
-
-        glLineWidth(3);
-        glBegin(GL_LINES);
-
-        /*glColor4f(0,0,1,1);
-        helper::gl::glVertexT(c.Pfree);
-        helper::gl::glVertexT(c.Qfree);*/
-
-        glColor4f(1,1,1,1);
-        helper::gl::glVertexT(c.P);
-        glColor4f(0,0.5,0.5,1);
-        helper::gl::glVertexT(c.P + c.norm);
-
-        glColor4f(0,0,0,1);
-        helper::gl::glVertexT(c.Q);
-        glColor4f(0,0.5,0.5,1);
-        helper::gl::glVertexT(c.Q - c.norm);
-
-        glEnd();
-        /*
-        if (c.dfree < 0)
-        {
-            glLineWidth(5);
-            glColor4f(0,1,0,1);
-            helper::gl::glVertexT(c.Pfree);
-            helper::gl::glVertexT(c.Qfree);
-        }
-        */
-
-        glLineWidth(1);
     }
-#endif /* SOFA_NO_OPENGL */
+    vparams->drawTool()->drawLines(redVertices, 5, sofa::defaulttype::RGBAColor::red());
+    vparams->drawTool()->drawLines(otherVertices, 3, otherColors);
+
+
+    vparams->drawTool()->restoreLastState();
+
 }
 
 } // namespace constraintset

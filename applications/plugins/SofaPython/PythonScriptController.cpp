@@ -108,8 +108,6 @@ int PythonScriptControllerClass = core::RegisterObject("A Sofa controller script
         .add< PythonScriptController >()
         ;
 
-SOFA_DECL_CLASS(PythonScriptController)
-
 PythonScriptController::PythonScriptController()
     : ScriptController()
     , m_filename(initData(&m_filename, "filename",
@@ -169,6 +167,7 @@ void PythonScriptController::refreshBinding()
             BIND_OBJECT_METHOD(bwdInitGraph)
             BIND_OBJECT_METHOD(onKeyPressed)
             BIND_OBJECT_METHOD(onKeyReleased)
+            BIND_OBJECT_METHOD(onMouseMove)
             BIND_OBJECT_METHOD(onMouseButtonLeft)
             BIND_OBJECT_METHOD(onMouseButtonRight)
             BIND_OBJECT_METHOD(onMouseButtonMiddle)
@@ -300,6 +299,15 @@ bool PythonScriptController::script_onKeyReleased(const char c)
     PythonEnvironment::gil lock(__func__);    
     SP_CALL_MODULEBOOLFUNC(m_Func_onKeyReleased,"(c)", c);
     return b;
+}
+
+void PythonScriptController::script_onMouseMove(const int posX,const int posY)
+{
+     ActivableScopedAdvancedTimer advancedTimer(m_timingEnabled.getValue(),
+                                                "PythonScriptController_onMouseMove",this);
+
+     PythonEnvironment::gil lock(__func__);
+     SP_CALL_MODULEFUNC(m_Func_onMouseMove, "(ii)", posX, posY);
 }
 
 void PythonScriptController::script_onMouseButtonLeft(const int posX,const int posY,const bool pressed)

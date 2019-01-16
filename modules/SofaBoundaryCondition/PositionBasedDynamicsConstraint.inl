@@ -24,7 +24,6 @@
 
 #include <SofaBoundaryCondition/PositionBasedDynamicsConstraint.h>
 #include <sofa/simulation/Simulation.h>
-#include <sofa/helper/gl/template.h>
 #include <sofa/defaulttype/RigidTypes.h>
 #include <iostream>
 
@@ -46,7 +45,6 @@ PositionBasedDynamicsConstraint<DataTypes>::PositionBasedDynamicsConstraint()
     , velocity(initData(&velocity,"velocity","Velocities."))
     , old_position(initData(&old_position,"old_position","Old positions."))
 {
-    // stiffness.setWidget("0to1RatioWidget");
 }
 
 
@@ -93,17 +91,6 @@ template <class DataTypes>
 void PositionBasedDynamicsConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* mparams, DataMatrixDeriv& cData)
 {
     helper::WriteAccessor<DataMatrixDeriv> c ( mparams, cData );
-
-    /*
-    MatrixDerivRowIterator rowIt = c->begin();
-    MatrixDerivRowIterator rowItEnd = c->end();
-    { // fix everything
-        while (rowIt != rowItEnd)
-        {
-            rowIt.row().clear();
-            ++rowIt;
-        }
-    }*/
 }
 
 
@@ -147,14 +134,9 @@ void PositionBasedDynamicsConstraint<DataTypes>::projectPosition(const core::Mec
 }
 
 // Specialization for rigids
-#ifndef SOFA_FLOAT
 template <>
-void PositionBasedDynamicsConstraint<defaulttype::Rigid3dTypes >::projectPosition(const core::MechanicalParams* mparams, DataVecCoord& xData);
-#endif
-#ifndef SOFA_DOUBLE
-template <>
-void PositionBasedDynamicsConstraint<defaulttype::Rigid3fTypes >::projectPosition(const core::MechanicalParams* mparams, DataVecCoord& xData);
-#endif
+void PositionBasedDynamicsConstraint<defaulttype::Rigid3Types >::projectPosition(const core::MechanicalParams* mparams, DataVecCoord& xData);
+
 
 
 

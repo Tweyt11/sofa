@@ -25,7 +25,7 @@
 
 #include <sofa/core/visual/VisualModel.h>
 #include <sofa/core/objectmodel/BaseObject.h>
-#include <sofa/defaulttype/Vec3Types.h>
+#include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/RGBAColor.h>
 #include <sofa/helper/gl/template.h>
 #include <sofa/core/visual/VisualModel.h>
@@ -175,7 +175,7 @@ public:
     virtual ~PositionalLight();
     virtual void drawLight() override;
     virtual void draw(const core::visual::VisualParams* vparams) override;
-    virtual void drawSource(const core::visual::VisualParams* vparams) override;
+    virtual void drawSource(const core::visual::VisualParams*) override;
     virtual const sofa::defaulttype::Vector3 getPosition() override { return d_position.getValue(); }
     LightType getLightType() override { return LightType::POSITIONAL; }
 };

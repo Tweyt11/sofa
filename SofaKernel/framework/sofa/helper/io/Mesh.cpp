@@ -34,10 +34,6 @@ template class Factory<std::string, io::Mesh, std::string>;
 namespace io
 {
 
-SOFA_LINK_CLASS(MeshOBJ)
-SOFA_LINK_CLASS(MeshTrian)
-SOFA_LINK_CLASS(MeshSTL)
-
 Mesh* Mesh::Create(const std::string& filename)
 {
     std::string loader="default";

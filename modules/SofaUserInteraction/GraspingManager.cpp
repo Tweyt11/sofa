@@ -26,7 +26,6 @@
 #include <sofa/core/objectmodel/KeyreleasedEvent.h>
 #include <sofa/simulation/AnimateBeginEvent.h>
 #include <sofa/simulation/AnimateEndEvent.h>
-#include <sofa/helper/gl/template.h>
 
 namespace sofa
 {
@@ -36,8 +35,6 @@ namespace component
 
 namespace collision
 {
-
-SOFA_DECL_CLASS(GraspingManager)
 
 int GraspingManagerClass = core::RegisterObject("Manager handling Grasping operations between a SphereModel and a TriangleSetModel relying on a TetrahedronSetTopology")
         .add< GraspingManager >()

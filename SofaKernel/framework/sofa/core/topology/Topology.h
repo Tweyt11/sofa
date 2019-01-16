@@ -24,6 +24,8 @@
 
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <sofa/helper/list.h>
+#include <sofa/defaulttype/TopologyTypes.h>
+#include <limits.h>
 
 namespace sofa
 {
@@ -47,6 +49,7 @@ enum TopologyObjectType
     PYRAMID
 };
 
+
 SOFA_CORE_API TopologyObjectType parseTopologyObjectTypeFromString(const std::string& s);
 SOFA_CORE_API std::string parseTopologyObjectTypeToString(TopologyObjectType t);
 
@@ -56,19 +59,19 @@ public:
     /// Topology global typedefs
     //typedef int index_type;
     typedef unsigned int index_type;
-    enum { InvalidID = (unsigned)-1 };
-    typedef index_type	        	    PointID;
-    typedef index_type          		    EdgeID;
-    typedef index_type                          TriangleID;
-    typedef index_type                 	    QuadID;
-    typedef index_type	                    TetraID;
-    typedef index_type	                    TetrahedronID;
-    typedef index_type	                    HexaID;
-    typedef index_type	                    HexahedronID;
-    typedef index_type	                    PentahedronID;
-    typedef index_type	                    PentaID;
-    typedef index_type	                    PyramidID;
-
+    enum { InvalidID = sofa::defaulttype::InvalidID };
+    typedef index_type                 ElemID;
+    typedef index_type                 PointID;
+    typedef index_type                 EdgeID;
+    typedef index_type                 TriangleID;
+    typedef index_type                 QuadID;
+    typedef index_type                 TetraID;
+    typedef index_type                 TetrahedronID;
+    typedef index_type                 HexaID;
+    typedef index_type                 HexahedronID;
+    typedef index_type                 PentahedronID;
+    typedef index_type                 PentaID;
+    typedef index_type                 PyramidID;
 
     typedef sofa::helper::vector<index_type>                  SetIndex;
     typedef sofa::helper::vector<index_type>                  SetIndices;

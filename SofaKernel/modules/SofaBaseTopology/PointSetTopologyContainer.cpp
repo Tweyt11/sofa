@@ -57,7 +57,6 @@ struct GeneratePointID
 
 using namespace sofa::defaulttype;
 
-SOFA_DECL_CLASS(PointSetTopologyContainer)
 int PointSetTopologyContainerClass = core::RegisterObject("Point set topology container")
         .add< PointSetTopologyContainer >()
         ;
@@ -87,7 +86,7 @@ void PointSetTopologyContainer::setNbPoints(int n)
     nbPoints.setValue(n);  
 }
 
-unsigned int PointSetTopologyContainer::getNumberOfElements() const
+size_t PointSetTopologyContainer::getNumberOfElements() const
 {
     return nbPoints.getValue();
 }
@@ -247,7 +246,7 @@ void PointSetTopologyContainer::updateDataEngineGraph(sofa::core::objectmodel::B
             sofa::core::objectmodel::BaseData* data = dynamic_cast<sofa::core::objectmodel::BaseData*>( (*it) );
             if (data)
             {
-                sout << "Warning: Data alone linked: " << data->getName() << sendl;
+                msg_warning() << "Data alone linked: " << data->getName();
             }
         }
 
@@ -298,7 +297,7 @@ void PointSetTopologyContainer::updateDataEngineGraph(sofa::core::objectmodel::B
 
     // check good loop escape
     if (cpt_security >= 1000)
-        serr << "Error: PointSetTopologyContainer::updateTopologyEngineGraph reach end loop security." << sendl;
+        msg_error() << "PointSetTopologyContainer::updateTopologyEngineGraph reach end loop security.";
 
 
     // Reorder engine graph by inverting order and avoiding duplicate engines

@@ -41,7 +41,6 @@ namespace visualmodel
 
 using namespace sofa::defaulttype;
 
-SOFA_DECL_CLASS(OglViewport)
 //Register OglViewport in the Object Factory
 int OglViewportClass = core::RegisterObject("OglViewport")
         .add< OglViewport >()
@@ -101,7 +100,7 @@ bool OglViewport::isVisible(const core::visual::VisualParams*)
     {
         VisualStyle* vstyle = NULL;
         this->getContext()->get(vstyle);
-        if (vstyle && !vstyle->displayFlags.getValue().getShowRendering())
+        if (vstyle && !vstyle->displayFlags.getValue().getShowAdvancedRendering())
             return false;
     }
     return true;
