@@ -58,8 +58,17 @@ template<class DataTypes>
 void ProjectiveConstraintSet<DataTypes>::init()
 {
     BaseProjectiveConstraintSet::init();
-    mstate = dynamic_cast< MechanicalState<DataTypes>* >(getContext()->getMechanicalState());
-    if(!mstate) this->serr<<"ProjectiveConstraintSet<DataTypes>::init(), no mstate . This may be because there is no MechanicalState in the local context, or because the type is not compatible." << this->sendl;
+    if(mstate.get()!=nullptr){
+        msg_info() << "Using provided mstate." ;
+    }
+    else
+    {
+        msg_info() << "No mstate provided, search in the context...";
+        mstate = dynamic_cast< MechanicalState<DataTypes>* >(getContext()->getMechanicalState());
+        if(!mstate)
+            msg_error() <<" Missing mstate . This may be because there is no MechanicalState in the local context, or because the type is not compatible." ;
+        msg_info() << "Found a mstate in the context";
+    }
 }
 
 template<class DataTypes>
