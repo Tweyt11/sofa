@@ -335,8 +335,9 @@ QTreeWidgetItem* GraphListenerQListView::createItem(QTreeWidgetItem* parent)
 
 
 /*****************************************************************************************************************/
-void GraphListenerQListView::onAddChildBegin(Node* parent, Node* child)
+void GraphListenerQListView::onAddChildBegin(Node* parent, Node* child, unsigned pos)
 {
+    SOFA_UNUSED(pos);
     if (frozen)
         return;
     if (items.count(child))
@@ -412,7 +413,7 @@ void GraphListenerQListView::onAddChildBegin(Node* parent, Node* child)
         items[child] = item;
     }
     for (Node::SPtr node : child->child)
-        onAddChildBegin(child, node.get());
+        onAddChildBegin(child, node.get(), 0);
     for (BaseObject::SPtr obj : child->object)
         onAddObjectBegin(child, obj.get());
 }
@@ -594,7 +595,7 @@ void GraphListenerQListView::unfreeze(Node* groot)
 {
     if (!items.count(groot)) return;
     frozen = false;
-    onAddChildBegin(nullptr, groot);
+    onAddChildBegin(nullptr, groot, 0);
 }
 
 /*****************************************************************************************************************/

@@ -148,8 +148,9 @@ protected:
     virtual void moveChild(BaseNode::SPtr node) override;
 
     virtual void doAddChild(BaseNode::SPtr node) override;
+    virtual void doInsertChild(BaseNode::SPtr node, unsigned pos) override;
     virtual void doRemoveChild(BaseNode::SPtr node) override;
-    virtual void doMoveChild(BaseNode::SPtr node, BaseNode::SPtr previous_parent) override;
+    virtual void doMoveChild(BaseNode::SPtr node, BaseNode::SPtr previous_parent, unsigned pos) override;
 
 
     /// Execute a recursive action starting from this node.

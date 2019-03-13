@@ -388,6 +388,19 @@ public:
         return true;
     }
 
+    // insert element at the end of the vector & swap values until 'v' is at 'pos'
+    bool insertAt(DestPtr v, unsigned pos)
+    {
+        if (!v) return false;
+        const int aspect = core::ExecParams::currentAspect();
+        unsigned int index = TraitsContainer::add(m_value[aspect],v);
+        added(v, index);
+        for (size_t i = m_value[aspect].size() ; i > pos+1 ; --i)
+            std::swap<DestPtr>(m_value[aspect][i], m_value[aspect][i-1]);
+        this->updateCounter(aspect);
+        return true;
+    }
+
     bool add(DestPtr v, const std::string& path)
     {
         if (!v && path.empty()) return false;
@@ -719,7 +732,7 @@ public:
         if (!this->m_owner) return false;
         bool ok = true;
         const int aspect = core::ExecParams::currentAspect();
-        unsigned int n = (unsigned int)this->getSize();
+        unsigned int n = unsigned(this->getSize());
         for (unsigned int i = 0; i<n; ++i)
         {
             ValueType& value = this->m_value[aspect][i];

@@ -31,16 +31,21 @@ namespace simulation
 
 MutationListener::~MutationListener() {}
 
-void MutationListener::onStepBegin(Node *node) { SOFA_UNUSED(node); }
-void MutationListener::onStepEnd(Node *node) { SOFA_UNUSED(node); }
-
-void MutationListener::sleepChanged(Node *node) { SOFA_UNUSED(node); }
-
-void MutationListener::onAddChildBegin(Node *parent, Node *child)
+void MutationListener::onAddChildBegin(Node *parent, Node *child, unsigned index)
 {
     SOFA_UNUSED(parent);
     SOFA_UNUSED(child);
+    SOFA_UNUSED(index);
 }
+void MutationListener::onAddChildEnd(Node *parent, Node *child, unsigned index)
+{
+    SOFA_UNUSED(parent);
+    SOFA_UNUSED(child);
+    SOFA_UNUSED(index);
+}
+
+void MutationListener::sleepChanged(Node *node) { SOFA_UNUSED(node); }
+
 void MutationListener::onRemoveChildBegin(Node *parent, Node *child)
 {
     SOFA_UNUSED(parent);
@@ -72,11 +77,6 @@ void MutationListener::onRemoveSlaveBegin(core::objectmodel::BaseObject *master,
     SOFA_UNUSED(slave);
 }
 
-void MutationListener::onAddChildEnd(Node *parent, Node *child)
-{
-    SOFA_UNUSED(parent);
-    SOFA_UNUSED(child);
-}
 void MutationListener::onRemoveChildEnd(Node *parent, Node *child)
 {
     SOFA_UNUSED(parent);

@@ -58,12 +58,13 @@ public:
     //Pure Virtual method from BaseNode
     /// Add a child node
     virtual void doAddChild(BaseNode::SPtr node) override;
+    virtual void doInsertChild(BaseNode::SPtr node, unsigned pos) override;
 
     /// Remove a child node
     virtual void doRemoveChild(BaseNode::SPtr node) override;
 
     /// Move a node from another node
-    virtual void doMoveChild(BaseNode::SPtr node, BaseNode::SPtr prev) override;
+    virtual void doMoveChild(BaseNode::SPtr node, BaseNode::SPtr prev, unsigned pos) override;
 
     /// Remove the current node from the graph: consists in removing the link to its parent
     void detachFromGraph() override;

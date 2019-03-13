@@ -181,11 +181,20 @@ void Node::draw(core::visual::VisualParams* vparams)
     execute<simulation::VisualDrawVisitor>(vparams);
 }
 
+void Node::insertChild(BaseNode::SPtr node, unsigned pos)
+{
+    notifyBeginAddChild(this, dynamic_cast<Node*>(node.get()), pos);
+    doInsertChild(node, pos);
+    notifyEndAddChild(this, dynamic_cast<Node*>(node.get()), pos);
+}
+
+
 void Node::addChild(core::objectmodel::BaseNode::SPtr node)
 {
-    notifyBeginAddChild(this, dynamic_cast<Node*>(node.get()));
+    unsigned pos = unsigned(child.size());
+    notifyBeginAddChild(this, dynamic_cast<Node*>(node.get()), pos);
     doAddChild(node);
-    notifyEndAddChild(this, dynamic_cast<Node*>(node.get()));
+    notifyEndAddChild(this, dynamic_cast<Node*>(node.get()), pos);
 }
 
 /// Remove a child
@@ -199,6 +208,17 @@ void Node::removeChild(core::objectmodel::BaseNode::SPtr node)
     notifyEndRemoveChild(this, static_cast<Node*>(node.get()));
 }
 
+/// Move a node from another node
+void Node::moveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent, unsigned pos)
+{
+    if (!prev_parent.get())
+    {
+        msg_error(this->getName()) << "Node::moveChild(BaseNode::SPtr node)\n" << node->getName() << " has no parent. Use addChild instead!";
+        insertChild(node, pos);
+        return;
+    }
+    doMoveChild(node, prev_parent, pos);
+}
 
 /// Move a node from another node
 void Node::moveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent)
@@ -209,7 +229,7 @@ void Node::moveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent)
         addChild(node);
         return;
     }
-    doMoveChild(node, prev_parent);
+    doMoveChild(node, prev_parent, this->child.size());
 }
 /// Add an object. Detect the implemented interfaces and add the object to the corresponding lists.
 bool Node::addObject(BaseObject::SPtr obj)
@@ -245,18 +265,18 @@ void Node::moveObject(BaseObject::SPtr obj)
 }
 
 
-void Node::notifyBeginAddChild(Node::SPtr parent, Node::SPtr child)
+void Node::notifyBeginAddChild(Node::SPtr parent, Node::SPtr child, unsigned pos)
 {
     Node* root = down_cast<Node>(this->getContext()->getRootContext()->toBaseNode());
     for (auto& listener : root->listener)
-        listener->onAddChildBegin(parent.get(), child.get());
+        listener->onAddChildBegin(parent.get(), child.get(), pos);
 }
 
-void Node::notifyEndAddChild(Node::SPtr parent, Node::SPtr child)
+void Node::notifyEndAddChild(Node::SPtr parent, Node::SPtr child, unsigned pos)
 {
     Node* root = down_cast<Node>(this->getContext()->getRootContext()->toBaseNode());
     for (auto& listener : root->listener)
-        listener->onAddChildEnd(parent.get(), child.get());
+        listener->onAddChildEnd(parent.get(), child.get(), pos);
 }
 
 void Node::notifyBeginRemoveChild(Node::SPtr parent, Node::SPtr child)
@@ -727,6 +747,35 @@ Node* Node::getTreeNode(const std::string& name) const
         result = (*it)->getTreeNode(name);
     return result;
 }
+
+Node* Node::getNodeInGraph(const std::string& absolutePath) const
+{
+    if (absolutePath[0] != '/')
+        return nullptr;
+
+    std::string p = absolutePath.substr(1);
+    if (p == "")
+        return dynamic_cast<Node*>(this->getRootContext());
+
+    Node* ret = nullptr;
+    Node* parent = dynamic_cast<Node*>(this->getRootContext());
+    while (p != "")
+    {
+        std::string nodeName = p.substr(0, p.find('/'));
+        ret = parent->getChild(nodeName);
+        if (!ret)
+            return nullptr;
+        if (p.find('/') == std::string::npos)
+            p = "";
+        else
+            p = p.substr(p.find('/') +1);
+        parent = ret;
+    }
+    if (!ret)
+        return nullptr;
+    return ret;
+}
+
 
 /// Get parent node (or NULL if no hierarchy or for root node)
 sofa::core::objectmodel::BaseNode::Children Node::getChildren() const

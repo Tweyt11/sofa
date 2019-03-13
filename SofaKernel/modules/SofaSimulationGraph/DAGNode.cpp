@@ -146,13 +146,18 @@ void DAGNode::moveChild(BaseNode::SPtr node)
     }
 }
 
-
 /// Add a child node
 void DAGNode::doAddChild(BaseNode::SPtr node)
 {
+    doInsertChild(node, unsigned(child.size()));
+}
+
+/// Add a child node at position 'pos' in childs
+void DAGNode::doInsertChild(BaseNode::SPtr node, unsigned pos)
+{
     DAGNode::SPtr dagnode = sofa::core::objectmodel::SPtr_static_cast<DAGNode>(node);
     setDirtyDescendancy();
-    child.add(dagnode);
+    child.insertAt(dagnode, pos);
     dagnode->l_parents.add(this);
     dagnode->l_parents.updateLinks(); // to fix load-time unresolved links
 }
@@ -167,7 +172,7 @@ void DAGNode::doRemoveChild(BaseNode::SPtr node)
 }
 
 /// Move a node from another node
-void DAGNode::doMoveChild(BaseNode::SPtr node, BaseNode::SPtr previous_parent)
+void DAGNode::doMoveChild(BaseNode::SPtr node, BaseNode::SPtr previous_parent, unsigned pos)
 {
     DAGNode::SPtr dagnode = sofa::core::objectmodel::SPtr_static_cast<DAGNode>(node);
     if (!dagnode) return;
@@ -175,7 +180,7 @@ void DAGNode::doMoveChild(BaseNode::SPtr node, BaseNode::SPtr previous_parent)
     setDirtyDescendancy();
     previous_parent->removeChild(node);
 
-    addChild(node);
+    insertChild(node, pos);
 }
 
 /// Remove a child
