@@ -396,7 +396,11 @@ public:
         unsigned int index = TraitsContainer::add(m_value[aspect],v);
         added(v, index);
         for (size_t i = m_value[aspect].size() ; i > pos+1 ; --i)
-            std::swap<DestPtr>(m_value[aspect][i], m_value[aspect][i-1]);
+        {
+            DestPtr tmp = m_value[aspect][i];
+            m_value[aspect][i-1] = m_value[aspect][i];
+            m_value[aspect][i-1] = tmp;
+        }
         this->updateCounter(aspect);
         return true;
     }

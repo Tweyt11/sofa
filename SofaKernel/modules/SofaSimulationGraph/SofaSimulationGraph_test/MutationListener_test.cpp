@@ -16,13 +16,13 @@ using sofa::modeling::addNew;
 
 class TestMutationListener : public MutationListener
 {
-    void onAddChildBegin(Node* parent, Node* child)
+    void onAddChildBegin(Node* parent, Node* child, unsigned pos)
     {
-        log += "Begin Add " + child->getName() + " to " + parent->getName() + "\n";
+        log += "Begin Add " + child->getName() + " to " + parent->getName() + " at pos " + std::to_string(pos) + "\n";
     }
-    void onAddChildEnd(Node* parent, Node* child)
+    void onAddChildEnd(Node* parent, Node* child, unsigned pos)
     {
-        log += "End Add " + child->getName() + " to " + parent->getName() + "\n";
+        log += "End Add " + child->getName() + " to " + parent->getName() + " at pos " + std::to_string(pos) + "\n";
     }
 
     void onRemoveChildBegin(Node* parent, Node* child)
@@ -392,6 +392,27 @@ struct MutationListener_test : public sofa::BaseTest
                   listener.log);
     }
 
+    void test_insertChild()
+    {
+        DAGNode::SPtr node1 = sofa::core::objectmodel::New<DAGNode>("node1");
+        DAGNode::SPtr node2 = sofa::core::objectmodel::New<DAGNode>("node2");
+        DAGNode::SPtr node3 = sofa::core::objectmodel::New<DAGNode>("node3");
+        DAGNode::SPtr node4 = sofa::core::objectmodel::New<DAGNode>("node4");
+        DAGNode::SPtr node5 = sofa::core::objectmodel::New<DAGNode>("node5");
+
+        root->addChild(node2);
+        root->addChild(node3);
+        root->addChild(node4);
+        root->addChild(node5);
+
+        listener.clearLog();
+
+        root->insertChild(node1, 2);
+        EXPECT_EQ("Begin Add node1 to root at pos 2\n"
+                  "End Add node1 to root at pos 2\n",
+                  listener.log);
+    }
+
     void SetUp()
     {
         sofa::simulation::Simulation* simu;
@@ -408,6 +429,7 @@ struct MutationListener_test : public sofa::BaseTest
 
 TEST_F(MutationListener_test, test_createChild) { test_createChild(); }
 TEST_F(MutationListener_test, test_addChild) { test_addChild(); }
+TEST_F(MutationListener_test, test_insertChild) { test_insertChild(); }
 TEST_F(MutationListener_test, test_addSubChild){ test_addSubChild(); }
 TEST_F(MutationListener_test, test_removeSubChild){ test_removeSubChild(); }
 TEST_F(MutationListener_test, test_removeChild){ test_removeChild(); }
