@@ -69,7 +69,7 @@ public:
 
     /*****************************************************************************************************************/
     QTreeWidgetItem* createItem(QTreeWidgetItem* parent);
-    virtual void onAddChildBegin(Node* parent, Node* child, unsigned pos) override;
+    virtual void onAddChildBegin(Node* parent, Node* child) override;
     virtual void onRemoveChildBegin(Node* parent, Node* child) override;
     virtual void onAddObjectBegin(Node* parent, core::objectmodel::BaseObject* object) override;
     virtual void onRemoveObjectBegin(Node* /*parent*/, core::objectmodel::BaseObject* object) override;

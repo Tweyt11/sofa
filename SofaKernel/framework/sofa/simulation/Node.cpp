@@ -181,20 +181,12 @@ void Node::draw(core::visual::VisualParams* vparams)
     execute<simulation::VisualDrawVisitor>(vparams);
 }
 
-void Node::insertChild(BaseNode::SPtr node, unsigned pos)
-{
-    notifyBeginAddChild(this, dynamic_cast<Node*>(node.get()), pos);
-    doInsertChild(node, pos);
-    notifyEndAddChild(this, dynamic_cast<Node*>(node.get()), pos);
-}
-
-
 void Node::addChild(core::objectmodel::BaseNode::SPtr node)
 {
     unsigned pos = unsigned(child.size());
-    notifyBeginAddChild(this, dynamic_cast<Node*>(node.get()), pos);
+    notifyBeginAddChild(this, dynamic_cast<Node*>(node.get()));
     doAddChild(node);
-    notifyEndAddChild(this, dynamic_cast<Node*>(node.get()), pos);
+    notifyEndAddChild(this, dynamic_cast<Node*>(node.get()));
 }
 
 /// Remove a child
@@ -209,18 +201,6 @@ void Node::removeChild(core::objectmodel::BaseNode::SPtr node)
 }
 
 /// Move a node from another node
-void Node::moveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent, unsigned pos)
-{
-    if (!prev_parent.get())
-    {
-        msg_error(this->getName()) << "Node::moveChild(BaseNode::SPtr node)\n" << node->getName() << " has no parent. Use addChild instead!";
-        insertChild(node, pos);
-        return;
-    }
-    doMoveChild(node, prev_parent, pos);
-}
-
-/// Move a node from another node
 void Node::moveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent)
 {
     if (!prev_parent.get())
@@ -229,7 +209,7 @@ void Node::moveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent)
         addChild(node);
         return;
     }
-    doMoveChild(node, prev_parent, this->child.size());
+    doMoveChild(node, prev_parent);
 }
 /// Add an object. Detect the implemented interfaces and add the object to the corresponding lists.
 bool Node::addObject(BaseObject::SPtr obj)
@@ -265,18 +245,18 @@ void Node::moveObject(BaseObject::SPtr obj)
 }
 
 
-void Node::notifyBeginAddChild(Node::SPtr parent, Node::SPtr child, unsigned pos)
+void Node::notifyBeginAddChild(Node::SPtr parent, Node::SPtr child)
 {
     Node* root = down_cast<Node>(this->getContext()->getRootContext()->toBaseNode());
     for (auto& listener : root->listener)
-        listener->onAddChildBegin(parent.get(), child.get(), pos);
+        listener->onAddChildBegin(parent.get(), child.get());
 }
 
-void Node::notifyEndAddChild(Node::SPtr parent, Node::SPtr child, unsigned pos)
+void Node::notifyEndAddChild(Node::SPtr parent, Node::SPtr child)
 {
     Node* root = down_cast<Node>(this->getContext()->getRootContext()->toBaseNode());
     for (auto& listener : root->listener)
-        listener->onAddChildEnd(parent.get(), child.get(), pos);
+        listener->onAddChildEnd(parent.get(), child.get());
 }
 
 void Node::notifyBeginRemoveChild(Node::SPtr parent, Node::SPtr child)

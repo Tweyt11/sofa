@@ -306,28 +306,6 @@ static PyObject * Node_addChild(PyObject *self, PyObject * args) {
     Py_RETURN_NONE;
 }
 
-static PyObject * Node_insertChild(PyObject *self, PyObject * args) {
-    Node* obj = get_node(self);
-    assert(obj);
-
-    PyObject* pyChild;
-    int position;
-    if (!PyArg_ParseTuple(args, "Oi", &pyChild, &position)) {
-        return nullptr;
-    }
-
-    BaseNode* child = get_node(pyChild);
-    assert(child);
-
-    if (!child) {
-        PyErr_BadArgument();
-        return nullptr;
-    }
-
-    obj->insertChild(child, unsigned(position));
-    Py_RETURN_NONE;
-}
-
 static PyObject * Node_removeChild(PyObject *self, PyObject * args) {
     Node* obj = get_node(self);
 
@@ -351,9 +329,8 @@ static PyObject * Node_moveChild(PyObject *self, PyObject * args) {
 
     PyObject* pyChild;
     PyObject* pyPrevParent;
-    int position = 0;
-    if (!PyArg_ParseTuple(args, "OO|i", &pyChild, &pyPrevParent, &position)) {
-        return nullptr;
+    if (!PyArg_ParseTuple(args, "OO", &pyChild, &pyPrevParent)) {
+        return NULL;
     }
 
     BaseNode* child = get_node(pyChild);
@@ -364,10 +341,10 @@ static PyObject * Node_moveChild(PyObject *self, PyObject * args) {
     BaseNode* prevParent = get_node(pyPrevParent);
     if (!child) {
         PyErr_BadArgument();
-        return nullptr;
+        return NULL;
     }
 
-    obj->moveChild(child, prevParent, unsigned(position));
+    obj->moveChild(child, prevParent);
     Py_RETURN_NONE;
 }
 
@@ -592,7 +569,6 @@ SP_CLASS_METHOD_KW(Node, addObject)
 SP_CLASS_METHOD(Node, addObject_noWarning) /// deprecated
 SP_CLASS_METHOD(Node, removeObject)
 SP_CLASS_METHOD(Node, addChild)
-SP_CLASS_METHOD(Node, insertChild)
 SP_CLASS_METHOD(Node, removeChild)
 SP_CLASS_METHOD(Node, moveChild)
 SP_CLASS_METHOD(Node, detachFromGraph)

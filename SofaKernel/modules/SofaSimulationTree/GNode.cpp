@@ -64,20 +64,14 @@ void GNode::moveChild(BaseNode::SPtr node)
     Node::moveChild(node, node->getFirstParent());
 }
 
+
 /// Add a child node
 void GNode::doAddChild(BaseNode::SPtr node)
 {
-    doInsertChild(node, unsigned(child.size()));
-}
-
-/// Add a child node at position 'pos' in childs
-void GNode::doInsertChild(BaseNode::SPtr node, unsigned pos)
-{
     GNode::SPtr gnode = down_cast<GNode>(node.get());
-    child.insertAt(dynamic_cast<Node*>(node.get()), pos);
+    child.add(gnode);
     gnode->l_parent.add(this);
 }
-
 
 /// Remove a child
 void GNode::doRemoveChild(BaseNode::SPtr node)
@@ -88,12 +82,12 @@ void GNode::doRemoveChild(BaseNode::SPtr node)
 }
 
 /// Remove a child
-void GNode::doMoveChild(BaseNode::SPtr node, BaseNode::SPtr prev, unsigned pos)
+void GNode::doMoveChild(BaseNode::SPtr node, BaseNode::SPtr prev)
 {
     Node* parentNode = static_cast<Node*>(prev.get());
     if (parentNode != nullptr)
         parentNode->removeChild(node);
-    insertChild(node, pos);
+    addChild(node);
 }
 /// Remove a child
 void GNode::detachFromGraph()

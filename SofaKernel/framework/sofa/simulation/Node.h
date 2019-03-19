@@ -307,29 +307,18 @@ public:
     virtual void addChild(BaseNode::SPtr node) final;
     /// Remove a child node
     virtual void removeChild(BaseNode::SPtr node) final;
-    /// Move a node from another node, and places it in this->child at index 'pos'.
-    /// If prev_parent is equal to 'nullptr', the node will simply be added in this
-    /// at position 'pos'.
-    /// If prev_parent is equal to 'this', the node will be moved within the parent,
-    ///  according to pos.
-    virtual void moveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent, unsigned int pos) final;
+    /// Move a node in this from another node
     virtual void moveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent) final;
+    /// Move a node in this & remove it from its parents
     virtual void moveChild(BaseNode::SPtr node) = 0;
-
-    /// adds a child at a specific index in the child Sequence
-    virtual void insertChild(BaseNode::SPtr node, unsigned newPos) final;
 
     /// Delegate methods overridden in child classes
     /// Add a child node
     virtual void doAddChild(BaseNode::SPtr node) = 0;
-
-    /// Inserts a child node at a specific position in the child Sequence
-    virtual void doInsertChild(BaseNode::SPtr node, unsigned pos) = 0;
-
     /// Remove a child node
     virtual void doRemoveChild(BaseNode::SPtr node) = 0;
     /// Move a node from another node
-    virtual void doMoveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent, unsigned pos) = 0;
+    virtual void doMoveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent) = 0;
 
     /// @}
 
@@ -588,14 +577,14 @@ protected:
     virtual void doMoveObject(sofa::core::objectmodel::BaseObject::SPtr sobj, Node* prev_parent);
 
     std::stack<Visitor*> actionStack;
-private:    
-    virtual void notifyBeginAddChild(Node::SPtr parent, Node::SPtr child, unsigned pos);
+private:
+    virtual void notifyBeginAddChild(Node::SPtr parent, Node::SPtr child);
     virtual void notifyBeginRemoveChild(Node::SPtr parent, Node::SPtr child);
 
     virtual void notifyBeginAddObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj);
     virtual void notifyBeginRemoveObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj);
 
-    virtual void notifyEndAddChild(Node::SPtr parent, Node::SPtr child, unsigned pos);
+    virtual void notifyEndAddChild(Node::SPtr parent, Node::SPtr child);
     virtual void notifyEndRemoveChild(Node::SPtr parent, Node::SPtr child);
 
     virtual void notifyEndAddObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj);

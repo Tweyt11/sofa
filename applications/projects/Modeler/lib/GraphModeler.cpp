@@ -142,7 +142,7 @@ Node::SPtr GraphModeler::addNode(Node::SPtr parent, Node::SPtr child, bool saveH
     }
     else
     {
-        graphListener->onAddChildBegin(nullptr, child.get(), 0);
+        graphListener->onAddChildBegin(nullptr, child.get());
         //Set up the root
         this->topLevelItem(0)->setExpanded(true);
 
