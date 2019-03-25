@@ -275,16 +275,16 @@ protected:
 
 #if !defined(SOFA_COMPONENT_ANIMATIONLOOP_MECHANICALMATRIXMAPPER_CPP)
 #ifdef SOFA_WITH_DOUBLE
-extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<Vec3dTypes, Rigid3dTypes>;
-extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<Vec3dTypes, Vec3dTypes>;
-extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<Vec1dTypes, Rigid3dTypes>;
-extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<Vec1dTypes, Vec1dTypes>;
+extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<sofa::defaulttype::Vec3dTypes, sofa::defaulttype::Rigid3dTypes>;
+extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<sofa::defaulttype::Vec3dTypes, sofa::defaulttype::Vec3dTypes>;
+extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<sofa::defaulttype::Vec1dTypes, sofa::defaulttype::Rigid3dTypes>;
+extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<sofa::defaulttype::Vec1dTypes, sofa::defaulttype::Vec1dTypes>;
 #endif
 #ifdef SOFA_WITH_FLOAT
-extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<Vec3fTypes, Rigid3fTypes>;
-extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<Vec3fTypes, Vec3fTypes>;
-extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<Vec1fTypes, Rigid3fTypes>;
-extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<Vec1fTypes, Vec1fTypes>;
+extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<sofa::defaulttype::Vec3fTypes, sofa::defaulttype::Rigid3fTypes>;
+extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<sofa::defaulttype::Vec3fTypes, sofa::defaulttype::Vec3fTypes>;
+extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<sofa::defaulttype::Vec1fTypes, sofa::defaulttype::Rigid3fTypes>;
+extern template class SOFA_GENERAL_ANIMATION_LOOP_API MechanicalMatrixMapper<sofa::defaulttype::Vec1fTypes, sofa::defaulttype::Vec1fTypes>;
 #endif
 #endif
 

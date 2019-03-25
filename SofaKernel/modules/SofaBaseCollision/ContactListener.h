@@ -99,14 +99,14 @@ namespace sofa
 					std::string collModelPath1;
 					std::string collModelPath2;
 
-					if (arg->getAttribute("collisionModel1"))
+                    if (!arg->getAttribute("collisionModel1").empty())
 						collModelPath1 = arg->getAttribute("collisionModel1");
 					else
 						collModelPath1 = "";
 
 					context->findLinkDest(collModel1, collModelPath1, NULL);
 
-					if (arg->getAttribute("collisionModel2"))
+                    if (!arg->getAttribute("collisionModel2").empty())
 						collModelPath2 = arg->getAttribute("collisionModel2");
 					else
 						collModelPath2 = "";

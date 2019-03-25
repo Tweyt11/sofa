@@ -89,8 +89,8 @@ void ConstantForceField<DataTypes>::parse(BaseObjectDescription* arg)
 {
     /// Now handling backward compatibility with old scenes.
     /// point is deprecated since '17.06'
-    const char* val=arg->getAttribute("points",nullptr) ;
-    if(val)
+    const std::string val=arg->getAttribute("points",nullptr) ;
+    if(!val.empty())
     {
         msg_deprecated() << "The attribute 'points' is deprecated since Sofa 17.06 and converted into 'indices'." << msgendl
                          << "Using deprecated attribute may result in lower performance and undefined behavior." << msgendl

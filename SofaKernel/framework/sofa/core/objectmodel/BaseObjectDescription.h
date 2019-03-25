@@ -56,8 +56,8 @@ public:
     public:
         Attribute() : accessed(false) {}
         Attribute(const std::string& v) : value(v), accessed(false) {}
-        void operator=(const std::string& v) { value = v; }
-        void operator=(const char* v) { value = v; }
+        //void operator=(const std::string& v) { value = v; }
+        void operator=(const std::string v) { value = v; }
         operator std::string() const { accessed = true; return value; }
         const char* c_str() const { accessed = true; return value.c_str(); }
         bool isAccessed() const { return accessed; }
@@ -66,7 +66,7 @@ public:
 
     typedef std::map<std::string,Attribute> AttributeMap;
 
-    BaseObjectDescription(const char* name=NULL, const char* type=NULL);
+    BaseObjectDescription(const std::string name=NULL, const std::string type=NULL);
 
     virtual ~BaseObjectDescription();
 
@@ -97,13 +97,13 @@ public:
     }
 
     /// Find an object description given its name (relative to this object)
-    virtual BaseObjectDescription* find(const char* nodeName, bool absolute=false);
+    virtual BaseObjectDescription* find(const std::string nodeName, bool absolute=false);
 
     /// Find an object given its name (relative to this object)
-    virtual Base* findObject(const char* nodeName);
+    virtual Base* findObject(const std::string nodeName);
 
     /// Get an attribute given its name (return defaultVal if not present)
-    virtual const char* getAttribute(const std::string& attr, const char* defaultVal=NULL);
+    virtual const std::string getAttribute(const std::string& attr, const std::string defaultVal=NULL);
 
     /// Get an attribute converted to a float given its name.
     /// returns defaultVal if not present or in case the attribute cannot be parsed totally

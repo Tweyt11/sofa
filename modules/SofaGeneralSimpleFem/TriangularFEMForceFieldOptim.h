@@ -129,8 +129,8 @@ public:
     // parse method attribute (for compatibility with non-optimized version)
     void parse ( sofa::core::objectmodel::BaseObjectDescription* arg ) override
     {
-        const char* method = arg->getAttribute("method");
-        if (method && *method && std::string(method) != std::string("large"))
+        const std::string method = arg->getAttribute("method");
+        if (method.c_str() && !method.empty() && method != std::string("large"))
         {
             serr << "Attribute method was specified as \""<<method<<"\" while this version only implements the \"large\" method. Ignoring..." << sendl;
         }

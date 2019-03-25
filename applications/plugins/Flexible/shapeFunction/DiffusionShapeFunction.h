@@ -517,8 +517,8 @@ public:
     /// Parse the given description to assign values to this object's fields and potentially other parameters
     void parse ( sofa::core::objectmodel::BaseObjectDescription* arg )
     {
-        const char* p = arg->getAttribute(nbBoundaryConditions.getName().c_str());
-        if (p)
+        const std::string p = arg->getAttribute(nbBoundaryConditions.getName().c_str());
+        if (!p.empty())
         {
             std::string nbStr = p;
             sout << "parse: setting nbBoundaryConditions="<<nbStr<<sendl;

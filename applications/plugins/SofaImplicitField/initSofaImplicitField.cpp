@@ -86,7 +86,7 @@ const char* getModuleDescription()
 const char* getModuleComponentList()
 {
     return "SphereSurface ImplicitSurfaceMapping InterpolatedImplicitSurface "
-           "SphericalField DiscreteGridField";
+           ;
 }
 
 } /// component
