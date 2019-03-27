@@ -445,6 +445,7 @@ macro(sofa_install_targets package_name the_targets include_install_dir)
             RUNTIME DESTINATION bin COMPONENT applications
             LIBRARY DESTINATION lib COMPONENT libraries
             ARCHIVE DESTINATION lib COMPONENT libraries
+<<<<<<< HEAD
             PUBLIC_HEADER DESTINATION include/${include_install_dir} COMPONENT headers)
 
     # non-flat headers install (if no PUBLIC_HEADER and include_install_dir specified)
@@ -468,12 +469,34 @@ macro(sofa_install_targets package_name the_targets include_install_dir)
                 get_filename_component(dir_from_package ${path_from_package} DIRECTORY)
                 install(FILES ${header}
                         DESTINATION "include/${include_install_dir}/${dir_from_package}"
+=======
+            PUBLIC_HEADER DESTINATION include/${install_include_subdir} COMPONENT headers)
+
+    foreach(target ${the_targets})
+        get_target_property(public_header ${target} PUBLIC_HEADER)
+        if("${public_header}" STREQUAL "public_header-NOTFOUND") # Handle multi-dir install (no PUBLIC_HEADER)
+            file(GLOB_RECURSE header_files "${CMAKE_CURRENT_SOURCE_DIR}/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/*.inl")
+            set(headers_basedir "${CMAKE_CURRENT_SOURCE_DIR}")
+            set(optional_argv3 "${ARGV3}")
+            if(optional_argv3)
+                set(headers_basedir "${headers_basedir}/${optional_argv3}")
+            endif()
+            foreach(header ${header_files})
+                file(RELATIVE_PATH path_from_package "${headers_basedir}" "${header}")
+                get_filename_component(dir_from_package ${path_from_package} DIRECTORY)
+                install(FILES ${header}
+                        DESTINATION "include/${install_include_subdir}/${dir_from_package}"
+>>>>>>> upstream/v18.12_beta_defrost
                         COMPONENT headers)
             endforeach()
         endif()
     endforeach()
 
+<<<<<<< HEAD
     ## Default install rules for resources
+=======
+    ## Install rules for the resources
+>>>>>>> upstream/v18.12_beta_defrost
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples")
         install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/ DESTINATION share/sofa/${package_name}/examples COMPONENT resources)
     endif()

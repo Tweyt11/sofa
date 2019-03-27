@@ -98,12 +98,12 @@ void RequiredPlugin::loadPlugin()
         for (std::size_t suffixIndex = 0; suffixIndex < suffixVec.size(); ++suffixIndex)
         {
             const std::string& suffix = suffixVec[suffixIndex];
-            if ( pluginManager->pluginIsLoaded(name) )
+            std::string pluginPath = pluginManager->findPlugin(name, suffix, false);
+            if ( pluginPath.empty() || pluginManager->pluginIsLoaded(pluginPath) )
             {
-                nameLoaded = true;
-                if (d_stopAfterFirstSuffixFound.getValue()) break;
+                continue;
             }
-            else if ( pluginManager->loadPlugin(name, suffix, true, true, &errmsg) )
+            if ( pluginManager->loadPlugin(pluginPath, suffix, false, &errmsg) )
             {
                 loaded.push_back(name);
                 nameLoaded = true;
