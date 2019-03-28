@@ -1,8 +1,8 @@
-#include "DefaultTaskScheduler.h"
+#include <sofa/simulation/DefaultTaskScheduler.h>
 
 #include <sofa/helper/system/thread/thread_specific_ptr.h>
 
-#include <assert.h>
+#include <cassert>
 
 
 namespace sofa
@@ -13,6 +13,25 @@ namespace sofa
         DEFINE_TASK_SCHEDULER_PROFILER(Push);
         DEFINE_TASK_SCHEDULER_PROFILER(Pop);
         DEFINE_TASK_SCHEDULER_PROFILER(Steal);
+
+
+        class StdTaskAllocator : public Task::Allocator
+        {
+        public:
+
+            void* allocate(std::size_t sz) final
+            {
+                return ::operator new(sz);
+            }
+
+            void free(void* ptr, std::size_t sz) final
+            {
+                ::operator delete(ptr);
+            }
+        };
+
+        static StdTaskAllocator defaultTaskAllocator;
+
 
 
         // mac clang 3.5 doesn't support thread_local vars
@@ -64,6 +83,11 @@ namespace sofa
 			}
 			return thread->second;
 		}
+
+        Task::Allocator* DefaultTaskScheduler::getTaskAllocator()
+        {
+            return &defaultTaskAllocator;
+        }
 
         void DefaultTaskScheduler::init(const unsigned int NbThread )
         {
@@ -173,18 +197,6 @@ namespace sofa
             thread->workUntilDone(status);
         }
 
-        void* DefaultTaskScheduler::allocateTask(size_t size)
-        {
-            return std::malloc(size);
-        }
-
-        void DefaultTaskScheduler::releaseTask(Task* task)
-        {
-            delete task;
-        }
-
-
-
 		void DefaultTaskScheduler::wakeUpWorkers()
 		{
 			{
@@ -208,9 +220,9 @@ namespace sofa
 
 
         WorkerThread::WorkerThread(DefaultTaskScheduler* const& pScheduler, const int index, const std::string& name)
-            : _tasks()
+            : _name(name + std::to_string(index))
             , _index(index)
-            , _name(name + std::to_string(index))
+            , _tasks()
             , _taskScheduler(pScheduler)
 		{
 			assert(pScheduler);
@@ -244,6 +256,7 @@ namespace sofa
 
         std::thread* WorkerThread::create_and_attach(DefaultTaskScheduler* const & taskScheduler)
         {
+            SOFA_UNUSED(taskScheduler);
             _stdThread = std::thread(std::bind(&WorkerThread::run, this));
             return &_stdThread;
         }
@@ -273,7 +286,7 @@ namespace sofa
                 while ( _taskScheduler->_mainTaskStatus != nullptr)
 				{
 				
-					doWork(0);
+					doWork(nullptr);
 
 				
 					if (_taskScheduler->isClosing() )
@@ -346,11 +359,12 @@ namespace sofa
             _currentStatus = task->getStatus();
 
             {
-                if (task->run())
+                if (task->run() & Task::MemoryAlloc::Dynamic)
                 {
                     // pooled memory: call destructor and free
                     //task->~Task();
-                    delete task;
+                    task->operator delete (task, sizeof(*task));
+                    //delete task;
                 }
             }
 

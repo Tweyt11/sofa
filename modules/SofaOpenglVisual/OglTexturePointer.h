@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -25,7 +25,7 @@
 
 #include <sofa/core/visual/VisualModel.h>
 #include <sofa/core/objectmodel/BaseObject.h>
-#include <sofa/defaulttype/Vec3Types.h>
+#include <sofa/defaulttype/VecTypes.h>
 #include <sofa/helper/gl/template.h>
 #include <sofa/helper/gl/Texture.h>
 #include <sofa/core/objectmodel/DataFileName.h>
@@ -59,7 +59,7 @@ protected:
     LinkTexture l_oglTexture;
 
     OglTexturePointer();
-    virtual ~OglTexturePointer();
+    ~OglTexturePointer() override;
 
     Data<unsigned short> textureUnit; ///< Set the texture unit
     Data<bool> enabled; ///< enabled ?
@@ -80,11 +80,11 @@ public:
     static void setActiveTexture(unsigned short unit);
 
     /// Returns the type of shader element (texture, macro, variable, or attribute)
-    virtual ShaderElementType getSEType() const override { return core::visual::ShaderElement::SE_TEXTURE; }
+    ShaderElementType getSEType() const override { return core::visual::ShaderElement::SE_TEXTURE; }
     // Returns the value of the shader element
-    virtual const core::objectmodel::BaseData* getSEValue() const override { return &textureUnit; }
+    const core::objectmodel::BaseData* getSEValue() const override { return &textureUnit; }
     // Returns the value of the shader element
-    virtual core::objectmodel::BaseData* getSEValue() override { return &textureUnit; }
+    core::objectmodel::BaseData* getSEValue() override { return &textureUnit; }
 };
 
 }

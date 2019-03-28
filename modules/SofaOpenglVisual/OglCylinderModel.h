@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -52,21 +52,21 @@ namespace visualmodel
 
 
 // I have no idea what is Ogl in this component ?...
-class SOFA_OPENGL_VISUAL_API OglCylinderModel : public core::visual::VisualModel, public ExtVec3fState
+class SOFA_OPENGL_VISUAL_API OglCylinderModel : public core::visual::VisualModel, public ExtVec3State
 {
 public:
-    SOFA_CLASS2(OglCylinderModel,core::visual::VisualModel,ExtVec3fState);
+    SOFA_CLASS2(OglCylinderModel,core::visual::VisualModel,ExtVec3State);
 protected:
     OglCylinderModel();
-    virtual ~OglCylinderModel();
+    ~OglCylinderModel() override;
 public:
-    virtual void init() override;
+    void init() override;
 
-    virtual void reinit() override;
+    void reinit() override;
 
-    virtual void drawVisual(const core::visual::VisualParams* vparams) override;
+    void drawVisual(const core::visual::VisualParams* vparams) override;
 
-    virtual void exportOBJ(std::string /*name*/, std::ostream* /*out*/, std::ostream* /*mtl*/, int& /*vindex*/, int& /*nindex*/, int& /*tindex*/, int& /*count*/) override;
+    void exportOBJ(std::string /*name*/, std::ostream* /*out*/, std::ostream* /*mtl*/, int& /*vindex*/, int& /*nindex*/, int& /*tindex*/, int& /*count*/) override;
 
 private:
     void setColor(float r, float g, float b, float a);
@@ -84,13 +84,13 @@ private:
     float r,g,b,a;
     // component::topology::PointData<sofa::helper::vector<unsigned char> >		pointData;
 
-    typedef defaulttype::ExtVec3fTypes::Coord Coord;
-    typedef defaulttype::ExtVec3fTypes::VecCoord VecCoord;
-    typedef defaulttype::ExtVec3fTypes::Real Real;
+    typedef ExtVec3State::Coord Coord;
+    typedef ExtVec3State::VecCoord VecCoord;
+    typedef ExtVec3State::Real Real;
 
 public:
-    virtual bool insertInNode( core::objectmodel::BaseNode* node ) override { Inherit1::insertInNode(node); Inherit2::insertInNode(node); return true; }
-    virtual bool removeInNode( core::objectmodel::BaseNode* node ) override { Inherit1::removeInNode(node); Inherit2::removeInNode(node); return true; }
+    bool insertInNode( core::objectmodel::BaseNode* node ) override { Inherit1::insertInNode(node); Inherit2::insertInNode(node); return true; }
+    bool removeInNode( core::objectmodel::BaseNode* node ) override { Inherit1::removeInNode(node); Inherit2::removeInNode(node); return true; }
 };
 
 } // namespace visualmodel

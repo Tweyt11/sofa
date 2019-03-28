@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.1)
 project(Sofa) # Cannot use VERSION with patch like "00"
 
 # Manually define VERSION
-set(Sofa_VERSION_MAJOR 18)
-set(Sofa_VERSION_MINOR 12)
-set(Sofa_VERSION_PATCH 01)
+set(Sofa_VERSION_MAJOR 19)
+set(Sofa_VERSION_MINOR 06)
+set(Sofa_VERSION_PATCH 99)
 set(Sofa_VERSION ${Sofa_VERSION_MAJOR}.${Sofa_VERSION_MINOR}.${Sofa_VERSION_PATCH})
 
 set(SOFA_KERNEL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SofaKernel" CACHE STRING "Path to SofaKernel")
@@ -206,12 +206,15 @@ add_subdirectory(${SOFA_KERNEL_SOURCE_DIR}/SofaCommon)
 add_subdirectory(SofaGeneral)
 add_subdirectory(SofaAdvanced)
 add_subdirectory(SofaMisc)
-add_subdirectory(SofaGui)
 
 ## Modules
 ## in the consortium convention a module is a similar to a plugin the difference is that
 ## a module is hosted and managed by the consortium while plugins are hosted and managed by third parties.
 add_subdirectory(modules)
+
+# This is all the applications GUI stuff. As there is a dependency to this one
+# In scene creator and SofaPython...it is located here.
+add_subdirectory(SofaGui)
 
 # SofaTest depends on SofaPython, so we add SofaPython before SofaTest.
 sofa_add_plugin( applications/plugins/SofaPython SofaPython )
@@ -226,6 +229,7 @@ option(SOFA_BUILD_TUTORIALS "Build (most of) the tutorials available." OFF)
 if(SOFA_BUILD_TESTS OR SOFA_BUILD_TUTORIALS)
     set(SOFA_BUILD_SCENECREATOR ON CACHE BOOL "" FORCE)
 endif()
+
 
 # Library used by SOFA_BUILD_TESTS and SOFA_BUILD_TUTORIALS
 if(SOFA_BUILD_SCENECREATOR)
@@ -315,6 +319,9 @@ if(SOFA_INSTALL_RESOURCES_FILES)
     install(DIRECTORY share/ DESTINATION share/sofa COMPONENT resources)
     install(DIRECTORY examples/ DESTINATION share/sofa/examples COMPONENT resources)
 endif()
+
+file(WRITE "${CMAKE_BINARY_DIR}/plugins/README.txt" "This folder will be automatically scanned by the Plugin Manager.")
+install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION plugins COMPONENT resources)
 
 
 #######################

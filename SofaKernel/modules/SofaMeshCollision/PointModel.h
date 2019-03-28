@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -27,7 +27,7 @@
 #include <SofaMeshCollision/LocalMinDistanceFilter.h>
 #include <SofaBaseMechanics/MechanicalObject.h>
 #include <sofa/core/topology/BaseMeshTopology.h>
-#include <sofa/defaulttype/Vec3Types.h>
+#include <sofa/defaulttype/VecTypes.h>
 #include <vector>
 
 namespace sofa
@@ -68,7 +68,7 @@ public:
 
     bool testLMD(const sofa::defaulttype::Vector3 &, double &, double &);
 
-    bool activated(core::CollisionModel *cm = 0) const;
+    bool activated(core::CollisionModel *cm = nullptr) const;
 };
 
 class PointActiver
@@ -76,7 +76,7 @@ class PointActiver
 public:
     PointActiver() {}
     virtual ~PointActiver() {}
-    virtual bool activePoint(int /*index*/, core::CollisionModel * /*cm*/ = 0) {return true;}
+    virtual bool activePoint(int /*index*/, core::CollisionModel * /*cm*/ = nullptr) {return true;}
 	static PointActiver* getDefaultActiver() { static PointActiver defaultActiver; return &defaultActiver; }
 };
 
@@ -100,20 +100,20 @@ public:
 protected:
     TPointModel();
 public:
-    virtual void init() override;
+    void init() override;
 
     // -- CollisionModel interface
 
-    virtual void resize(int size) override;
+    void resize(int size) override;
 
-    virtual void computeBoundingTree(int maxDepth=0) override;
+    void computeBoundingTree(int maxDepth=0) override;
 
-    virtual void computeContinuousBoundingTree(double dt, int maxDepth=0) override;
+    void computeContinuousBoundingTree(double dt, int maxDepth=0) override;
 
     void draw(const core::visual::VisualParams*,int index) override;
     void draw(const core::visual::VisualParams* vparams) override;
 
-    virtual bool canCollideWithElement(int index, CollisionModel* model2, int index2) override;
+    bool canCollideWithElement(int index, CollisionModel* model2, int index2) override;
 
     core::behavior::MechanicalState<DataTypes>* getMechanicalState() { return mstate; }
 
@@ -147,7 +147,9 @@ public:
         return DataTypes::Name();
     }
 
-    virtual void computeBBox(const core::ExecParams* params, bool onlyVisible) override;
+
+    void computeBBox(const core::ExecParams* params, bool onlyVisible) override;
+    void updateNormals();
 
 protected:
 
@@ -162,9 +164,7 @@ protected:
     PointLocalMinDistanceFilter *m_lmdFilter;
     EmptyFilter m_emptyFilter;
 
-    Data<bool> m_displayFreePosition; ///< Display Collision Model Points free position(in green)
-
-    void updateNormals();
+    Data<bool> m_displayFreePosition; ///< Display Collision Model Points free position(in green)    
 
     PointActiver *myActiver;
 };
@@ -217,12 +217,8 @@ typedef TPointModel<sofa::defaulttype::Vec3Types> PointModel;
 typedef TPoint<sofa::defaulttype::Vec3Types> Point;
 
 #if  !defined(SOFA_COMPONENT_COLLISION_POINTMODEL_CPP)
-#ifndef SOFA_FLOAT
-extern template class SOFA_MESH_COLLISION_API TPointModel<defaulttype::Vec3dTypes>;
-#endif
-#ifndef SOFA_DOUBLE
-extern template class SOFA_MESH_COLLISION_API TPointModel<defaulttype::Vec3fTypes>;
-#endif
+extern template class SOFA_MESH_COLLISION_API TPointModel<defaulttype::Vec3Types>;
+
 #endif
 
 //bool Point::testLMD(const Vector3 &PQ, double &coneFactor, double &coneExtension);

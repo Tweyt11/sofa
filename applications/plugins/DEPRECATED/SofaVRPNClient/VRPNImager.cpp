@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU General Public License as published by the Free  *
@@ -167,24 +167,14 @@ using namespace sofa::defaulttype;
 using namespace sofavrpn::client;
 
 int VRPNImagerClass = sofa::core::RegisterObject("VRPN Imager")
-#ifndef SOFA_FLOAT
-        .add< VRPNImager<Vec3dTypes> >()
-        .add< VRPNImager<Rigid3dTypes> >()
-#endif //SOFA_FLOAT
-#ifndef SOFA_DOUBLE
-        .add< VRPNImager<Vec3fTypes> >()
-        .add< VRPNImager<Rigid3fTypes> >()
-#endif //SOFA_DOUBLE
+        .add< VRPNImager<Vec3Types> >()
+        .add< VRPNImager<Rigid3Types> >()
+ 
         ;
 
-#ifndef SOFA_FLOAT
-template class SOFA_SOFAVRPNCLIENT_API VRPNImager<Vec3dTypes>;
-template class SOFA_SOFAVRPNCLIENT_API VRPNImager<Rigid3dTypes>;
-#endif //SOFA_FLOAT
-#ifndef SOFA_DOUBLE
-template class SOFA_SOFAVRPNCLIENT_API VRPNImager<Vec3fTypes>;
-template class SOFA_SOFAVRPNCLIENT_API VRPNImager<Rigid3fTypes>;
-#endif //SOFA_DOUBLE
+template class SOFA_SOFAVRPNCLIENT_API VRPNImager<Vec3Types>;
+template class SOFA_SOFAVRPNCLIENT_API VRPNImager<Rigid3Types>;
+ 
 
 }
 

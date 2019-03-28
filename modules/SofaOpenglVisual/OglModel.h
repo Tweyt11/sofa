@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -30,7 +30,7 @@
 #include <sofa/helper/OptionsGroup.h>
 #include <sofa/core/visual/VisualModel.h>
 #include <sofa/defaulttype/Vec.h>
-#include <sofa/defaulttype/Vec3Types.h>
+#include <sofa/defaulttype/VecTypes.h>
 #include <SofaBaseVisual/VisualModelImpl.h>
 
 #define   NB_MAX_TEXTURES 16
@@ -102,18 +102,18 @@ protected:
 
     OglModel();
 
-    ~OglModel();
+    ~OglModel() override;
 public:
 
     bool loadTexture(const std::string& filename) override;
     bool loadTextures() override;
 
     void initTextures();
-    virtual void initVisual() override;
+    void initVisual() override;
 
-    virtual void init() override { VisualModelImpl::init(); }
+    void init() override { VisualModelImpl::init(); }
 
-    virtual void updateBuffers() override;
+    void updateBuffers() override;
 
     bool hasTransparent() override;
     bool hasTexture();

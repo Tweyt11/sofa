@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -55,7 +55,7 @@ public:
 protected:
     MergeMeshes();
 
-    ~MergeMeshes();
+    ~MergeMeshes() override;
 public:
     /// Parse the given description to assign values to this object's fields and potentially other parameters
     void parse ( sofa::core::objectmodel::BaseObjectDescription* arg ) override;
@@ -114,6 +114,7 @@ protected:
             std::string help_i = ohelp.str();
             Data<T>* d = new Data<T>(sofa::helper::getAStringCopy(help_i.c_str()), true, false);
             d->setName(name_i);
+            d->setHelp(nullptr);
             vf.push_back(d);
             this->addData(d);
             this->addInput(d);
@@ -170,20 +171,12 @@ protected:
 };
 
 #if  !defined(SOFA_COMPONENT_ENGINE_MERGEMESHES_CPP)
-#ifndef SOFA_FLOAT
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Vec1dTypes>;
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Vec2dTypes>;
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Vec3dTypes>;
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Rigid2dTypes>;
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Rigid3dTypes>;
-#endif //SOFA_FLOAT
-#ifndef SOFA_DOUBLE
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Vec1fTypes>;
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Vec2fTypes>;
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Vec3fTypes>;
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Rigid2fTypes>;
-extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Rigid3fTypes>;
-#endif //SOFA_DOUBLE
+extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Vec1Types>;
+extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Vec2Types>;
+extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Vec3Types>;
+extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Rigid2Types>;
+extern template class SOFA_GENERAL_ENGINE_API MergeMeshes<defaulttype::Rigid3Types>;
+ 
 #endif
 
 } // namespace engine

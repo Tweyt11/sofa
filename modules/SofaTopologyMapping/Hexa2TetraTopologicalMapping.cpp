@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -116,7 +116,7 @@ void Hexa2TetraTopologicalMapping::init()
             }
 
             // Tesselation of each cube into 6 tetrahedra
-            for (int i=0; i<nbcubes; i++)
+            for (size_t i=0; i<nbcubes; i++)
             {
                 core::topology::BaseMeshTopology::Hexa c = fromModel->getHexahedron(i);
 #define swap(a,b) { int t = a; a = b; b = t; }
