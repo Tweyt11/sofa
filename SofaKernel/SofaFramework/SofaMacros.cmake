@@ -445,32 +445,7 @@ macro(sofa_install_targets package_name the_targets include_install_dir)
             RUNTIME DESTINATION bin COMPONENT applications
             LIBRARY DESTINATION lib COMPONENT libraries
             ARCHIVE DESTINATION lib COMPONENT libraries
-<<<<<<< HEAD
             PUBLIC_HEADER DESTINATION include/${include_install_dir} COMPONENT headers)
-
-    # non-flat headers install (if no PUBLIC_HEADER and include_install_dir specified)
-    foreach(target ${the_targets})
-        get_target_property(public_header ${target} PUBLIC_HEADER)
-        if("${public_header}" STREQUAL "public_header-NOTFOUND" AND NOT "${include_install_dir}" STREQUAL "")
-            set(optional_argv3 "${ARGV3}")
-            if(optional_argv3)
-                # ARGV3 is a non-breaking additional argument to handle INCLUDE_SOURCE_DIR (see sofa_generate_package)
-                # TODO: add a real argument "include_source_dir" to this macro
-                set(include_source_dir "${ARGV3}")
-            endif()
-            if(NOT EXISTS "${include_source_dir}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${include_source_dir}")
-                # will be true if include_source_dir is empty
-                set(include_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/${include_source_dir}")
-            endif()
-            #message("${target}: ${include_source_dir} -> include/${include_install_dir}")
-            file(GLOB_RECURSE header_files "${include_source_dir}/*.h" "${include_source_dir}/*.inl")
-            foreach(header ${header_files})
-                file(RELATIVE_PATH path_from_package "${include_source_dir}" "${header}")
-                get_filename_component(dir_from_package ${path_from_package} DIRECTORY)
-                install(FILES ${header}
-                        DESTINATION "include/${include_install_dir}/${dir_from_package}"
-=======
-            PUBLIC_HEADER DESTINATION include/${install_include_subdir} COMPONENT headers)
 
     foreach(target ${the_targets})
         get_target_property(public_header ${target} PUBLIC_HEADER)
@@ -486,17 +461,12 @@ macro(sofa_install_targets package_name the_targets include_install_dir)
                 get_filename_component(dir_from_package ${path_from_package} DIRECTORY)
                 install(FILES ${header}
                         DESTINATION "include/${install_include_subdir}/${dir_from_package}"
->>>>>>> upstream/v18.12_beta_defrost
                         COMPONENT headers)
             endforeach()
         endif()
     endforeach()
 
-<<<<<<< HEAD
-    ## Default install rules for resources
-=======
     ## Install rules for the resources
->>>>>>> upstream/v18.12_beta_defrost
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples")
         install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/ DESTINATION share/sofa/${package_name}/examples COMPONENT resources)
     endif()
