@@ -83,14 +83,6 @@ Node::SPtr createRootNode(Simulation::SPtr s, const std::string& name,
 
 BaseObject::SPtr createObject(Node::SPtr parent, BaseObjectDescription& desc)
 {
-    /// temporarily, the name is set to the type name.
-    /// if a "name" parameter is provided, it will overwrite it.
-    BaseObjectDescription desc(type.c_str(),type.c_str());
-    for(auto& kv : params)
-    {
-        desc.setAttribute(kv.first.c_str(), kv.second);
-    }
-
     /// Create the object.
     BaseObject::SPtr obj = ObjectFactory::getInstance()->createObject(parent.get(), &desc);
     if (obj==nullptr)
