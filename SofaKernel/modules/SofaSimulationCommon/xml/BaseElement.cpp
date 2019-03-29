@@ -159,40 +159,41 @@ BaseElement* BaseElement::Create(const std::string& nodeClass, const std::string
 /// Find a node given its name
 BaseElement* BaseElement::findNode(const std::string nodeName, bool absolute)
 {
+    int k = 0;
     if (nodeName.empty()) return NULL;
-    if (nodeName[0]=='\\' || nodeName[0]=='/')
+    if (nodeName[k]=='\\' || nodeName[k]=='/')
     {
         if (!absolute && getParentElement()!=NULL)
             return getParentElement()->findNode(nodeName);
         else
         {
-            //++nodeName;
+            ++k; //++nodeName;
             absolute = true;
         }
     }
-    if (nodeName[0]=='\0')
+    if (nodeName[k]=='\0')
     {
         if (absolute) return this;
         else return NULL;
     }
-//    const std::string sep = nodeName;
-//    int i = 0;
-//    while (sep[i]!='\0' && sep[i]!='\\' && sep[i]!='/')
-//        ++i;
-//    if (!strncmp(nodeName,".",sep-nodeName))
-//        return findNode(sep, true);
-//    if (!strncmp(nodeName,"..",sep-nodeName))
-//    {
-//        if (getParentElement()==NULL) return NULL;
-//        else return getParentElement()->findNode(sep,true);
-//    }
+    const std::string sep = nodeName.substr(k); //????????
+    int i = 0;
+    while (sep[i]!='\0' && sep[i]!='\\' && sep[i]!='/')
+    ++i;
+    if (!strncmp(nodeName.c_str(),".",sep.size()-nodeName.size()))
+        return findNode(sep, true);
+    if (!strncmp(nodeName.c_str(),"..",sep.size()-nodeName.size()))
+    {
+        if (getParentElement()==NULL) return NULL;
+        else return getParentElement()->findNode(sep,true);
+    }
     for (child_iterator<> it = begin(); it != end(); ++it)
     {
-//        if (it->getName().length() == (unsigned)(sep-nodeName).length() && !strncmp(it->getName().c_str(), nodeName, sep-nodeName))
-//        {
-//            BaseElement* res = it->findNode(sep,true);
-//            if (res!=NULL) return res;
-//        }
+        if (it->getName().length() == (unsigned)(sep.size()-nodeName.size()) && !strncmp(it->getName().c_str(), nodeName.c_str(), sep.size()-nodeName.size()))
+        {
+            BaseElement* res = it->findNode(sep,true);
+            if (res!=NULL) return res;
+        }
     }
     if (!absolute && getParentElement()!=NULL)
         return getParentElement()->findNode(nodeName);
