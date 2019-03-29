@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -23,7 +23,7 @@
 #include "BaseElement.h"
 #include <sofa/helper/Factory.inl>
 #include <sofa/helper/system/SetDirectory.h>
-#include <string.h>
+#include <cstring>
 
 namespace sofa
 {
@@ -157,38 +157,42 @@ BaseElement* BaseElement::Create(const std::string& nodeClass, const std::string
 }
 
 /// Find a node given its name
-BaseElement* BaseElement::findNode(const char* nodeName, bool absolute)
+BaseElement* BaseElement::findNode(const std::string nodeName, bool absolute)
 {
-    if (nodeName == NULL) return NULL;
+    if (nodeName.empty()) return NULL;
     if (nodeName[0]=='\\' || nodeName[0]=='/')
     {
         if (!absolute && getParentElement()!=NULL)
             return getParentElement()->findNode(nodeName);
         else
-        { ++nodeName; absolute = true; }
+        {
+            //++nodeName;
+            absolute = true;
+        }
     }
     if (nodeName[0]=='\0')
     {
         if (absolute) return this;
         else return NULL;
     }
-    const char* sep = nodeName;
-    while (*sep!='\0' && *sep!='\\' && *sep!='/')
-        ++sep;
-    if (!strncmp(nodeName,".",sep-nodeName))
-        return findNode(sep, true);
-    if (!strncmp(nodeName,"..",sep-nodeName))
-    {
-        if (getParentElement()==NULL) return NULL;
-        else return getParentElement()->findNode(sep,true);
-    }
+//    const std::string sep = nodeName;
+//    int i = 0;
+//    while (sep[i]!='\0' && sep[i]!='\\' && sep[i]!='/')
+//        ++i;
+//    if (!strncmp(nodeName,".",sep-nodeName))
+//        return findNode(sep, true);
+//    if (!strncmp(nodeName,"..",sep-nodeName))
+//    {
+//        if (getParentElement()==NULL) return NULL;
+//        else return getParentElement()->findNode(sep,true);
+//    }
     for (child_iterator<> it = begin(); it != end(); ++it)
     {
-        if (it->getName().length() == (unsigned)(sep-nodeName) && !strncmp(it->getName().c_str(), nodeName, sep-nodeName))
-        {
-            BaseElement* res = it->findNode(sep,true);
-            if (res!=NULL) return res;
-        }
+//        if (it->getName().length() == (unsigned)(sep-nodeName).length() && !strncmp(it->getName().c_str(), nodeName, sep-nodeName))
+//        {
+//            BaseElement* res = it->findNode(sep,true);
+//            if (res!=NULL) return res;
+//        }
     }
     if (!absolute && getParentElement()!=NULL)
         return getParentElement()->findNode(nodeName);

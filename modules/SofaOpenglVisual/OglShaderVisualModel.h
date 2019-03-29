@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -51,10 +51,6 @@ public:
     SOFA_CLASS(OglShaderVisualModel, OglModel);
 
 protected:
-
-    typedef sofa::defaulttype::ExtVec3fTypes::Coord Coord;
-    typedef sofa::defaulttype::ExtVec3fTypes::VecCoord VecCoord;
-
     GLuint abo;
     OglShader* shader;
     int restPosition_lastUpdate;
@@ -66,7 +62,7 @@ public:
     OglMatrix4Variable* modelMatrixUniform;
 protected:
     OglShaderVisualModel();
-    virtual ~OglShaderVisualModel();
+    ~OglShaderVisualModel() override;
 public:
     void init() override;
     void initVisual() override;
@@ -75,17 +71,17 @@ public:
 
     //void putRestPositions(const Vec3fTypes::VecCoord& positions);
 
-    virtual void bwdDraw(core::visual::VisualParams*) override;
-    virtual void fwdDraw(core::visual::VisualParams*) override;
+    void bwdDraw(core::visual::VisualParams*) override;
+    void fwdDraw(core::visual::VisualParams*) override;
 
     // handle topological changes
-    virtual void handleTopologyChange() override;
+    void handleTopologyChange() override;
     void computeRestPositions();
     void computeRestNormals();
 
 private:
-    virtual void pushTransformMatrix(float* matrix) override;
-    virtual void popTransformMatrix() override;
+    void pushTransformMatrix(float* matrix) override;
+    void popTransformMatrix() override;
 
 
 };

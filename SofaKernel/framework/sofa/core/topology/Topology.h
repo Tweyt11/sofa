@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -24,6 +24,8 @@
 
 #include <sofa/core/objectmodel/BaseObject.h>
 #include <sofa/helper/list.h>
+#include <sofa/defaulttype/TopologyTypes.h>
+#include <climits>
 
 namespace sofa
 {
@@ -47,6 +49,7 @@ enum TopologyObjectType
     PYRAMID
 };
 
+
 SOFA_CORE_API TopologyObjectType parseTopologyObjectTypeFromString(const std::string& s);
 SOFA_CORE_API std::string parseTopologyObjectTypeToString(TopologyObjectType t);
 
@@ -56,7 +59,7 @@ public:
     /// Topology global typedefs
     //typedef int index_type;
     typedef unsigned int index_type;
-    enum { InvalidID = (unsigned)-1 };
+    enum { InvalidID = sofa::defaulttype::InvalidID };
     typedef index_type                 ElemID;
     typedef index_type                 PointID;
     typedef index_type                 EdgeID;
@@ -69,7 +72,6 @@ public:
     typedef index_type                 PentahedronID;
     typedef index_type                 PentaID;
     typedef index_type                 PyramidID;
-
 
     typedef sofa::helper::vector<index_type>                  SetIndex;
     typedef sofa::helper::vector<index_type>                  SetIndices;
@@ -128,7 +130,7 @@ public:
     SOFA_BASE_CAST_IMPLEMENTATION(Topology)
 protected:
     Topology():BaseObject() {}
-    virtual ~Topology()
+    ~Topology() override
     {}
 public:
     // Access to embedded position information (in case the topology is a regular grid for instance)
@@ -142,8 +144,8 @@ public:
     virtual SReal getPZ(int /*i*/) const { return 0.0; }
 
 
-    virtual bool insertInNode( objectmodel::BaseNode* node ) override;
-    virtual bool removeInNode( objectmodel::BaseNode* node ) override;
+    bool insertInNode( objectmodel::BaseNode* node ) override;
+    bool removeInNode( objectmodel::BaseNode* node ) override;
 };
 
 template<class TopologyElement>

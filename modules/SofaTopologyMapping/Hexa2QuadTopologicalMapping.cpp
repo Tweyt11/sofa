@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -215,7 +215,7 @@ void Hexa2QuadTopologicalMapping::updateTopologicalMappingTopDown()
 
                                 ind_real_last = Glob2LocMap[last];
 
-                                if((int) k != last)
+                                if(k != last)
                                 {
 
                                     Glob2LocMap.erase(Glob2LocMap.find(k));
@@ -230,7 +230,7 @@ void Hexa2QuadTopologicalMapping::updateTopologicalMappingTopDown()
                                 }
                             }
 
-                            if((int) ind_k != ind_last)
+                            if(ind_k != ind_last)
                             {
 
                                 Glob2LocMap.erase(Glob2LocMap.find(Loc2GlobVec[ind_last]));

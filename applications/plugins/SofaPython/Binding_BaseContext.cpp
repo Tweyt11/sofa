@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -27,7 +27,7 @@
 #include "PythonFactory.h"
 #include "PythonToSofa.inl"
 
-#include <sofa/defaulttype/Vec3Types.h>
+#include <sofa/defaulttype/VecTypes.h>
 using namespace sofa::defaulttype;
 
 #include <sofa/core/ObjectFactory.h>
@@ -50,7 +50,7 @@ static PyObject * BaseContext_setGravity(PyObject *self, PyObject * args)
     BaseContext* obj = get_basecontext( self );
     PyPtr<Vector3>* pyVec;
     if (!PyArg_ParseTuple(args, "O",&pyVec)) {
-        return NULL;
+        return nullptr;
     }
 
     obj->setGravity(*pyVec->object);
@@ -91,7 +91,7 @@ static PyObject * BaseContext_createObject_Impl(PyObject * self, PyObject * args
     char *type;
     if (!PyArg_ParseTuple(args, "s",&type))
     {
-        return NULL;
+        return nullptr;
     }
 
     /// temporarily, the name is set to the type name.
@@ -132,8 +132,8 @@ static PyObject * BaseContext_createObject_Impl(PyObject * self, PyObject * args
         for (std::vector< std::string >::const_iterator it = desc.getErrors().begin(); it != desc.getErrors().end(); ++it)
             msg << " " << *it << msgendl ;
 
-        //todo(STC4) do it or remove it ?
-        //todo(dmarchal 2017/10/01) I don't like that because it is weird to have error reporting
+        //todo(STC6) do it or remove it ?
+        //todo(dmarchal 2018/10/01) I don't like that because it is weird to have error reporting
         //strategy into the createObject implementation instead of into a dedicated exception.
         //in addition this is the first time we are not using the macro from msg_*
         BaseObjectDescription desc("InfoComponent", "InfoComponent") ;
@@ -143,10 +143,10 @@ static PyObject * BaseContext_createObject_Impl(PyObject * self, PyObject * args
                                          sofa::helper::logging::Message::Error) ;
         m << msg.str() ;
         obj->addMessage(  m ) ;
-        //todo(STC4) end of do it or remove it.
+        //todo(STC6) end of do it or remove it.
 
         PyErr_SetString(PyExc_RuntimeError, msg.str().c_str()) ;
-        return NULL;
+        return nullptr;
     }
 
     if( warning )
@@ -189,7 +189,7 @@ static PyObject * BaseContext_getObject(PyObject * self, PyObject * args, PyObje
     char *path;
     if (!PyArg_ParseTuple(args, "s",&path))
     {
-        return NULL;
+        return nullptr;
     }
 
     bool emitWarningMessage = true;
@@ -216,7 +216,7 @@ static PyObject * BaseContext_getObject(PyObject * self, PyObject * args, PyObje
     if (!context || !path)
     {
         PyErr_BadArgument();
-        return NULL;
+        return nullptr;
     }
     BaseObject::SPtr sptr;
     context->get<BaseObject>(sptr,path);
@@ -242,12 +242,12 @@ static PyObject * BaseContext_getObject_noWarning(PyObject * self, PyObject * ar
     char *path;
     if (!PyArg_ParseTuple(args, "s",&path))
     {
-        return NULL;
+        return nullptr;
     }
     if (!context || !path)
     {
         PyErr_BadArgument();
-        return NULL;
+        return nullptr;
     }
     BaseObject::SPtr sptr;
     context->get<BaseObject>(sptr,path);
@@ -261,17 +261,17 @@ static PyObject * BaseContext_getObject_noWarning(PyObject * self, PyObject * ar
 static PyObject * BaseContext_getObjects(PyObject * self, PyObject * args)
 {
     BaseContext* context = get_basecontext( self );
-    char* search_direction= NULL;
-    char* type_name= NULL;
-    char* name= NULL;
+    char* search_direction= nullptr;
+    char* type_name= nullptr;
+    char* name= nullptr;
     if ( !PyArg_ParseTuple ( args, "|sss", &search_direction, &type_name, &name ) ) {
-        return NULL;
+        return nullptr;
     }
 
     if (!context)
     {
         PyErr_BadArgument();
-        return NULL;
+        return nullptr;
     }
 
     sofa::core::objectmodel::BaseContext::SearchDirection search_direction_enum= sofa::core::objectmodel::BaseContext::Local;

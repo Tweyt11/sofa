@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -145,16 +145,10 @@ private:
 
 
 #if  !defined(FRAME_FRAMEDIAGONALMASS_CPP)
-#ifndef SOFA_FLOAT
-extern template class SOFA_FRAME_API FrameDiagonalMass<Rigid3dTypes,Frame3dMass>;
+extern template class SOFA_FRAME_API FrameDiagonalMass<Rigid3Types,Frame3dMass>;
 extern template class SOFA_FRAME_API FrameDiagonalMass<Affine3dTypes,Frame3x12dMass>;
 extern template class SOFA_FRAME_API FrameDiagonalMass<Quadratic3dTypes,Frame3x30dMass>;
-#endif
-#ifndef SOFA_DOUBLE
-extern template class SOFA_FRAME_API FrameDiagonalMass<Rigid3fTypes,Frame3fMass>;
-extern template class SOFA_FRAME_API FrameDiagonalMass<Affine3fTypes,Frame3x12fMass>;
-extern template class SOFA_FRAME_API FrameDiagonalMass<Quadratic3fTypes,Frame3x30fMass>;
-#endif
+
 #endif
 
 } // namespace mass

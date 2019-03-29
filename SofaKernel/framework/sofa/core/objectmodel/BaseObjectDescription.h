@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -66,7 +66,8 @@ public:
 
     typedef std::map<std::string,Attribute> AttributeMap;
 
-    BaseObjectDescription(const std::string name=NULL, const std::string type=NULL);
+
+    BaseObjectDescription(const std::string name=nullptr, const std::string type=nullptr);
 
     virtual ~BaseObjectDescription();
 
@@ -103,7 +104,7 @@ public:
     virtual Base* findObject(const std::string nodeName);
 
     /// Get an attribute given its name (return defaultVal if not present)
-    virtual const std::string getAttribute(const std::string& attr, const std::string defaultVal=NULL);
+    virtual const std::string getAttribute(const std::string& attr, const std::string defaultVal=nullptr);
 
     /// Get an attribute converted to a float given its name.
     /// returns defaultVal if not present or in case the attribute cannot be parsed totally

@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -72,7 +72,7 @@ void TriangleSetTopologyContainer::reinit()
 void TriangleSetTopologyContainer::createTriangleSetArray()
 {
 	if (CHECK_TOPOLOGY)
-		msg_error() << "This method must be implemented by a child topology.";
+        msg_error() << "createTriangleSetArray method must be implemented by a child topology.";
 }
 
 void TriangleSetTopologyContainer::createTrianglesAroundVertexArray ()
@@ -447,7 +447,7 @@ const TriangleSetTopologyContainer::Triangle TriangleSetTopologyContainer::getTr
 
 
 
-int TriangleSetTopologyContainer::getTriangleIndex(PointID v1, PointID v2, PointID v3)
+TriangleSetTopologyContainer::TriangleID TriangleSetTopologyContainer::getTriangleIndex(PointID v1, PointID v2, PointID v3)
 {
     if(!hasTrianglesAroundVertex())
         createTrianglesAroundVertexArray();
@@ -473,13 +473,13 @@ int TriangleSetTopologyContainer::getTriangleIndex(PointID v1, PointID v2, Point
 
 	if (CHECK_TOPOLOGY)
 		if(out2.size() > 1)
-			msg_warning() << "More than one triangle found";
+            msg_warning() << "More than one triangle found for indices: [" << v1 << "; " << v2 << "; " << v3 << "]";
 
 
     if (out2.size()==1)
         return (int) (out2[0]);
-    else
-        return -1;
+
+    return InvalidID;
 }
 
 size_t TriangleSetTopologyContainer::getNumberOfTriangles() const
@@ -1067,6 +1067,38 @@ void TriangleSetTopologyContainer::clear()
     EdgeSetTopologyContainer::clear();
 }
 
+void TriangleSetTopologyContainer::setTriangleTopologyToDirty()
+{
+    // set this container to dirty
+    m_triangleTopologyDirty = true;
+
+    // set all engines link to this container to dirty
+    std::list<sofa::core::topology::TopologyEngine *>::iterator it;
+    for (it = m_enginesList.begin(); it!=m_enginesList.end(); ++it)
+    {
+        sofa::core::topology::TopologyEngine* topoEngine = (*it);
+        topoEngine->setDirtyValue();
+        if (CHECK_TOPOLOGY)
+            msg_info() << "Triangle Topology Set dirty engine: " << topoEngine->name;
+    }
+}
+
+void TriangleSetTopologyContainer::cleanTriangleTopologyFromDirty()
+{
+    m_triangleTopologyDirty = false;
+
+    // security, clean all engines to avoid loops
+    std::list<sofa::core::topology::TopologyEngine *>::iterator it;
+    for ( it = m_enginesList.begin(); it!=m_enginesList.end(); ++it)
+    {
+        if ((*it)->isDirty())
+        {
+            if (CHECK_TOPOLOGY)
+                msg_warning() << "Triangle Topology update did not clean engine: " << (*it)->name;
+            (*it)->cleanDirty();
+        }
+    }
+}
 
 
 void TriangleSetTopologyContainer::updateTopologyEngineGraph()

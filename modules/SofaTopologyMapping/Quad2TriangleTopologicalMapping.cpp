@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -295,7 +295,7 @@ void Quad2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
 
                                     ind_real_last = In2OutMap[last];
 
-                                    if((int) k != last)
+                                    if (k != last)
                                     {
 
                                         In2OutMap.erase(In2OutMap.find(k));
@@ -318,7 +318,7 @@ void Quad2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
                                     sout << "INFO_print : Quad2TriangleTopologicalMapping - In2OutMap should have the quad " << last << sendl;
                                 }
 
-                                if((int) ind_k[1] != ind_last)
+                                if (ind_k[1] != ind_last)
                                 {
 
                                     In2OutMap.erase(In2OutMap.find(Loc2GlobVec[ind_last]));
@@ -339,7 +339,7 @@ void Quad2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
 
                                 ind_last = ind_last-1;
 
-                                if((int) ind_k[0] != ind_last)
+                                if (ind_k[0] != ind_last)
                                 {
 
                                     ind_tmp = Loc2GlobVec[ind_k[0]];

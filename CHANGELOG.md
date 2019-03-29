@@ -141,7 +141,10 @@ ____________________________________________________________
 
 **Modules**
 - [All] ISSofa bugfix, lot of fixes [#756](https://github.com/sofa-framework/sofa/pull/756)
+<<<<<<< HEAD
 - [All] FIX Windows linkage [#910](https://github.com/sofa-framework/sofa/pull/910)
+=======
+>>>>>>> master
 - [SofaGuiQt] Change method to allow antialiased screenshots in QtViewer [#728](https://github.com/sofa-framework/sofa/pull/728)
 - **[SofaBaseMechanics]** Fix warning scene mass [#779](https://github.com/sofa-framework/sofa/pull/779)
 - **[SofaBaseMechanics]** FIX DiagonalMass_test [#832](https://github.com/sofa-framework/sofa/pull/832)

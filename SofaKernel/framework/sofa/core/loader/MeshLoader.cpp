@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -47,9 +47,9 @@ MeshLoader::MeshLoader() : BaseLoader()
     , d_tetrahedra(initData(&d_tetrahedra, "tetrahedra", "Tetrahedra of the mesh loaded"))
     , d_hexahedra(initData(&d_hexahedra, "hexahedra", "Hexahedra of the mesh loaded"))
     , d_pentahedra(initData(&d_pentahedra, "pentahedra", "Pentahedra of the mesh loaded"))
-    , d_pyramids(initData(&d_pyramids, "pyramids", "Pyramids of the mesh loaded"))
     , d_highOrderTetrahedronPositions(initData(&d_highOrderTetrahedronPositions, "highOrderTetrahedronPositions", "High order tetrahedron points of the mesh loaded"))
     , d_highOrderHexahedronPositions(initData(&d_highOrderHexahedronPositions, "highOrderHexahedronPositions", "High order hexahedron points of the mesh loaded"))
+    , d_pyramids(initData(&d_pyramids, "pyramids", "Pyramids of the mesh loaded"))
     , d_normals(initData(&d_normals, "normals", "Normals of the mesh loaded"))
     , d_edgesGroups(initData(&d_edgesGroups, "edgesGroups", "Groups of Edges"))
     , d_trianglesGroups(initData(&d_trianglesGroups, "trianglesGroups", "Groups of Triangles"))

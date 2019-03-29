@@ -15,9 +15,9 @@ namespace sofa
 			, _sum(sum)
 		{}
 
-		virtual ~FibonacciTask() { }
+		~FibonacciTask() override { }
 
-		virtual bool run() final;
+		MemoryAlloc run() final;
 
 	private:
 
@@ -38,9 +38,9 @@ namespace sofa
 			, _sum(sum)
 		{}
 
-		virtual ~IntSumTask() {}
+		~IntSumTask() override {}
 
-		virtual bool run() final;
+		MemoryAlloc run() final;
 
 
 	private:

@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU General Public License as published by the Free  *
@@ -87,12 +87,8 @@ private:
 };
 
 #if  !defined(SOFAVRPNCLIENT_IRTRACKER_CPP_)
-#ifndef SOFA_FLOAT
-extern template class SOFA_SOFAVRPNCLIENT_API IRTracker<defaulttype::Vec3dTypes>;
-#endif //SOFA_FLOAT
-#ifndef SOFA_DOUBLE
-extern template class SOFA_SOFAVRPNCLIENT_API IRTracker<defaulttype::Vec3fTypes>;
-#endif //SOFA_DOUBLE
+extern template class SOFA_SOFAVRPNCLIENT_API IRTracker<defaulttype::Vec3Types>;
+ 
 #endif
 
 }

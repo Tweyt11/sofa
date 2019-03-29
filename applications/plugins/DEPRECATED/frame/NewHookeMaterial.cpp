@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -37,20 +37,12 @@ using namespace sofa::defaulttype;
 // Register in the Factory
 
 int HookeMaterial3Class = core::RegisterObject ( "Hooke material for deformable objects" )
-#ifndef SOFA_FLOAT
         .add<HookeMaterial3<Material3d> >()
-#endif
-#ifndef SOFA_DOUBLE
-        .add<HookeMaterial3<Material3f> >()
-#endif
+
         ;
 
-#ifndef SOFA_FLOAT
 template class SOFA_FRAME_API HookeMaterial3<Material3d>;
-#endif
-#ifndef SOFA_DOUBLE
-template class SOFA_FRAME_API HookeMaterial3<Material3f>;
-#endif
+
 
 
 
