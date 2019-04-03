@@ -60,7 +60,7 @@ public:
     template<class T>
     static bool canCreate(T*& obj, core::objectmodel::BaseContext* context, core::objectmodel::BaseObjectDescription* arg)
     {
-        if (arg->getAttribute("object"))
+        if (!arg->getAttribute("object").empty())
         {
             if (dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(arg->findObject(arg->getAttribute("object",".."))) == NULL)
                 return false;
@@ -79,7 +79,7 @@ public:
     {
         typename T::SPtr obj = core::objectmodel::BaseObject::create(tObj, context, arg);
 
-        if (arg && (arg->getAttribute("object")))
+        if (arg && (!arg->getAttribute("object").empty()))
         {
             obj->mstate = dynamic_cast<core::behavior::MechanicalState<DataTypes>*>(arg->findObject(arg->getAttribute("object","..")));
         }

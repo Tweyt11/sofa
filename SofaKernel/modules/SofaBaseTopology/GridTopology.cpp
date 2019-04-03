@@ -61,7 +61,7 @@ void GridTopology::parse(core::objectmodel::BaseObjectDescription* arg)
 {
     this->MeshTopology::parse(arg);
 
-    if (arg->getAttribute("nx")!=NULL && arg->getAttribute("ny")!=NULL && arg->getAttribute("nz")!=NULL )
+    if (!arg->getAttribute("nx").empty() && !arg->getAttribute("ny").empty() && !arg->getAttribute("nz").empty() )
     {
         int nx = arg->getAttributeAsInt("nx", d_n.getValue().x());
         int ny = arg->getAttributeAsInt("ny", d_n.getValue().y());

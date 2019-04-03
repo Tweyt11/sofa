@@ -68,18 +68,18 @@ RegularGridTopology::RegularGridTopology(const Vec3i& n, BoundingBox b)
 void RegularGridTopology::parse(core::objectmodel::BaseObjectDescription* arg)
 {
     float scale=1.0f;
-    if (arg->getAttribute("scale")!=NULL)
+    if (!arg->getAttribute("scale").empty())
     {
         scale = arg->getAttributeAsFloat("scale", 1.0);
     }
 
     this->GridTopology::parse(arg);
-    if (arg->getAttribute("xmin") != NULL &&
-        arg->getAttribute("ymin") != NULL &&
-        arg->getAttribute("zmin") != NULL &&
-        arg->getAttribute("xmax") != NULL &&
-        arg->getAttribute("ymax") != NULL &&
-        arg->getAttribute("zmax") != NULL )
+    if (!arg->getAttribute("xmin").empty() &&
+        !arg->getAttribute("ymin").empty() &&
+        !arg->getAttribute("zmin").empty() &&
+        !arg->getAttribute("xmax").empty() &&
+        !arg->getAttribute("ymax").empty() &&
+        !arg->getAttribute("zmax").empty() )
     {
         float xmin = arg->getAttributeAsFloat("xmin",0);
         float ymin = arg->getAttributeAsFloat("ymin",0);
