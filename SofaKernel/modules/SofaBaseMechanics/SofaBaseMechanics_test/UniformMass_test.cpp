@@ -149,6 +149,28 @@ struct UniformMassTest :  public BaseTest
         }
     }
 
+    /// totalMass, mass and localRange..
+    /// case where NO mass info give, default totalMass = 1.0
+    void checkRigidAttribute(){
+        EXPECT_MSG_NOEMIT(Error, Warning);
+        string scene =
+                "<?xml version='1.0'?>"
+                "<Node 	name='Root' gravity='0 0 0' time='0' animate='0'   > "
+                "   <MechanicalObject template='Rigid3' position='0 0 0 0 0 0 1'/>"
+                "   <UniformMass name='m_mass' vertexMass='1.0 1.0 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0'/>"
+                "</Node>                                                     " ;
+
+        Node::SPtr root = SceneLoaderXML::loadFromMemory ("loadWithNoParam",
+                                                          scene.c_str(),
+                                                          scene.size()) ;
+
+        root->init(ExecParams::defaultInstance()) ;
+
+        TheUniformMass* mass = root->getTreeObject<TheUniformMass>() ;
+        EXPECT_TRUE( mass != nullptr ) ;
+
+    }
+
     /// totalMass is well defined
     /// vertexMass will be computed from it using the formulat :  vertexMass = totalMass / number of particules
     void checkVertexMassFromTotalMass(){
@@ -501,6 +523,10 @@ TYPED_TEST(UniformMassTest, loadFromAnInvalidPathname) {
 
 TYPED_TEST(UniformMassTest, loadFromAFileForRigid) {
     ASSERT_NO_THROW(this->loadFromAFileForRigid()) ;
+}
+
+TYPED_TEST(UniformMassTest, checkRigidAttribute) {
+    ASSERT_NO_THROW(this->checkRigidAttribute()) ;
 }
 
 TYPED_TEST(UniformMassTest, reinitTest) {
