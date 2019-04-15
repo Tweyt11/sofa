@@ -113,7 +113,6 @@ public:
             virtualEndEdit();
             return resized;
         }
-        //serr<<"Field::read "<<s.c_str()<<sendl;
         std::istringstream istr( s.c_str() );
         istr >> *virtualBeginEdit();
         virtualEndEdit();
@@ -121,10 +120,7 @@ public:
         {
             return false;
         }
-        else
-        {
-            return true;
-        }
+        return true;
     }
 
     bool isCounterValid() const override {return true;}
