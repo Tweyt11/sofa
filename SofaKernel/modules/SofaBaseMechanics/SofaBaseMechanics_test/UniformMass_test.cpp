@@ -151,13 +151,14 @@ struct UniformMassTest :  public BaseTest
 
     /// totalMass, mass and localRange..
     /// case where NO mass info give, default totalMass = 1.0
-    void checkRigidAttribute(){
+    void checkRigidAttribute()
+    {
         EXPECT_MSG_NOEMIT(Error, Warning);
         string scene =
                 "<?xml version='1.0'?>"
                 "<Node 	name='Root' gravity='0 0 0' time='0' animate='0'   > "
                 "   <MechanicalObject template='Rigid3' position='0 0 0 0 0 0 1'/>"
-                "   <UniformMass name='m_mass' vertexMass='1.0 1.0 1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0'/>"
+                "   <UniformMass name='mass' vertexMass='1.0 1.0 2.0 0.0 0.0 0.0 4.0 0.0 7.0 8.0 9.0'/>"
                 "</Node>                                                     " ;
 
         Node::SPtr root = SceneLoaderXML::loadFromMemory ("loadWithNoParam",
@@ -166,9 +167,18 @@ struct UniformMassTest :  public BaseTest
 
         root->init(ExecParams::defaultInstance()) ;
 
-        TheUniformMass* mass = root->getTreeObject<TheUniformMass>() ;
+        UniformMassRigid* mass = root->getTreeObject<UniformMassRigid>() ;
         EXPECT_TRUE( mass != nullptr ) ;
 
+        std::vector<double> values={2.0,0.0,0.0,0.0,4.0,0.0,7.0,8.0,9.0};
+        for(unsigned int i=0;i<3;i++)
+        {
+            for(unsigned int j=0;j<3;j++)
+            {
+                ASSERT_EQ(mass->d_vertexMass.getValue().inertiaMatrix[i][j],
+                          values[i*3+j]);
+            }
+        }
     }
 
     /// totalMass is well defined
