@@ -509,7 +509,6 @@ public:
 
     /// Get a descendant node given its name
     Node* getTreeNode(const std::string& name) const;
-    Node* getNodeInGraph(const std::string& absolutePath) const;
 
     /// Get a node in the scene graph matching the given absolute path
     Node* getNodeInGraph(const std::string& absolutePath) const;
