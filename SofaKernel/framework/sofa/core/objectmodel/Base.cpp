@@ -93,8 +93,8 @@ void Base::release()
 void Base::initData0( BaseData* field, BaseData::BaseInitData& res, const char* name, const char* help, bool isDisplayed, bool isReadOnly )
 {
     BaseData::DataFlags flags = BaseData::FLAG_DEFAULT;
-    if(isDisplayed) flags |= (BaseData::DataFlags)BaseData::FLAG_DISPLAYED; else flags &= ~(BaseData::DataFlags)BaseData::FLAG_DISPLAYED;
-    if(isReadOnly)  flags |= (BaseData::DataFlags)BaseData::FLAG_READONLY; else flags &= ~(BaseData::DataFlags)BaseData::FLAG_READONLY;
+    if(isDisplayed) flags |= BaseData::DataFlags(BaseData::FLAG_DISPLAYED); else flags &= ~BaseData::DataFlags(BaseData::FLAG_DISPLAYED);
+    if(isReadOnly)  flags |= BaseData::DataFlags(BaseData::FLAG_READONLY); else flags &= ~BaseData::DataFlags(BaseData::FLAG_READONLY);
 
     initData0(field, res, name, help, flags);
 }
@@ -105,8 +105,8 @@ void Base::initData0( BaseData* field, BaseData::BaseInitData& res, const char* 
     // Questionnable optimization: test a single 'uint32_t' rather that four 'char'
     static const char *draw_str = "draw";
     static const char *show_str = "show";
-    static uint32_t draw_prefix = *(uint32_t*)draw_str;
-    static uint32_t show_prefix = *(uint32_t*)show_str;
+    static uint32_t draw_prefix = *reinterpret_cast<const uint32_t*>(draw_str);
+    static uint32_t show_prefix = *reinterpret_cast<const uint32_t*>(show_str);
 
     /*
         std::string ln(name);
@@ -124,7 +124,7 @@ void Base::initData0( BaseData* field, BaseData::BaseInitData& res, const char* 
     res.helpMsg = help;
     res.dataFlags = dataFlags;
 
-    uint32_t prefix = *(uint32_t*)name;
+    uint32_t prefix = *reinterpret_cast<const uint32_t*>(name);
 
     if (prefix == draw_prefix || prefix == show_prefix)
         res.group = "Visualization";
@@ -345,9 +345,9 @@ BaseData* Base::findData( const std::string &name ) const
         if (range.first != range.second)
             return range.first->second;
         else
-            return NULL;
+            return nullptr;
     }
-    else return NULL;
+    else return nullptr;
 }
 
 /// Find fields given a name: several can be found as we look into the alias map
@@ -373,7 +373,7 @@ BaseLink* Base::findLink( const std::string &name ) const
     if (range.first != range.second)
         return range.first->second;
     else
-        return NULL;
+        return nullptr;
 }
 
 /// Find links given a name: several can be found as we look into the alias map
@@ -404,21 +404,21 @@ bool Base::findDataLinkDest(BaseData*& ptr, const std::string& path, const BaseL
     if (pathStr.empty() || pathStr == std::string("[]"))
     {
         ptr = this->findData(dataStr);
-        return (ptr != NULL);
+        return (ptr != nullptr);
     }
-    Base* obj = NULL;
+    Base* obj = nullptr;
     if (!findLinkDest(obj, BaseLink::CreateString(pathStr), link))
         return false;
     if (!obj)
         return false;
     ptr = obj->findData(dataStr);
-    return (ptr != NULL);
+    return (ptr != nullptr);
 }
 
 void* Base::findLinkDestClass(const BaseClass* /*destType*/, const std::string& /*path*/, const BaseLink* /*link*/)
 {
     serr << "Base: calling unimplemented findLinkDest method" << sendl;
-    return NULL;
+    return nullptr;
 }
 
 bool Base::hasField( const std::string& attribute) const
@@ -490,7 +490,7 @@ bool Base::parseField( const std::string& attribute, const std::string& value)
             ok = false;
         }
         sout << "Link " << linkVec[l]->getName() << " = " << linkVec[l]->getValueString() << sendl;
-        unsigned int s = (unsigned int)linkVec[l]->getSize();
+        unsigned int s = unsigned(linkVec[l]->getSize());
         for (unsigned int i=0; i<s; ++i)
         {
             sout  << "  " << linkVec[l]->getLinkedPath(i) << " = ";
@@ -524,7 +524,7 @@ void  Base::parseFields ( const std::map<std::string,std::string*>& args )
     std::string key,val;
     for( std::map<string,string*>::const_iterator i=args.begin(), iend=args.end(); i!=iend; ++i )
     {
-        if( (*i).second!=NULL )
+        if( (*i).second!=nullptr )
         {
             key=(*i).first;
             val=*(*i).second;
@@ -571,7 +571,7 @@ void  Base::writeDatas ( std::map<std::string,std::string*>& args )
     {
         BaseData* field = *iData;
         std::string name = field->getName();
-        if( args[name] != NULL )
+        if( args[name] != nullptr )
             *args[name] = field->getValueString();
         else
             args[name] =  new string(field->getValueString());
@@ -580,7 +580,7 @@ void  Base::writeDatas ( std::map<std::string,std::string*>& args )
     {
         BaseLink* link = *iLink;
         std::string name = link->getName();
-        if( args[name] != NULL )
+        if( args[name] != nullptr )
             *args[name] = link->getValueString();
         else
             args[name] =  new string(link->getValueString());
@@ -747,4 +747,19 @@ int Base::getInstanciationFilePos() const
 
 } // namespace core
 
+namespace helper
+{
+namespace logging
+{
+
+SofaComponentInfo::SofaComponentInfo(const sofa::core::objectmodel::Base* c)
+{
+    assert(c!=nullptr) ;
+    m_component = c ;
+    m_sender = c->getClassName() ;
+    m_name = c->getName() ;
+}
+
+} // namespace logging
+} // namespace helper
 } // namespace sofa

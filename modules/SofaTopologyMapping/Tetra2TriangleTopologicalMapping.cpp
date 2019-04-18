@@ -138,6 +138,8 @@ void Tetra2TriangleTopologicalMapping::init()
             Glob2LocMap[triId]= Loc2GlobVec.size() - 1;
         }
     }
+    // Need to fully init the target topology
+    toModel->init();
 
     Loc2GlobDataVec.endEdit();
     this->m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
@@ -156,8 +158,6 @@ unsigned int Tetra2TriangleTopologicalMapping::getFromIndex(unsigned int ind)
         return 0;
     }
 }
-
-const unsigned int trianglesInTetrahedronArray[4][3]= {{1,2,3}, {0,3,2}, {1,3,0},{0,2,1}};
 
 void Tetra2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
 {
@@ -390,7 +390,7 @@ void Tetra2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
 
                     for (int i=0; i<3; i++)
                     {
-                        unsigned int vIdInTetra = trianglesInTetrahedronArray[posInTetra][i];
+                        unsigned int vIdInTetra = trianglesOrientationInTetrahedronArray[posInTetra][i];
                         tri[i] = otherTetra[vIdInTetra];
                     }
 

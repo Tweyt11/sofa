@@ -309,8 +309,8 @@ public:
     virtual void removeChild(BaseNode::SPtr node) final;
     /// Move a node in this from another node
     virtual void moveChild(BaseNode::SPtr node, BaseNode::SPtr prev_parent) final;
-    /// Move a node in this & remove it from its parents
-    virtual void moveChild(BaseNode::SPtr node) = 0;
+    /// Move a node in this from another node
+    virtual void moveChild(BaseNode::SPtr node) override = 0;
 
     /// Delegate methods overridden in child classes
     /// Add a child node
@@ -509,6 +509,7 @@ public:
 
     /// Get a descendant node given its name
     Node* getTreeNode(const std::string& name) const;
+    Node* getNodeInGraph(const std::string& absolutePath) const;
 
     /// Get a node in the scene graph matching the given absolute path
     Node* getNodeInGraph(const std::string& absolutePath) const;

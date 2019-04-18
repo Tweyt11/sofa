@@ -329,7 +329,7 @@ public:
     {
         void* result = findLinkDestClass(T::GetClass(), path, link);
         ptr = reinterpret_cast<T*>(result);
-        return (result != NULL);
+        return (result != nullptr);
     }
 
     virtual void copyAspect(int destAspect, int srcAspect);
@@ -410,7 +410,7 @@ public:
     /// \code  T* ptr = NULL; std::string type = T::typeName(ptr); \endcode
     /// This way derived classes can redefine the typeName method
     template<class T>
-    static std::string typeName(const T* ptr= NULL)
+    static std::string typeName(const T* ptr= nullptr)
     {
         return BaseClass::defaultTypeName(ptr);
     }
@@ -421,7 +421,7 @@ public:
     /// \code  T* ptr = NULL; std::string type = T::className(ptr); \endcode
     /// This way derived classes can redefine the className method
     template<class T>
-    static std::string className(const T* ptr= NULL)
+    static std::string className(const T* ptr= nullptr)
     {
         return BaseClass::defaultClassName(ptr);
     }
@@ -432,7 +432,7 @@ public:
     /// \code  T* ptr = NULL; std::string type = T::namespaceName(ptr); \endcode
     /// This way derived classes can redefine the namespaceName method
     template<class T>
-    static std::string namespaceName(const T* ptr= NULL)
+    static std::string namespaceName(const T* ptr= nullptr)
     {
         return BaseClass::defaultNamespaceName(ptr);
     }
@@ -443,7 +443,7 @@ public:
     /// \code  T* ptr = NULL; std::string type = T::templateName(ptr); \endcode
     /// This way derived classes can redefine the templateName method
     template<class T>
-    static std::string templateName(const T* ptr= NULL)
+    static std::string templateName(const T* ptr= nullptr)
     {
         return BaseClass::defaultTemplateName(ptr);
     }
@@ -455,12 +455,12 @@ public:
     /// \code  T* ptr = NULL; std::string type = T::shortName(ptr); \endcode
     /// This way derived classes can redefine the shortName method
     template< class T>
-    static std::string shortName( const T* ptr = NULL, BaseObjectDescription* = NULL )
+    static std::string shortName( const T* ptr = nullptr, BaseObjectDescription* = nullptr )
     {
         std::string shortname = T::className(ptr);
         if( !shortname.empty() )
         {
-            *shortname.begin() = ::tolower(*shortname.begin());
+            *shortname.begin() = char(::tolower(*shortname.begin()));
         }
         return shortname;
     }
@@ -504,8 +504,8 @@ public:
 
 
 #define SOFA_BASE_CAST_DEFINITION(NAMESPACE,CLASSNAME) \
-    virtual const NAMESPACE::CLASSNAME* to##CLASSNAME() const { return NULL; } \
-    virtual       NAMESPACE::CLASSNAME* to##CLASSNAME()       { return NULL; }
+    virtual const NAMESPACE::CLASSNAME* to##CLASSNAME() const { return nullptr; } \
+    virtual       NAMESPACE::CLASSNAME* to##CLASSNAME()       { return nullptr; }
 
     SOFA_BASE_CAST_DEFINITION( core,        BaseState                              )
     SOFA_BASE_CAST_DEFINITION( core,        BaseMapping                            )
@@ -574,14 +574,7 @@ namespace logging
         const sofa::core::objectmodel::Base* m_component ;
         std::string                          m_name;
 
-        SofaComponentInfo(const sofa::core::objectmodel::Base* c)
-        {
-            assert(c!=nullptr) ;
-            m_component = c ;
-            m_sender = c->getClassName() ;
-            m_name = c->getName() ;
-        }
-
+        SofaComponentInfo(const sofa::core::objectmodel::Base* c);
         const std::string& name() const { return m_name; }
         std::ostream& toStream(std::ostream &out) const
         {
