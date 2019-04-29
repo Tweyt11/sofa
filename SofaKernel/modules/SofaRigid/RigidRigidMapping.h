@@ -29,6 +29,7 @@
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/core/visual/VisualParams.h>
+#include <sofa/core/DataEngine.h>
 #include <vector>
 
 namespace sofa
@@ -82,17 +83,25 @@ protected:
 public:
     Data<unsigned> index; ///< input frame index
     sofa::core::objectmodel::DataFileName fileRigidRigidMapping; ///< Filename
-    //axis length for display
-    Data<double> axisLength; ///< axis length for display
     Data< bool > indexFromEnd; ///< input DOF index starts from the end of input DOFs vector
     Data< bool > globalToLocalCoords; ///< are the output DOFs initially expressed in global coordinates
+    helper::vector< std::pair<unsigned int, unsigned int> > m_srcIndices ;
+
+    Data< bool > d_showObject;
+    Data<double> d_showObjectScale; ///< axis length for display
 
 protected:
+    sofa::core::DataTracker m_tracker;
+
     RigidRigidMapping() ;
     virtual ~RigidRigidMapping(){}
 
 public:
     void init() override;
+
+    void reinit() override ;
+
+    void reinitIfChanged();
 
     void apply(const core::MechanicalParams *mparams, Data<OutVecCoord>& out, const Data<InVecCoord>& in) override;
 
@@ -110,6 +119,8 @@ public:
     {
         return NULL;
     }
+
+    void handleEvent(sofa::core::objectmodel::Event *event) override ;
 
     void draw(const core::visual::VisualParams* vparams) override;
 

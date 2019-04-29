@@ -32,6 +32,8 @@
 #include <sofa/helper/io/SphereLoader.h>
 #include <sofa/helper/io/Mesh.h>
 
+#include <sofa/simulation/AnimateBeginEvent.h>
+
 #include <cstring>
 #include <iostream>
 
@@ -49,19 +51,23 @@ RigidRigidMapping<TIn,TOut>::RigidRigidMapping()
     : Inherit(),
       points(initData(&points, "initialPoints", "Initial position of the points")),
       repartition(initData(&repartition,"repartition","number of child frames per parent frame. \n"
-                           "If empty, all the children are attached to the parent with index \n"
-                           "given in the \"index\" attribute. If one value, each parent frame drives \n"
-                           "the given number of children frames. Otherwise, the values are the number \n"
-                           "of child frames driven by each parent frame. ")),
-      index(initData(&index,(unsigned)0,"index","input frame index")),
+                                                      "If empty, all the children are attached to the parent with index \n"
+                                                      "given in the \"index\" attribute. If one value, each parent frame drives \n"
+                                                      "the given number of children frames. Otherwise, the values are the number \n"
+                                                      "of child frames driven by each parent frame. ")),
+      index(initData(&index,0,"index","input frame index")),
       fileRigidRigidMapping(initData(&fileRigidRigidMapping,"fileRigidRigidMapping","Filename")),
-      axisLength(initData( &axisLength, 0.7, "axisLength", "axis length for display")),
-      indexFromEnd( initData ( &indexFromEnd,false,"indexFromEnd","input DOF index starts from the end of input DOFs vector") ),
-      globalToLocalCoords ( initData ( &globalToLocalCoords,"globalToLocalCoords","are the output DOFs initially expressed in global coordinates" ) )
+      indexFromEnd( initData ( &indexFromEnd,false,"indexFromEnd","input DOF index starts from the end of input DOFs vector")),
+      globalToLocalCoords ( initData ( &globalToLocalCoords,"globalToLocalCoords","are the output DOFs initially expressed in global coordinates" )),
+      d_showObject(initData( &d_showObject, false, "d_showObject", "Show the objects involved in the mapping.")),
+      d_showObjectScale(initData( &d_showObjectScale, 0.7, "d_showObjectScale", "Axis length for displaying the 3D frames."))
 {
     this->addAlias(&fileRigidRigidMapping,"filename");
-}
 
+    m_tracker.trackData(index);
+    m_tracker.trackData(globalToLocalCoords);
+    m_tracker.trackData(repartition);
+}
 
 template <class TIn, class TOut>
 class RigidRigidMapping<TIn, TOut>::Loader :
@@ -126,13 +132,16 @@ void RigidRigidMapping<TIn, TOut>::load(const char *filename)
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::init()
 {
-
     if (!fileRigidRigidMapping.getValue().empty())
         this->load(fileRigidRigidMapping.getFullPath().c_str());
 
     if (this->points.getValue().empty() && this->toModel!=NULL)
     {
-        const OutVecCoord& x =this->toModel->read(core::ConstVecCoordId::position())->getValue();
+        const sofa::helper::ReadAccessor<decltype (m_srcIndices)> srcIndices = m_srcIndices;
+
+        auto& x =this->toModel->read(core::ConstVecCoordId::position())->getValue();
+        auto& xfrom =this->fromModel->read(core::ConstVecCoordId::position())->getValue();
+
         OutVecCoord& pts = *points.beginEdit();
 
         pts.resize(x.size());
@@ -140,39 +149,31 @@ void RigidRigidMapping<TIn, TOut>::init()
 
         if(globalToLocalCoords.getValue() == true)
         {
-            const typename In::VecCoord& xfrom =this->fromModel->read(core::ConstVecCoordId::position())->getValue();
-            switch (repartition.getValue().size())
+            for ( auto src_num : srcIndices )
             {
-            case 0 :
-                for (i = 0; i < x.size(); i++)
+                unsigned int srcIndex = src_num.first;
+                unsigned int numDst = src_num.second;
+                for(unsigned int j=0; j<numDst; j++,cpt++)
                 {
-                    // pts[i] = x[i] - xfrom[0];
-                    pts[i].getCenter() = xfrom[index.getValue()].getOrientation().inverse().rotate( x[i].getCenter() - xfrom[index.getValue()].getCenter() ) ;
-                    pts[i].getOrientation() = xfrom[index.getValue()].getOrientation().inverse() * x[i].getOrientation() ;
+                    pts[cpt].getCenter() = xfrom[srcIndex].getOrientation().inverse().rotate( x[cpt].getCenter() - xfrom[srcIndex].getCenter() ) ;
+                    pts[cpt].getOrientation() = xfrom[srcIndex].getOrientation().inverse() * x[cpt].getOrientation() ;
                 }
-                break;
-            case 1 :
-                for (i=0; i<xfrom.size(); i++)
-                    for(unsigned int j=0; j<repartition.getValue()[0]; j++,cpt++)
-                        pts[cpt] = x[cpt] - xfrom[i];
-                break;
-            default :
-                for (i=0; i<xfrom.size(); i++)
-                    for(unsigned int j=0; j<repartition.getValue()[i]; j++,cpt++)
-                        pts[cpt] = x[cpt] - xfrom[i];
-                break;
             }
         }
         else
         {
-            for (i=0; i<x.size(); i++)
-                pts[i] = x[i];
+            for ( auto src_num : srcIndices )
+            {
+                unsigned int srcIndex = src_num.first;
+                unsigned int numDst = src_num.second;
+                for(unsigned int j=0; j<numDst; j++,cpt++)
+                    pts[cpt] = x[cpt];
+            }
         }
-
         points.endEdit();
     }
 
-    this->Inherit::init();
+    Inherit::init();
 }
 
 template <class TIn, class TOut>
@@ -507,7 +508,7 @@ void RigidRigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparam
     case 1 :
         childrenPerParent = repartition.getValue()[0];
         for(parentIndex=0; parentIndex<parentForces.size(); parentIndex++)
-        {            
+        {
             for( size_t i=0 ; i<childrenPerParent ; ++i, ++childIndex)
             {
                 if( !this->maskTo->getEntry(childIndex) ) continue;
@@ -657,7 +658,7 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::ConstraintParams * /*cpar
                 bool needToInsert = false;
 
                 for (unsigned int r = 0; r < repartition.getValue()[ito] && colIt
-                        != colItEnd; r++, cpt++)
+                     != colItEnd; r++, cpt++)
                 {
                     if (colIt.index() != cpt)
                         continue;
@@ -774,17 +775,88 @@ void RigidRigidMapping<TIn, TOut>::computeAccFromMapping(const core::MechanicalP
 }
 
 template <class TIn, class TOut>
-void RigidRigidMapping<TIn, TOut>::draw(const core::visual::VisualParams* vparams)
+void RigidRigidMapping<TIn, TOut>::reinit()
 {
-	if (!getShow(this,vparams)) return;
+    msg_error(this) << "DATA HAS CHANGED ... UPDATE INTERNAL STATE" ;
 
-    const typename Out::VecCoord& x =this->toModel->read(core::ConstVecCoordId::position())->getValue();
-    const defaulttype::Vector3& sizes = defaulttype::Vector3(axisLength.getValue(), axisLength.getValue(), axisLength.getValue());
-    for (unsigned int i=0; i<x.size(); i++)
+    sofa::helper::ReadAccessor<decltype (repartition)> reps = repartition;
+
+    const typename Out::VecCoord& fromPosition =this->fromModel->read(core::ConstVecCoordId::position())->getValue();
+    const typename Out::VecCoord& toPosition =this->toModel->read(core::ConstVecCoordId::position())->getValue();
+
+    m_srcIndices.clear();
+    if(reps.size()==0)
     {
-        vparams->drawTool()->drawFrame(x[i].getCenter(), x[i].getOrientation(), sizes);
+        auto newIndex = index.getValue();
+
+        /// Check that the user provided index is not too big.
+        if(newIndex >= fromPosition.size())
+            newIndex = fromPosition.size() - 1;
+
+        /// Check if the index should be using backward, if so,
+        /// reverse it.
+        if(indexFromEnd.getValue())
+            newIndex = fromPosition.size() - 1 - newIndex;
+
+        m_srcIndices.push_back(std::make_pair(newIndex, toPosition.size()));
+    }else if(reps.size()==1)
+    {
+
+    }
+
+    m_tracker.clean();
+}
+
+template <class TIn, class TOut>
+void RigidRigidMapping<TIn, TOut>::reinitIfChanged()
+{
+    if(m_tracker.hasChanged())
+    {
+        reinit();
     }
 }
+
+template <class TIn, class TOut>
+void RigidRigidMapping<TIn, TOut>::handleEvent(core::objectmodel::Event *event)
+{
+    if (sofa::simulation::AnimateBeginEvent::checkEventType(event))
+    {
+        reinitIfChanged();
+    }
+}
+
+template <class TIn, class TOut>
+void RigidRigidMapping<TIn, TOut>::draw(const core::visual::VisualParams* vparams)
+{
+    /// debug draw of the object needs to be done when either the object is
+    /// requested to be displayed via the d_showObject or via the visual params.
+    if( !d_showObject.getValue() &&
+            !vparams->displayFlags().getShowMechanicalMappings() )
+        return;
+
+    reinitIfChanged();
+
+    defaulttype::Vec3 sizes {d_showObjectScale.getValue(), d_showObjectScale.getValue(), d_showObjectScale.getValue()};
+
+    const typename Out::VecCoord& fromPosition =this->fromModel->read(core::ConstVecCoordId::position())->getValue();
+    const typename Out::VecCoord& toPosition =this->toModel->read(core::ConstVecCoordId::position())->getValue();
+
+    size_t cpt = 0;
+    for( auto idx_num : m_srcIndices )
+    {
+        auto srcIndex = idx_num.first;
+        auto numDst = idx_num.second;
+
+        /// Draw the initial points
+        for( unsigned int i = 0; i<numDst;i++, cpt++ )
+        {
+            vparams->drawTool()->drawFrame(fromPosition[srcIndex].getCenter(), fromPosition[srcIndex].getOrientation(), sizes, sofa::defaulttype::RGBAColor::gray());
+            vparams->drawTool()->drawLine(fromPosition[srcIndex].getCenter(), toPosition[cpt].getCenter(), sofa::defaulttype::RGBAColor::gray());
+            vparams->drawTool()->drawFrame(toPosition[cpt].getCenter(), toPosition[cpt].getOrientation(), sizes, sofa::defaulttype::RGBAColor::green());
+        }
+    }
+}
+
 
 } // namespace mapping
 
