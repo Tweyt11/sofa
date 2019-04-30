@@ -3,6 +3,7 @@ import sys
 import inspect
 import traceback
 import Sofa
+import importlib
 
 ## @contributors
 ##   - Matthieu Nesme
@@ -69,9 +70,49 @@ def getPythonCallingPoint():
     tmp=(ss[1], ss[2])
     return tmp
 
+# returns a dictionary of all callable objects in the module, with their type as key
+def getPythonModuleContent(moduledir, modulename):
+    objects = {}
+    # First let's load that script:
+    try:
+        sys.path.append(moduledir)
+        m = importlib.import_module(modulename)
+    except ImportError, e:
+        print ("PythonAsset ERROR: could not import module " + sys.argv[2])
+        print (e)
+        return objects
+
+    print ('Parsing module...')
+    # module loaded, let's see what's inside:
+    if "createScene" in dir(m):
+        # print("We found a createScene entry point, let's load it")
+        objects["createScene"] = "function"
+    for i in dir(m):
+        if i == "SofaObject" or i == "SofaPrefab" or inspect.isbuiltin(i) or not callable(getattr(m, i)):
+            continue
+        if inspect.isclass(eval("m." + i)):
+            # A non-decorated class
+            if issubclass(eval("m." + i), Sofa.PythonScriptController):
+                objects[i] = "PythonScriptController"
+            elif issubclass(eval("m." + i), Sofa.PythonScriptDataEngine):
+                objects[i] = "PythonScriptDataEngine"
+            else:
+                objects[i] = "Class"
+        else:
+            class_ = getattr(m, i)
+            # a class decorated with @SofaPrefab:
+            if class_.__class__.__name__ == "SofaPrefab" \
+               and i != "SofaPrefab":
+                objects[i] = "SofaPrefab"
+            else:
+                objects[i] = "function"
+    return objects
+
+
 def sendMessageFromException(e):
     exc_type, exc_value, exc_tb = sys.exc_info()
     sofaExceptHandler(exc_type, exc_value, exc_tb)
+
 
 def sofaFormatHandler(type, value, tb):
     global oldexcepthook

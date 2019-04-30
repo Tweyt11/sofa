@@ -57,6 +57,18 @@ public:
     static void addPythonModulePathsForPlugins(const std::string& pluginsDirectory);
     static void addPythonModulePathsForPluginsByName(const std::string& pluginName);
 
+
+    /** \brief getPythonModuleContentAsStringMap
+     Returns a map of all callable objects in the python module. Each
+     callable object's name (key) is assigned a type (value) in the map
+     Possible types are: function, class, SofaPrefab,
+     PythonScriptController and PythonScriptDataEngine
+     \param moduleDir
+     \param moduleName
+     \return map of the callable objects in the module
+    **/
+    static std::map<std::string, std::string> getPythonModuleContent(const std::string& moduleDir, const std::string& moduleName);
+
     /// add module to python context, Init() must have been called before
     static void addModule(const std::string& name, PyMethodDef* methodDef);
 

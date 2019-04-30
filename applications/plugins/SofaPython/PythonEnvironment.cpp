@@ -299,6 +299,37 @@ void PythonEnvironment::addPythonModulePathsForPluginsByName(const std::string& 
     msg_warning("PythonEnvironment") << pluginName << " not found in PluginManager's map.";
 }
 
+std::map<std::string, std::string> PythonEnvironment::getPythonModuleContent(const std::string& moduleDir, const std::string& moduleName)
+{
+    PythonEnvironment::gil lock(__func__);
+    std::map<std::string, std::string> map;
+    PyObject* pDict = PyModule_GetDict(PyImport_AddModule("SofaPython"));
+    PyObject* pFunc = PyDict_GetItemString(pDict, "getPythonModuleContent");
+    if (PyCallable_Check(pFunc))
+    {
+        PyObject* mDir = PyString_FromString(moduleDir.c_str());
+        PyObject* mName = PyString_FromString(moduleName.c_str());
+        PyObject* args = PyTuple_Pack(2, mDir, mName);
+        PyObject* dict = PyObject_CallObject(pFunc, args);
+
+        PyObject* key;
+        PyObject* value;
+        Py_ssize_t pos = 0;
+
+        while (PyDict_Next(dict, &pos, &key, &value))
+        {
+            std::string k = PyString_AsString(key);
+            std::string v = PyString_AsString(value);
+            map[k] = v;
+        }
+
+        Py_DECREF(dict) ;
+        return map;
+    }
+    msg_warning("PythonEnvironment") << "Could not find callable getPythonModuleContent in module SofaPython";
+    return map;
+}
+
 // some basic RAII stuff to handle init/termination cleanly
   namespace {
 
