@@ -49,24 +49,24 @@ namespace mapping
 template <class TIn, class TOut>
 RigidRigidMapping<TIn,TOut>::RigidRigidMapping()
     : Inherit(),
-      points(initData(&points, "initialPoints", "Initial position of the points")),
-      repartition(initData(&repartition,"repartition","number of child frames per parent frame. \n"
+      d_points(initData(&d_points, "initialPoints", "Initial position of the points")),
+      d_index(initData(&d_index,0,"index","input frame index")),
+      d_indexFromEnd( initData ( &d_indexFromEnd,false,"indexFromEnd","input DOF index starts from the end of input DOFs vector")),
+      d_repartition(initData(&d_repartition, "repartition","number of child frames per parent frame. \n"
                                                       "If empty, all the children are attached to the parent with index \n"
                                                       "given in the \"index\" attribute. If one value, each parent frame drives \n"
                                                       "the given number of children frames. Otherwise, the values are the number \n"
                                                       "of child frames driven by each parent frame. ")),
-      index(initData(&index,0,"index","input frame index")),
-      fileRigidRigidMapping(initData(&fileRigidRigidMapping,"fileRigidRigidMapping","Filename")),
-      indexFromEnd( initData ( &indexFromEnd,false,"indexFromEnd","input DOF index starts from the end of input DOFs vector")),
-      globalToLocalCoords ( initData ( &globalToLocalCoords,"globalToLocalCoords","are the output DOFs initially expressed in global coordinates" )),
-      d_showObject(initData( &d_showObject, false, "d_showObject", "Show the objects involved in the mapping.")),
-      d_showObjectScale(initData( &d_showObjectScale, 0.7, "d_showObjectScale", "Axis length for displaying the 3D frames."))
+      d_fileRigidRigidMapping(initData(&d_fileRigidRigidMapping, std::string(""),"filename","Filename")),
+      d_globalToLocalCoords ( initData ( &d_globalToLocalCoords, false,"globalToLocalCoords","are the output DOFs initially expressed in global coordinates (default=false)" )),
+      d_showObject(initData( &d_showObject, false, "showObject", "Show the objects involved in the mapping (default=false).")),
+      d_showObjectScale(initData( &d_showObjectScale, 1.0, "showObjectScale", "Axis length for displaying the 3D frames (default=1.0)."))
 {
-    this->addAlias(&fileRigidRigidMapping,"filename");
+    this->addAlias(&d_fileRigidRigidMapping,"fileRigidRigidMapping");
 
-    m_tracker.trackData(index);
-    m_tracker.trackData(globalToLocalCoords);
-    m_tracker.trackData(repartition);
+    m_tracker.trackData(d_index);
+    m_tracker.trackData(d_globalToLocalCoords);
+    m_tracker.trackData(d_repartition);
 }
 
 template <class TIn, class TOut>
@@ -82,23 +82,23 @@ public:
     {
         OutCoord c;
         Out::set(c,px,py,pz);
-        dest->points.beginEdit()->push_back(c);
-        dest->points.endEdit();
+        dest->d_points.beginEdit()->push_back(c);
+        dest->d_points.endEdit();
     }
 
     void addSphere(SReal px, SReal py, SReal pz, SReal) override
     {
         OutCoord c;
         Out::set(c,px,py,pz);
-        dest->points.beginEdit()->push_back(c);
-        dest->points.endEdit();
+        dest->d_points.beginEdit()->push_back(c);
+        dest->d_points.endEdit();
     }
 };
 
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::load(const char *filename)
 {
-    OutVecCoord& pts = *points.beginEdit();
+    OutVecCoord& pts = *d_points.beginEdit();
     pts.resize(0);
 
     if (strlen(filename)>4 && !strcmp(filename+strlen(filename)-4,".xs3"))
@@ -126,28 +126,28 @@ void RigidRigidMapping<TIn, TOut>::load(const char *filename)
         }
     }
 
-    points.endEdit();
+    d_points.endEdit();
 }
 
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::init()
 {
-    if (!fileRigidRigidMapping.getValue().empty())
-        this->load(fileRigidRigidMapping.getFullPath().c_str());
+    if (!d_fileRigidRigidMapping.getValue().empty())
+        this->load(d_fileRigidRigidMapping.getFullPath().c_str());
 
-    if (this->points.getValue().empty() && this->toModel!=NULL)
+    if (this->d_points.getValue().empty() && this->toModel!=NULL)
     {
         const sofa::helper::ReadAccessor<decltype (m_srcIndices)> srcIndices = m_srcIndices;
 
         auto& x =this->toModel->read(core::ConstVecCoordId::position())->getValue();
         auto& xfrom =this->fromModel->read(core::ConstVecCoordId::position())->getValue();
 
-        OutVecCoord& pts = *points.beginEdit();
+        OutVecCoord& pts = *d_points.beginEdit();
 
         pts.resize(x.size());
         unsigned int i=0, cpt=0;
 
-        if(globalToLocalCoords.getValue() == true)
+        if(d_globalToLocalCoords.getValue() == true)
         {
             for ( auto src_num : srcIndices )
             {
@@ -170,7 +170,7 @@ void RigidRigidMapping<TIn, TOut>::init()
                     pts[cpt] = x[cpt];
             }
         }
-        points.endEdit();
+        d_points.endEdit();
     }
 
     Inherit::init();
@@ -179,23 +179,23 @@ void RigidRigidMapping<TIn, TOut>::init()
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::clear()
 {
-    (*this->points.beginEdit()).clear();
-    this->points.endEdit();
+    (*this->d_points.beginEdit()).clear();
+    this->d_points.endEdit();
 }
 
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::setRepartition(unsigned int value)
 {
-    helper::vector<unsigned int>& rep = *this->repartition.beginEdit();
+    helper::vector<unsigned int>& rep = *this->d_repartition.beginEdit();
     rep.clear();
     rep.push_back(value);
-    this->repartition.endEdit();
+    this->d_repartition.endEdit();
 }
 
 template <class TIn, class TOut>
 void RigidRigidMapping<TIn, TOut>::setRepartition(sofa::helper::vector<unsigned int> values)
 {
-    helper::vector<unsigned int>& rep = *this->repartition.beginEdit();
+    helper::vector<unsigned int>& rep = *this->d_repartition.beginEdit();
     rep.clear();
     rep.reserve(values.size());
     sofa::helper::vector<unsigned int>::iterator it = values.begin();
@@ -204,7 +204,7 @@ void RigidRigidMapping<TIn, TOut>::setRepartition(sofa::helper::vector<unsigned 
         rep.push_back(*it);
         it++;
     }
-    this->repartition.endEdit();
+    this->d_repartition.endEdit();
 }
 
 template <class TIn, class TOut>
@@ -216,34 +216,34 @@ void RigidRigidMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparam
     unsigned int cptOut;
     unsigned int val;
 
-    out.resize(points.getValue().size());
-    pointsR0.resize(points.getValue().size());
+    out.resize(d_points.getValue().size());
+    pointsR0.resize(d_points.getValue().size());
 
-    switch (repartition.getValue().size())
+    switch (d_repartition.getValue().size())
     {
     case 0 : //no value specified : simple rigid mapping
-        if (!indexFromEnd.getValue())
+        if (!d_indexFromEnd.getValue())
         {
-            in[index.getValue()].writeRotationMatrix(rotation);
-            for(unsigned int i=0; i<points.getValue().size(); i++)
+            in[d_index.getValue()].writeRotationMatrix(rotation);
+            for(unsigned int i=0; i<d_points.getValue().size(); i++)
             {
-                pointsR0[i].getCenter() = rotation*(points.getValue()[i]).getCenter();
-                out[i] = in[index.getValue()].mult(points.getValue()[i]);
+                pointsR0[i].getCenter() = rotation*(d_points.getValue()[i]).getCenter();
+                out[i] = in[d_index.getValue()].mult(d_points.getValue()[i]);
             }
         }
         else
         {
-            in[in.size() - 1 - index.getValue()].writeRotationMatrix(rotation);
-            for(unsigned int i=0; i<points.getValue().size(); i++)
+            in[in.size() - 1 - d_index.getValue()].writeRotationMatrix(rotation);
+            for(unsigned int i=0; i<d_points.getValue().size(); i++)
             {
-                pointsR0[i].getCenter() = rotation*(points.getValue()[i]).getCenter();
-                out[i] = in[in.size() - 1 - index.getValue()].mult(points.getValue()[i]);
+                pointsR0[i].getCenter() = rotation*(d_points.getValue()[i]).getCenter();
+                out[i] = in[in.size() - 1 - d_index.getValue()].mult(d_points.getValue()[i]);
             }
         }
         break;
 
     case 1 : //one value specified : uniform repartition.getValue() mapping on the input dofs
-        val = repartition.getValue()[0];
+        val = d_repartition.getValue()[0];
         cptOut=0;
 
         for (unsigned int ifrom=0 ; ifrom<in.size() ; ifrom++)
@@ -251,17 +251,17 @@ void RigidRigidMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparam
             in[ifrom].writeRotationMatrix(rotation);
             for(unsigned int ito=0; ito<val; ito++)
             {
-                pointsR0[cptOut].getCenter() = rotation*(points.getValue()[cptOut]).getCenter();
-                out[cptOut] = in[ifrom].mult(points.getValue()[cptOut]);
+                pointsR0[cptOut].getCenter() = rotation*(d_points.getValue()[cptOut]).getCenter();
+                out[cptOut] = in[ifrom].mult(d_points.getValue()[cptOut]);
                 cptOut++;
             }
         }
         break;
 
     default: //n values are specified : heterogen repartition.getValue() mapping on the input dofs
-        if (repartition.getValue().size() != in.size())
+        if (d_repartition.getValue().size() != in.size())
         {
-            msg_error()<<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << repartition.getValue().size() << " while in.size() = " << in.size();
+            msg_error()<<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << d_repartition.getValue().size() << " while in.size() = " << in.size();
             return;
         }
         cptOut=0;
@@ -269,10 +269,10 @@ void RigidRigidMapping<TIn, TOut>::apply(const core::MechanicalParams * /*mparam
         for (unsigned int ifrom=0 ; ifrom<in.size() ; ifrom++)
         {
             in[ifrom].writeRotationMatrix(rotation);
-            for(unsigned int ito=0; ito<repartition.getValue()[ifrom]; ito++)
+            for(unsigned int ito=0; ito<d_repartition.getValue()[ifrom]; ito++)
             {
-                pointsR0[cptOut].getCenter() = rotation*(points.getValue()[cptOut]).getCenter();
-                out[cptOut] = in[ifrom].mult(points.getValue()[cptOut]);
+                pointsR0[cptOut].getCenter() = rotation*(d_points.getValue()[cptOut]).getCenter();
+                out[cptOut] = in[ifrom].mult(d_points.getValue()[cptOut]);
                 cptOut++;
             }
         }
@@ -287,17 +287,17 @@ void RigidRigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mpara
     helper::ReadAccessor< Data<InVecDeriv> > parentVelocities = dIn;
 
     Vector v,omega;
-    childVelocities.resize(points.getValue().size());
+    childVelocities.resize(d_points.getValue().size());
     unsigned int cptchildVelocities;
     unsigned int val;
 
-    switch (repartition.getValue().size())
+    switch (d_repartition.getValue().size())
     {
     case 0:
-        if (!indexFromEnd.getValue())
+        if (!d_indexFromEnd.getValue())
         {
-            v = getVCenter(parentVelocities[index.getValue()]);
-            omega = getVOrientation(parentVelocities[index.getValue()]);
+            v = getVCenter(parentVelocities[d_index.getValue()]);
+            omega = getVOrientation(parentVelocities[d_index.getValue()]);
 
             for( size_t i=0 ; i<this->maskTo->size() ; ++i)
             {
@@ -309,8 +309,8 @@ void RigidRigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mpara
         }
         else
         {
-            v = getVCenter(parentVelocities[parentVelocities.size() - 1 - index.getValue()]);
-            omega = getVOrientation(parentVelocities[parentVelocities.size() - 1 - index.getValue()]);
+            v = getVCenter(parentVelocities[parentVelocities.size() - 1 - d_index.getValue()]);
+            omega = getVOrientation(parentVelocities[parentVelocities.size() - 1 - d_index.getValue()]);
 
             for( size_t i=0 ; i<this->maskTo->size() ; ++i)
             {
@@ -323,7 +323,7 @@ void RigidRigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mpara
         break;
 
     case 1:
-        val = repartition.getValue()[0];
+        val = d_repartition.getValue()[0];
         cptchildVelocities=0;
         for (unsigned int ifrom=0 ; ifrom<parentVelocities.size(); ifrom++)
         {
@@ -341,9 +341,9 @@ void RigidRigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mpara
         break;
 
     default:
-        if (repartition.getValue().size() != parentVelocities.size())
+        if (d_repartition.getValue().size() != parentVelocities.size())
         {
-            msg_error()<<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << repartition.getValue().size() << " while parentVelocities.size() = " << parentVelocities.size();
+            msg_error()<<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << d_repartition.getValue().size() << " while parentVelocities.size() = " << parentVelocities.size();
             return;
         }
         cptchildVelocities=0;
@@ -352,7 +352,7 @@ void RigidRigidMapping<TIn, TOut>::applyJ(const core::MechanicalParams * /*mpara
             v = getVCenter(parentVelocities[ifrom]);
             omega = getVOrientation(parentVelocities[ifrom]);
 
-            for(unsigned int ito=0; ito<repartition.getValue()[ifrom]; ito++,cptchildVelocities++)
+            for(unsigned int ito=0; ito<d_repartition.getValue()[ifrom]; ito++,cptchildVelocities++)
             {
                 if( this->maskTo->isActivated() && !this->maskTo->getEntry(cptchildVelocities) ) continue;
 
@@ -380,7 +380,7 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mpar
     ForceMask& mask = *this->maskFrom;
 
 
-    switch(repartition.getValue().size())
+    switch(d_repartition.getValue().size())
     {
     case 0 :
         for( ; childIndex<this->maskTo->size() ; ++childIndex)
@@ -397,13 +397,13 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mpar
             omega += getVOrientation(childForces[childIndex]) + cross(f,-pointsR0[childIndex].getCenter());
         }
 
-        parentIndex = indexFromEnd.getValue() ? parentForces.size()-1-index.getValue() : index.getValue();
+        parentIndex = d_indexFromEnd.getValue() ? parentForces.size()-1-d_index.getValue() : d_index.getValue();
         getVCenter(parentForces[parentIndex]) += v;
         getVOrientation(parentForces[parentIndex]) += omega;
         mask.insertEntry(parentIndex);
         break;
     case 1 :
-        childrenPerParent = repartition.getValue()[0];
+        childrenPerParent = d_repartition.getValue()[0];
         for(parentIndex=0; parentIndex<parentForces.size(); parentIndex++)
         {
             v=Vector();
@@ -422,16 +422,16 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::MechanicalParams * /*mpar
         }
         break;
     default :
-        if (repartition.getValue().size() != parentForces.size())
+        if (d_repartition.getValue().size() != parentForces.size())
         {
-            msg_error() <<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << repartition.getValue().size() << " while parentForces.size() = " << parentForces.size();
+            msg_error() <<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << d_repartition.getValue().size() << " while parentForces.size() = " << parentForces.size();
             return;
         }
         for(parentIndex=0; parentIndex<parentForces.size(); parentIndex++)
         {
             v=Vector();
             omega=Vector();
-            for(unsigned int i=0; i<repartition.getValue()[parentIndex]; i++, childIndex++)
+            for(unsigned int i=0; i<d_repartition.getValue()[parentIndex]; i++, childIndex++)
             {
                 if( !this->maskTo->getEntry(childIndex) ) continue;
 
@@ -462,10 +462,10 @@ void RigidRigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparam
     unsigned childIndex = 0;
     unsigned parentIndex;
 
-    switch(repartition.getValue().size())
+    switch(d_repartition.getValue().size())
     {
     case 0 :
-        parentIndex = indexFromEnd.getValue() ? parentForces.size()-1-index.getValue() : index.getValue();
+        parentIndex = d_indexFromEnd.getValue() ? parentForces.size()-1-d_index.getValue() : d_index.getValue();
         for( ; childIndex<this->maskTo->size() ; ++childIndex)
         {
             if( !this->maskTo->getEntry(childIndex) ) continue;
@@ -477,7 +477,7 @@ void RigidRigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparam
 
         break;
     case 1 :
-        childrenPerParent = repartition.getValue()[0];
+        childrenPerParent = d_repartition.getValue()[0];
         for(parentIndex=0; parentIndex<parentForces.size(); parentIndex++)
         {
             for( size_t i=0 ; i<childrenPerParent ; ++i, ++childIndex)
@@ -491,14 +491,14 @@ void RigidRigidMapping<TIn, TOut>::applyDJT(const core::MechanicalParams* mparam
         }
         break;
     default :
-        if (repartition.getValue().size() != parentForces.size())
+        if (d_repartition.getValue().size() != parentForces.size())
         {
-            msg_error() <<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << repartition.getValue().size() << " while parentForces.size() = " << parentForces.size();
+            msg_error() <<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << d_repartition.getValue().size() << " while parentForces.size() = " << parentForces.size();
             return;
         }
         for(parentIndex=0; parentIndex<parentForces.size(); parentIndex++)
         {
-            for( size_t i=0 ; i<repartition.getValue()[parentIndex] ; i++, childIndex++)
+            for( size_t i=0 ; i<d_repartition.getValue()[parentIndex] ; i++, childIndex++)
             {
                 if( !this->maskTo->getEntry(childIndex) ) continue;
 
@@ -523,7 +523,7 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::ConstraintParams * /*cpar
     InMatrixDeriv& out = *dOut.beginEdit();
     const OutMatrixDeriv& in = dIn.getValue();
 
-    switch (repartition.getValue().size())
+    switch (d_repartition.getValue().size())
     {
     case 0:
     {
@@ -550,16 +550,16 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::ConstraintParams * /*cpar
             const InDeriv result(v, omega);
             typename In::MatrixDeriv::RowIterator o = out.writeLine(rowIt.index());
 
-            if (!indexFromEnd.getValue())
+            if (!d_indexFromEnd.getValue())
             {
-                o.addCol(index.getValue(), result);
+                o.addCol(d_index.getValue(), result);
             }
             else
             {
                 // Commented by PJ. Bug??
                 // o.addCol(out.size() - 1 - index.getValue(), result);
                 const unsigned int numDofs = this->getFromModel()->getSize();
-                o.addCol(numDofs - 1 - index.getValue(), result);
+                o.addCol(numDofs - 1 - d_index.getValue(), result);
             }
         }
 
@@ -568,7 +568,7 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::ConstraintParams * /*cpar
     case 1:
     {
         const unsigned int numDofs = this->getFromModel()->getSize();
-        const unsigned int val = repartition.getValue()[0];
+        const unsigned int val = d_repartition.getValue()[0];
 
         typename Out::MatrixDeriv::RowConstIterator rowItEnd = in.end();
 
@@ -628,7 +628,7 @@ void RigidRigidMapping<TIn, TOut>::applyJT(const core::ConstraintParams * /*cpar
                 Vector v, omega;
                 bool needToInsert = false;
 
-                for (unsigned int r = 0; r < repartition.getValue()[ito] && colIt
+                for (unsigned int r = 0; r < d_repartition.getValue()[ito] && colIt
                      != colItEnd; r++, cpt++)
                 {
                     if (colIt.index() != cpt)
@@ -671,7 +671,7 @@ void RigidRigidMapping<TIn, TOut>::computeAccFromMapping(const core::MechanicalP
     {
         OutVecDeriv& acc_out = *dAcc_out.beginEdit();
         acc_out.clear();
-        acc_out.resize(points.getValue().size());
+        acc_out.resize(d_points.getValue().size());
         dAcc_out.endEdit();
     }
 
@@ -687,27 +687,27 @@ void RigidRigidMapping<TIn, TOut>::computeAccFromMapping(const core::MechanicalP
     unsigned int cptchildV;
     unsigned int val;
 
-    switch (repartition.getValue().size())
+    switch (d_repartition.getValue().size())
     {
     case 0:
 
-        if (!indexFromEnd.getValue())
+        if (!d_indexFromEnd.getValue())
         {
-            omega = getVOrientation(v_in[index.getValue()]);
+            omega = getVOrientation(v_in[d_index.getValue()]);
         }
         else
         {
-            omega = getVOrientation(v_in[v_in.size() - 1 - index.getValue()]);
+            omega = getVOrientation(v_in[v_in.size() - 1 - d_index.getValue()]);
         }
 
-        for(unsigned int i=0; i<points.getValue().size(); i++)
+        for(unsigned int i=0; i<d_points.getValue().size(); i++)
         {
             getVCenter(acc_out[i]) +=   cross(omega, cross(omega,pointsR0[i].getCenter()) );
         }
         break;
 
     case 1:
-        val = repartition.getValue()[0];
+        val = d_repartition.getValue()[0];
         cptchildV=0;
         for (unsigned int ifrom=0 ; ifrom<v_in.size() ; ifrom++)
         {
@@ -722,9 +722,9 @@ void RigidRigidMapping<TIn, TOut>::computeAccFromMapping(const core::MechanicalP
         break;
 
     default:
-        if (repartition.getValue().size() != v_in.size())
+        if (d_repartition.getValue().size() != v_in.size())
         {
-            msg_error() <<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << repartition.getValue().size() << " while v_in.size() = " << v_in.size();
+            msg_error() <<"Mapping dofs repartition is not correct: repartition.getValue().size() = " << d_repartition.getValue().size() << " while v_in.size() = " << v_in.size();
             dAcc_out.endEdit();
             return;
         }
@@ -733,7 +733,7 @@ void RigidRigidMapping<TIn, TOut>::computeAccFromMapping(const core::MechanicalP
         {
             omega = getVOrientation(v_in[ifrom]);
 
-            for(unsigned int ito=0; ito<repartition.getValue()[ifrom]; ito++)
+            for(unsigned int ito=0; ito<d_repartition.getValue()[ifrom]; ito++)
             {
                 getVCenter(acc_out[cptchildV]) += cross(omega, cross(omega,(pointsR0[cptchildV]).getCenter()) );
                 cptchildV++;
@@ -750,7 +750,7 @@ void RigidRigidMapping<TIn, TOut>::reinit()
 {
     msg_error(this) << "DATA HAS CHANGED ... UPDATE INTERNAL STATE" ;
 
-    sofa::helper::ReadAccessor<decltype (repartition)> reps = repartition;
+    sofa::helper::ReadAccessor<decltype (d_repartition)> reps = d_repartition;
 
     const typename Out::VecCoord& fromPosition =this->fromModel->read(core::ConstVecCoordId::position())->getValue();
     const typename Out::VecCoord& toPosition =this->toModel->read(core::ConstVecCoordId::position())->getValue();
@@ -758,7 +758,7 @@ void RigidRigidMapping<TIn, TOut>::reinit()
     m_srcIndices.clear();
     if(reps.size()==0)
     {
-        auto newIndex = index.getValue();
+        auto newIndex = d_index.getValue();
 
         /// Check that the user provided index is not too big.
         if(newIndex >= fromPosition.size())
@@ -766,7 +766,7 @@ void RigidRigidMapping<TIn, TOut>::reinit()
 
         /// Check if the index should be using backward, if so,
         /// reverse it.
-        if(indexFromEnd.getValue())
+        if(d_indexFromEnd.getValue())
             newIndex = fromPosition.size() - 1 - newIndex;
 
         m_srcIndices.push_back(std::make_pair(newIndex, toPosition.size()));
@@ -774,8 +774,6 @@ void RigidRigidMapping<TIn, TOut>::reinit()
     {
 
     }
-
-    m_tracker.clean();
 }
 
 template <class TIn, class TOut>
@@ -783,7 +781,8 @@ void RigidRigidMapping<TIn, TOut>::reinitIfChanged()
 {
     if(m_tracker.hasChanged())
     {
-        reinit();
+        reinit();        
+        m_tracker.clean();
     }
 }
 

@@ -68,28 +68,31 @@ public:
     typedef typename Inherit::ForceMask ForceMask;
 
 protected:
-    Data < OutVecCoord > points; ///< Initial position of the points
     OutVecCoord pointsR0;
     Mat rotation;
     class Loader;
     void load(const char* filename);
+
+public:
+    Data < OutVecCoord > d_points; ///< Initial position of the points
+
+    Data<unsigned int> d_index; ///< input frame index
+    Data< bool > d_indexFromEnd; ///< input DOF index starts from the end of input DOFs vector
+
     /// number of child frames per parent frame.
     /// If empty, all the children are attached to the parent with index
     /// given in the "index" attribute. If one value, each parent frame drives
     /// the given number of children frames. Otherwise, the values are the number
     /// of child frames driven by each parent frame.
-    Data< sofa::helper::vector<unsigned int> >  repartition;
+    Data< sofa::helper::vector<unsigned int> >  d_repartition;
 
-public:
-    Data<unsigned> index; ///< input frame index
-    sofa::core::objectmodel::DataFileName fileRigidRigidMapping; ///< Filename
-    Data< bool > indexFromEnd; ///< input DOF index starts from the end of input DOFs vector
-    Data< bool > globalToLocalCoords; ///< are the output DOFs initially expressed in global coordinates
-    helper::vector< std::pair<unsigned int, unsigned int> > m_srcIndices ;
+    sofa::core::objectmodel::DataFileName d_fileRigidRigidMapping; ///< Filename
+    Data< bool > d_globalToLocalCoords; ///< are the output DOFs initially expressed in global coordinates
 
     Data< bool > d_showObject;
     Data<double> d_showObjectScale; ///< axis length for display
 
+    helper::vector< std::pair<unsigned int, unsigned int> > m_srcIndices ;
 protected:
     sofa::core::DataTracker m_tracker;
 
@@ -126,7 +129,7 @@ public:
 
     void clear();
 
-    sofa::helper::vector<unsigned int> getRepartition() {return repartition.getValue(); }
+    sofa::helper::vector<unsigned int> getRepartition() {return d_repartition.getValue(); }
 
     void setRepartition(unsigned int value);
     void setRepartition(sofa::helper::vector<unsigned int> values);
