@@ -58,7 +58,7 @@ public:
     static void addPythonModulePathsForPluginsByName(const std::string& pluginName);
 
 
-    /** \brief getPythonModuleContentAsStringMap
+    /** \brief getPythonModuleContent
      Returns a map of all callable objects in the python module. Each
      callable object's name (key) is assigned a type (value) in the map
      Possible types are: function, class, SofaPrefab,

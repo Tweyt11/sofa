@@ -121,13 +121,13 @@ void PythonEnvironment::Init()
 
 #ifndef NDEBUG
     SP_MESSAGE_INFO("Python version: " + pythonVersion)
-#endif
+        #endif
 
-#if defined(__linux__)
-    // WARNING: workaround to be able to import python libraries on linux (like
-    // numpy), at least on Ubuntu (see http://bugs.python.org/issue4434). It is
-    // not fixing the real problem, but at least it is working for now.
-    std::string pythonLibraryName = "libpython" + std::string(pythonVersion,0,3) + ".so";
+        #if defined(__linux__)
+            // WARNING: workaround to be able to import python libraries on linux (like
+            // numpy), at least on Ubuntu (see http://bugs.python.org/issue4434). It is
+            // not fixing the real problem, but at least it is working for now.
+            std::string pythonLibraryName = "libpython" + std::string(pythonVersion,0,3) + ".so";
     dlopen( pythonLibraryName.c_str(), RTLD_LAZY|RTLD_GLOBAL );
 #endif
 
@@ -306,6 +306,12 @@ std::map<std::string, std::string> PythonEnvironment::getPythonModuleContent(con
     PythonEnvironment::gil lock(__func__);
     std::map<std::string, std::string> map;
     PyObject* pDict = PyModule_GetDict(PyImport_AddModule("SofaPython"));
+    if(pDict==nullptr)
+    {
+        msg_error("PythonEnvironment") << "Could not find SofaPython";
+        return map;
+    }
+
     PyObject* pFunc = PyDict_GetItemString(pDict, "getPythonModuleContent");
     if (PyCallable_Check(pFunc))
     {
@@ -313,6 +319,12 @@ std::map<std::string, std::string> PythonEnvironment::getPythonModuleContent(con
         PyObject* mName = PyString_FromString(moduleName.c_str());
         PyObject* args = PyTuple_Pack(2, mDir, mName);
         PyObject* dict = PyObject_CallObject(pFunc, args);
+
+        if(dict == nullptr)
+        {
+            PyErr_Print();
+            return map;
+        }
 
         PyObject* key;
         PyObject* value;
@@ -377,23 +389,23 @@ PyObject*    PythonEnvironment::callObject(const std::string& callableName,
 }
 
 // some basic RAII stuff to handle init/termination cleanly
-  namespace {
+namespace {
 
-    struct raii {
-      raii() {
-          // initialization is done when loading the plugin
-          // otherwise it can be executed too soon
-          // when an application is directly linking with the SofaPython library
-      }
+struct raii {
+    raii() {
+        // initialization is done when loading the plugin
+        // otherwise it can be executed too soon
+        // when an application is directly linking with the SofaPython library
+    }
 
-      ~raii() {
+    ~raii() {
         PythonEnvironment::Release();
-      }
+    }
 
-    };
+};
 
-    static raii singleton;
-  }
+static raii singleton;
+}
 
 // basic script functions
 std::string PythonEnvironment::getError()
@@ -418,7 +430,7 @@ bool PythonEnvironment::runString(const std::string& script)
     if(nullptr == result)
     {
         SP_MESSAGE_ERROR("Script (string) import error")
-        PyErr_Print();
+                PyErr_Print();
 
         return false;
     }
@@ -507,7 +519,7 @@ bool PythonEnvironment::runFile(const std::string& filename, const std::vector<s
 
     if( !script ) {
         SP_MESSAGE_ERROR("cannot open file:" << filename)
-        PyErr_Print();
+                PyErr_Print();
         return false;
     }
 
@@ -542,7 +554,7 @@ bool PythonEnvironment::runFile(const std::string& filename, const std::vector<s
 
     if(error) {
         SP_MESSAGE_ERROR("Script (file:" << basename << ") import error")
-        PyErr_Print();
+                PyErr_Print();
         return false;
     }
 

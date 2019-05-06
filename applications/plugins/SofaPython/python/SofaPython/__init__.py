@@ -82,7 +82,6 @@ def getPythonModuleContent(moduledir, modulename):
         m = importlib.import_module(modulename)
     except ImportError, e:
         print ("PythonAsset ERROR: could not import module " + modulename)
-        print (modulename + " not present in " + moduledir)
         print (e)
         return objects
     except Exception, e:
