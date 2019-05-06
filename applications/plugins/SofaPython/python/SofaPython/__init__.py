@@ -23,7 +23,6 @@ except:
     __SofaPythonEnvironment_modulesExcludedFromReload = []
 
 
-
 def unloadModules():
     """ call this function to unload python modules and to force their reload
         (useful to take into account their eventual modifications since
@@ -50,11 +49,13 @@ def formatStackForSofa(o):
         ss+= '  -> '+ entry[4][0] + '  \n'
         return ss
 
+
 def getStackForSofa():
     """returns the current stack with a "informal" formatting. """
     ## we exclude the first level in the stack because it is the getStackForSofa() function itself.
     ss=inspect.stack()[1:]
     return formatStackForSofa(ss)
+
 
 def getPythonCallingPointAsString():
     """returns the last entry with an "informal" formatting. """
@@ -63,12 +64,14 @@ def getPythonCallingPointAsString():
     ss=inspect.stack()[-1:]
     return formatStackForSofa(ss)
 
+
 def getPythonCallingPoint():
     """returns the tupe with closest filename & line. """
     ## we exclude the first level in the stack because it is the getStackForSofa() function itself.
     ss=inspect.stack()[1]
     tmp=(ss[1], ss[2])
     return tmp
+
 
 # returns a dictionary of all callable objects in the module, with their type as key
 def getPythonModuleContent(moduledir, modulename):
@@ -78,11 +81,14 @@ def getPythonModuleContent(moduledir, modulename):
         sys.path.append(moduledir)
         m = importlib.import_module(modulename)
     except ImportError, e:
-        print ("PythonAsset ERROR: could not import module " + sys.argv[2])
+        print ("PythonAsset ERROR: could not import module " + modulename)
+        print (modulename + " not present in " + moduledir)
         print (e)
         return objects
+    except Exception, e:
+        print ("Exception: in " + modulename + ":\n" + str(e))
+        return objects
 
-    print ('Parsing module...')
     # module loaded, let's see what's inside:
     if "createScene" in dir(m):
         # print("We found a createScene entry point, let's load it")
@@ -194,3 +200,82 @@ class DataEngine(Sofa.PythonScriptDataEngine):
             Sofa.msg_warning('SofaPython',
                              '`onLoaded` is defined in subclass but will not be called in the future' )
 
+
+def getAbsPythonCallPath(node):
+    return "root" + ("." if len(node.getPathName()) > 1 else "") + node.getPathName().replace("/", ".")[1:]
+
+def buildDataParams(datas, indent, scn):
+    s = ""
+    for data in datas:
+        if data.hasParent():
+            scn[0] += indent + "### THERE WAS A LINK. "
+            scn[0] += data.getParentPath() + "=>" + data.getLinkPath() + "\n"
+            if data.name != "name" and data.isPersistant():
+                s += ", " + data.name + "=" + repr(data.getParentPath())
+        else:
+            if data.name != "name" and data.isPersistant():
+                if " " not in data.name and data.name != "Help":
+                    if data.name != "modulepath":
+                        if data.name != "depend":
+                            s += ", " + data.name + "=" + repr(data.value)
+    return s
+
+
+def saveRec(node, indent, modules, scn):
+    for o in node.getObjects():
+        s = buildDataParams(o.getListOfDataFields(), indent, scn)
+        print 'createObject'
+        scn[0] += indent + getAbsPythonCallPath(node) + ".createObject('"
+        scn[0] += o.getClassName() + "', name='" + o.name + "'" + s + ")\n"
+
+    for child in node.getChildren():
+        s = buildDataParams(child.getListOfDataFields(), indent, scn)
+        if child.getData("Prefab type") is not None:
+            print 'createPrefab'
+            scn[0] += (indent + "####################### Prefab: " +
+                       child.name + " #########################\n")
+            scn[0] += (indent + child.getData("Prefab type").value +
+                       "(" + getAbsPythonCallPath(node) + ".createChild('" +
+                       child.name + "'))\n")
+            scn[0] += ("\n")
+            print ('addModule')
+            modules.append('from ' + child.getData("Defined in").value
+                           + ' import *\n')
+        else:
+            print ("createNode")
+            scn[0] += (indent + "####################### Node: " + child.name +
+                       " #########################\n")
+            scn[0] += (indent + getAbsPythonCallPath(node) + ".createChild('" + child.name
+                       + "')\n")
+            saveRec(child, indent, modules, scn)
+            scn[0] += ("\n")
+
+
+def saveAsPythonScene(fileName, node):
+    try:
+        root = node.getRootContext()
+        fd = open(fileName, "w+")
+
+        fd.write("# all Paths\n")
+        fd.write("import sys\n")
+        fd.write("import os\n")
+        for p in list(dict.fromkeys(sys.path)):
+            if p.startswith('/usr/lib/') or p.startswith('/usr/local/lib'):
+                continue
+            if p == '':
+                continue
+            fd.write(("sys.path.append('" + str(p) + "')\n"))
+
+        modules = []
+        scn = [""]
+        saveRec(root, "\t", modules, scn)
+
+        fd.write('# all Modules:\n')
+        for m in modules:
+            fd.write(m)
+        fd.write("\n\ndef createScene(root):\n")
+        fd.write(scn[0])
+        return True
+    except Exception, e:
+        print (e)
+        return False

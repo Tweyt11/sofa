@@ -80,6 +80,17 @@ public:
     static bool         runString(const std::string& script);
     static bool         runFile(const std::string& filename, const std::vector<std::string>& arguments=std::vector<std::string>(0) );
 
+    /** Calls a python callable
+     * \param callableName The name of the callable object.
+     * \param module The module containing the callable object.
+     * \param args The arguments to pass to the function.
+     * \param kwargs Optional keyword arguments to pass to the function.
+     * \return The return value of the python function. Returns the Py_None
+     * object If the module is not accessible, if the callable is not found
+     * in the given module, or if the function fails to execute.
+     **/
+    static PyObject*    callObject(const std::string& callableName, const std::string& callableModule, PyObject* args, PyObject* kwargs = nullptr);
+
     /// returns the file information associated with the current frame.
     static std::string getStackAsString() ;
 

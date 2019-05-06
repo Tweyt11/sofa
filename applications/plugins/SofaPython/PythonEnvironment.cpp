@@ -21,6 +21,7 @@
 ******************************************************************************/
 #include <fstream>
 #include "PythonMacros.h"
+#include "PythonFactory.h"
 #include "PythonEnvironment.h"
 #include "PythonScriptController.h"
 
@@ -39,6 +40,7 @@ using sofa::helper::system::Plugin;
 #if defined(__linux__)
 #  include <dlfcn.h>            // for dlopen(), see workaround in Init()
 #endif
+#include <exception>
 
 using sofa::helper::system::FileSystem;
 using sofa::helper::Utils;
@@ -316,6 +318,12 @@ std::map<std::string, std::string> PythonEnvironment::getPythonModuleContent(con
         PyObject* value;
         Py_ssize_t pos = 0;
 
+        if (dict == nullptr)
+        {
+            msg_error("PythonEnvironment::getPythonModuleContent()") << "Could not retrieve script " << moduleName << " in " << moduleDir;
+            return map;
+        }
+
         while (PyDict_Next(dict, &pos, &key, &value))
         {
             std::string k = PyString_AsString(key);
@@ -328,6 +336,44 @@ std::map<std::string, std::string> PythonEnvironment::getPythonModuleContent(con
     }
     msg_warning("PythonEnvironment") << "Could not find callable getPythonModuleContent in module SofaPython";
     return map;
+}
+
+PyObject*    PythonEnvironment::callObject(const std::string& callableName,
+                                           const std::string& callableModule,
+                                           PyObject* args, PyObject* kwargs)
+{
+    PythonEnvironment::gil lock(__func__);
+    PyObject* pDict = PyModule_GetDict(PyImport_AddModule(callableModule.c_str()));
+    if (!pDict)
+    {
+        msg_error("PythonEnvironment::callObject()") << "Failed to retrieve module " << callableModule << ". Check your PythonPath";
+
+        Py_RETURN_NONE;
+    }
+
+    PyObject* pFunc = PyDict_GetItemString(pDict, callableName.c_str());
+    if (!pFunc)
+    {
+        msg_error("PythonEnvironment::callObject()") << "Could not retrieve object " << callableName << " in module " << callableModule;
+        Py_RETURN_NONE;
+    }
+
+    if (PyCallable_Check(pFunc))
+    {
+        if (kwargs)
+        {
+            PyObject* ret = PyObject_Call(pFunc, args, kwargs);
+            if (ret)
+                return ret;
+            Py_RETURN_NONE;
+        }
+        PyObject* ret = PyObject_CallObject(pFunc, args);
+        if (ret)
+            return ret;
+        Py_RETURN_NONE;
+    }
+    msg_error("PythonEnvironment::callObject()") << callableName << " is not callable";
+    Py_RETURN_NONE;
 }
 
 // some basic RAII stuff to handle init/termination cleanly

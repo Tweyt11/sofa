@@ -164,6 +164,14 @@ static PyObject * Node_getChildren(PyObject * self, PyObject * /*args*/) {
     return list;
 }
 
+static PyObject* Node_getFirstParent(PyObject* self, PyObject * /*args*/) {
+    Node* node = get_node(self);
+    BaseNode* parent = node->getFirstParent();
+    if (!parent)
+        Py_RETURN_NONE;
+    return sofa::PythonFactory::toPython(down_cast<Node>(parent));
+}
+
 static PyObject * Node_getParents(PyObject * self, PyObject * /*args*/) {
     /// BaseNode is not bound in SofaPython, so getChildNode is bound in Node
     /// instead of BaseNode
@@ -568,6 +576,7 @@ SP_CLASS_METHOD(Node, initVisual)
 SP_CLASS_METHOD_KW(Node, getChild)
 SP_CLASS_METHOD(Node, getChildren)
 SP_CLASS_METHOD(Node, getParents)
+SP_CLASS_METHOD(Node, getFirstParent)
 SP_CLASS_METHOD(Node, getPathName)
 SP_CLASS_METHOD(Node, getRootPath)
 SP_CLASS_METHOD(Node, getLinkPath)
