@@ -94,7 +94,7 @@ protected:
     sofa::core::DataTracker m_tracker;
 
     RigidRigidMapping() ;
-    virtual ~RigidRigidMapping(){}
+    ~RigidRigidMapping() override {}
 
 public:
     void init() override;
@@ -117,7 +117,7 @@ public:
 
     const sofa::defaulttype::BaseMatrix* getJ() override
     {
-        return NULL;
+        return nullptr;
     }
 
     void handleEvent(sofa::core::objectmodel::Event *event) override ;
@@ -142,9 +142,6 @@ protected:
 
 #if  !defined(SOFA_COMPONENT_MAPPING_RIGIDRIGIDMAPPING_CPP)
 extern template class SOFA_RIGID_API RigidRigidMapping< sofa::defaulttype::Rigid3Types, sofa::defaulttype::Rigid3Types >;
-
-
-
 #endif
 
 } // namespace mapping
