@@ -278,3 +278,37 @@ def saveAsPythonScene(fileName, node):
     except Exception, e:
         print (e)
         return False
+
+
+def createPrefabFromNode(fileName, node, name, help):
+    try:
+        print 'Saveing prefab'
+        fd = open(fileName, "w+")
+        fd.write("# all Paths\n")
+        fd.write("from splib.objectmodel import SofaPrefab\n")
+        fd.write("import sys\n")
+        fd.write("import os\n")
+        for p in list(dict.fromkeys(sys.path)):
+            if p.startswith('/usr/lib/') or p.startswith('/usr/local/lib'):
+                continue
+            if p == '':
+                continue
+            fd.write(("sys.path.append('" + str(p) + "')\n"))
+
+        modules = []
+        scn = [""]
+        saveRec(node, "\t", modules, scn)
+
+        fd.write('# all Modules:\n')
+        for m in modules:
+            fd.write(m)
+        fd.write("\n\n@SofaPrefab\n")
+        fd.write("class " + name + "(node):\n")
+        fd.write("\t\"\"\" " + help + " \"\"\"\n")
+        fd.write(scn[0])
+        return True
+    except Exception, e:
+        print (e)
+        return False
+
+
