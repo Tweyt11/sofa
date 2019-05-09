@@ -1,9 +1,11 @@
 import __builtin__
 import sys
+import os
 import inspect
 import traceback
 import Sofa
 import importlib
+import git
 
 ## @contributors
 ##   - Matthieu Nesme
@@ -200,8 +202,15 @@ class DataEngine(Sofa.PythonScriptDataEngine):
                              '`onLoaded` is defined in subclass but will not be called in the future' )
 
 
-def getAbsPythonCallPath(node):
-    return "root" + ("." if len(node.getPathName()) > 1 else "") + node.getPathName().replace("/", ".")[1:]
+def getAbsPythonCallPath(node, rootNode):
+    if rootNode.getPathName() == "/":
+        return "root" + node.getPathName().replace("/", ".")[1:]
+    else:
+        # example:
+        # rootNode.getPathName() = "/Snake/physics"
+        # node.getPathName() = "/Snake/physics/visu/eye"
+        # relPath = physics.visu.eye
+        return rootNode.name + node.getPathName().replace(rootNode.getPathName(), "").replace("/", ".")
 
 def buildDataParams(datas, indent, scn):
     s = ""
@@ -220,11 +229,11 @@ def buildDataParams(datas, indent, scn):
     return s
 
 
-def saveRec(node, indent, modules, scn):
+def saveRec(node, indent, modules, modulepaths, scn, rootNode):
     for o in node.getObjects():
         s = buildDataParams(o.getListOfDataFields(), indent, scn)
         print 'createObject'
-        scn[0] += indent + getAbsPythonCallPath(node) + ".createObject('"
+        scn[0] += indent + getAbsPythonCallPath(node, rootNode) + ".createObject('"
         scn[0] += o.getClassName() + "', name='" + o.name + "'" + s + ")\n"
 
     for child in node.getChildren():
@@ -234,20 +243,44 @@ def saveRec(node, indent, modules, scn):
             scn[0] += (indent + "####################### Prefab: " +
                        child.name + " #########################\n")
             scn[0] += (indent + child.getData("Prefab type").value +
-                       "(" + getAbsPythonCallPath(node) + ".createChild('" +
-                       child.name + "'))\n")
+                       "(" + getAbsPythonCallPath(node, rootNode) +
+                       ".createChild('" + child.name + "'))\n")
             scn[0] += ("\n")
-            print ('addModule')
-            modules.append('from ' + child.getData("Defined in").value
-                           + ' import *\n')
+            modules.append(child.getData("Defined in").value)
+            modulepaths.append(child.getData("modulepath").value)
         else:
             print ("createNode")
             scn[0] += (indent + "####################### Node: " + child.name +
                        " #########################\n")
-            scn[0] += (indent + getAbsPythonCallPath(node) + ".createChild('" + child.name
-                       + "')\n")
-            saveRec(child, indent, modules, scn)
+            scn[0] += (indent + getAbsPythonCallPath(node, rootNode) +
+                       ".createChild('" + child.name + "')\n")
+            saveRec(child, indent, modules, modulepaths, scn, rootNode)
             scn[0] += ("\n")
+
+
+def getRelPath(path, relativeTo):
+    # example:
+    # path =       /home/bruno/dev/myproject/scripts
+    # relativeTo = /home/bruno/dev/myproject/scenes/MyCoolFile.py
+    # return "../scripts/"
+    if os.path.isfile(relativeTo):
+        relativeTo = os.path.dirname(relativeTo)
+
+    if path == relativeTo:
+        return ""
+    commonPrefix = os.path.commonprefix([path, relativeTo])
+    path = path.replace(commonPrefix, "")  # /scripts
+    if path.startswith('/'):
+        path = path[1:]  # scripts
+    relativeTo = relativeTo.replace(commonPrefix, "")  # scenes
+    newPath = ""
+    if relativeTo != "":
+        newPath += "../"
+        for d in relativeTo.split('/'):
+            newPath += "../"
+
+    newPath += path
+    return newPath
 
 
 def saveAsPythonScene(fileName, node):
@@ -255,23 +288,24 @@ def saveAsPythonScene(fileName, node):
         root = node.getRootContext()
         fd = open(fileName, "w+")
 
-        fd.write("# all Paths\n")
         fd.write("import sys\n")
         fd.write("import os\n")
-        for p in list(dict.fromkeys(sys.path)):
-            if p.startswith('/usr/lib/') or p.startswith('/usr/local/lib'):
-                continue
-            if p == '':
-                continue
-            fd.write(("sys.path.append('" + str(p) + "')\n"))
 
         modules = []
+        modulepaths = []
         scn = [""]
-        saveRec(root, "\t", modules, scn)
+        saveRec(root, "\t", modules, modulepaths, scn, root)
+
+        fd.write("# all Paths\n")
+        for p in list(dict.fromkeys(modulepaths)):
+            if p != "":
+                fd.write("sys.path.append('" + getRelPath(p, fileName) +
+                         "')\n")
 
         fd.write('# all Modules:\n')
-        for m in modules:
-            fd.write(m)
+        for m in list(dict.fromkeys(modules)):
+            fd.write("from " + m + " import *\n")
+
         fd.write("\n\ndef createScene(root):\n")
         fd.write(scn[0])
         return True
@@ -282,33 +316,31 @@ def saveAsPythonScene(fileName, node):
 
 def createPrefabFromNode(fileName, node, name, help):
     try:
-        print 'Saveing prefab'
+        print 'Saving prefab'
         fd = open(fileName, "w+")
-        fd.write("# all Paths\n")
-        fd.write("from splib.objectmodel import SofaPrefab\n")
         fd.write("import sys\n")
         fd.write("import os\n")
-        for p in list(dict.fromkeys(sys.path)):
-            if p.startswith('/usr/lib/') or p.startswith('/usr/local/lib'):
-                continue
-            if p == '':
-                continue
-            fd.write(("sys.path.append('" + str(p) + "')\n"))
 
         modules = []
+        modulepaths = []
         scn = [""]
-        saveRec(node, "\t", modules, scn)
+        saveRec(node, "\t\t", modules, modulepaths, scn, node)
+
+        fd.write("# all Paths\n")
+        for p in list(dict.fromkeys(modulepaths)):
+            fd.write("sys.path.append('" + getRelPath(p, fileName) + "')\n")
 
         fd.write('# all Modules:\n')
-        for m in modules:
-            fd.write(m)
+        for m in list(dict.fromkeys(modules)):
+            fd.write("from " + m + " import *\n")
+
         fd.write("\n\n@SofaPrefab\n")
-        fd.write("class " + name + "(node):\n")
+        fd.write("class " + name + "():\n")
         fd.write("\t\"\"\" " + help + " \"\"\"\n")
+        fd.write("\tdef __init__(self, " + node.name + "):\n")
+        fd.write("\t\tself.node = " + node.name + "\n")
         fd.write(scn[0])
         return True
     except Exception, e:
         print (e)
         return False
-
-
