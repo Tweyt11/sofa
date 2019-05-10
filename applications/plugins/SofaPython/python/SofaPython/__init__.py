@@ -71,7 +71,7 @@ def getPythonCallingPoint():
     """returns the tupe with closest filename & line. """
     ## we exclude the first level in the stack because it is the getStackForSofa() function itself.
     ss=inspect.stack()[1]
-    tmp=(ss[1], ss[2])
+    tmp=(os.path.abspath(ss[1]), ss[2])
     return tmp
 
 
