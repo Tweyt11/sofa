@@ -93,6 +93,7 @@ public:
 
     void reinit() override;
 
+    void draw(const sofa::core::visual::VisualParams* params) override;
 
     /// Apply Homogeneous transformation to the positions
     virtual void applyTransformation (sofa::defaulttype::Matrix4 const& T);
