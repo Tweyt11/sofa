@@ -310,7 +310,7 @@ def saveAsPythonScene(fileName, node):
         fd.write(scn[0])
         return True
     except Exception, e:
-        print (e)
+        Sofa.msg_error(e)
         return False
 
 
@@ -342,36 +342,34 @@ def createPrefabFromNode(fileName, node, name, help):
         fd.write(scn[0])
         return True
     except Exception, e:
-        print (e)
+        Sofa.msg_error(e)
         return False
 
 
 def loadMeshAsset(type, path, node):
-    print (type)
-    print path
-    print node.name
     loader = node.createObject(type, name="loader", filename=path)
     vmodel = node.createObject("OglModel", name="vmodel", src=loader.getLinkPath())
     return node
 
+
 def loadPythonAsset(moduledir, modulename, prefabname, node):
+    print "#############   LOADING PYTHON ASSET"
+    print "#############   moduledir: " + moduledir
+    print "#############   modulename: " + modulename
+    print "#############   prefabname: " + prefabname
+    print "#############   node.name: " + node.name
     functions = {}
     pythonScripts = {}
     classes = {}
     prefabs = {}
-    # Let's see our arguments:
-#    if len(sys.argv) < 3:
-#        print ("PythonAsset ERROR: not enough arguments. Usage: "
-#               "PythonAsset.py <moduledir> <modulename> "
-#               "[PrefabName] [PrefabArguments ...]")
 
     # First let's load that script:
     try:
         sys.path.append(moduledir)
         m = importlib.import_module(modulename)
     except ImportError, e:
-        print ("PythonAsset ERROR: could not import module " + modulename)
-        print (e)
+        Sofa.msg_error("PythonAsset ERROR: could not import module " + modulename)
+        Sofa.msg_error(e)
 
     # module loaded, let's see what's inside:
     if "createScene" in dir(m):
@@ -397,8 +395,8 @@ def loadPythonAsset(moduledir, modulename, prefabname, node):
                 functions[i] = class_
 
     # No Prefab name passed as argument. Loading 1 prefab:
-    if "" != prefabname:
-        # print ('No prefab name provided. Loading by order of priority')
+    if "" == prefabname:
+        print ('No prefab name provided. Loading by order of priority')
         # 1st, createScene if it exists:
         if 'createScene' in functions.keys():
             functions['createScene'](node)
@@ -418,26 +416,30 @@ def loadPythonAsset(moduledir, modulename, prefabname, node):
         # finally, try to call the first python function available:
         if len(functions) > 0:
             functions.items()[0][1](node)
-            return
+            return node
         print ("PythonAsset ERROR: No callable found in " + str(m))
     else:
         pyName = prefabname
-        if pyName == "createScene":
-            print 'Loading ' + pyName
-            functions["createScene"](node)
-        elif pyName in prefabs.keys():
-            print 'Loading ' + pyName
-            prefabs[pyName](node)
-        elif pyName in pythonScripts.keys():
-            print 'Loading ' + pyName
-            pythonScripts[pyName](node)
-        elif pyName in classes.keys():
-            print 'Loading ' + pyName
-            classes[pyName](node)
-        elif pyName in functions.keys():
-            print 'Loading ' + pyName
-            functions[pyName](node)
-        else:
-            print ("PythonAsset ERROR: No callable object with name " + pyName)
+        print "#############" + prefabname
+        try:
+            if pyName == "createScene":
+                print 'Loading ' + pyName
+                functions["createScene"](node)
+            elif pyName in prefabs.keys():
+                print 'Loading ' + pyName
+                prefabs[pyName](node)
+            elif pyName in pythonScripts.keys():
+                print 'Loading ' + pyName
+                pythonScripts[pyName](node)
+            elif pyName in classes.keys():
+                print 'Loading ' + pyName
+                classes[pyName](node)
+            elif pyName in functions.keys():
+                print 'Loading ' + pyName
+                functions[pyName](node)
+            else:
+                print ("PythonAsset ERROR: No callable object with name " + pyName)
+        except Exception, e:
+            Sofa.msg_error(node, e)
     return node
 
