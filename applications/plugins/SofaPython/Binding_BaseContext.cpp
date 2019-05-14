@@ -180,6 +180,18 @@ static PyObject * BaseContext_createObject_Impl(PyObject * self, PyObject * args
     auto fileinfo = PythonEnvironment::getPythonCallingPointAsFileInfo();
     obj->setInstanciationSourceFilePos(fileinfo->line);
     obj->setInstanciationSourceFileName(fileinfo->filename);
+
+    for(auto& data : obj->getDataFields())
+        data->setPersistent(false);
+
+    for( auto kv : desc.getAttributeMap())
+    {
+        auto data = obj->findData(kv.first);
+        if(data)
+            data->setPersistent(true);
+    }
+    obj->findData("name")->setPersistent(true);
+
     return sofa::PythonFactory::toPython(obj.get());
 }
 

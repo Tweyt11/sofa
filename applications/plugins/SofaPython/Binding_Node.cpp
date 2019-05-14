@@ -226,6 +226,12 @@ static PyObject * Node_createChild(PyObject *self, PyObject * args) {
     child->setInstanciationSourceFilePos(fileinfo->line);
     child->setInstanciationSourceFileName(fileinfo->filename);
 
+    for(auto& data : child->getDataFields())
+    {
+        data->setPersistent(false);
+    }
+    child->findData("name")->setPersistent(true);
+
     return sofa::PythonFactory::toPython(child);
 }
 
