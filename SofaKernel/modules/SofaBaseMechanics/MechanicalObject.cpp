@@ -195,17 +195,7 @@ void MechanicalObject<defaulttype::Rigid3Types>::draw(const core::visual::Visual
     vparams->drawTool()->saveLastState();
     vparams->drawTool()->setLightingEnabled(false);
 
-	if (showIndices.getValue())
-	{
-        drawIndices(vparams);
-	}
-
-    if (showVectors.getValue())
-    {
-        drawVectors(vparams);
-    }
-
-    if (showObject.getValue())
+    if (showObject.getValue() || vparams->displayFlags().getShowBehavior())
     {
         const float scale = showObjectScale.getValue();
         helper::ReadAccessor<Data<VecCoord> > x = *this->read(core::VecCoordId::position());
@@ -248,6 +238,16 @@ void MechanicalObject<defaulttype::Rigid3Types>::draw(const core::visual::Visual
             }
 
             vparams->drawTool()->popMatrix();
+        }
+
+        if (showIndices.getValue())
+        {
+            drawIndices(vparams);
+        }
+
+        if (showVectors.getValue())
+        {
+            drawVectors(vparams);
         }
     }
     vparams->drawTool()->restoreLastState();
