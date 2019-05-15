@@ -47,6 +47,36 @@ using std::string;
 static const std::string unnamed_label=std::string("unnamed");
 
 
+std::ostream& operator<<(std::ostream& o, const ComponentStatus& s)
+{
+    static std::map<ComponentStatus, std::string> s2str= {{ComponentStatus::Undefined, "Undefined"},
+                                                          {ComponentStatus::Loading, "Loading"},
+                                                          {ComponentStatus::Valid, "Valid"},
+                                                          {ComponentStatus::Dirty, "Dirty"},
+                                                          {ComponentStatus::Busy, "Busy"},
+                                                          {ComponentStatus::Invalid, "Invalid"}};
+    return o << s2str[s];
+}
+
+
+std::istream& operator>>(std::istream& i, ComponentStatus& s)
+{
+    static std::map<std::string, ComponentStatus> str2s= {{"Undefined", ComponentStatus::Undefined},
+                                                          {"Loading", ComponentStatus::Loading},
+                                                          {"Valid", ComponentStatus::Valid},
+                                                          {"Dirty", ComponentStatus::Dirty},
+                                                          {"Busy", ComponentStatus::Busy},
+                                                          {"Invalid", ComponentStatus::Invalid}};
+    std::string tmp;
+    i >> tmp;
+    if(str2s.find(tmp) == str2s.end())
+    {
+        i.setstate(std::ios::failbit);
+        return i;
+    }
+    s = str2s[tmp];
+    return i;
+}
 
 Base::Base()
     : ref_counter(0)
@@ -56,7 +86,9 @@ Base::Base()
     , f_printLog(initData(&f_printLog, false, "printLog", "if true, emits extra messages at runtime."))
     , f_tags(initData( &f_tags, "tags", "list of the subsets the objet belongs to"))
     , f_bbox(initData( &f_bbox, "bbox", "this object bounding box"))
+    , d_status(initData( &d_status, ComponentStatus::Undefined, "status", "Indicates the current state of the object.") )
 {
+    d_status.setReadOnly(true);
     name.setOwnerClass("Base");
     name.setAutoLink(false);
     name.setReadOnly(true);
