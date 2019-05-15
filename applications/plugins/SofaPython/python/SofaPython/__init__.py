@@ -77,7 +77,7 @@ def getPythonCallingPoint():
 
 # returns a dictionary of all callable objects in the module, with their type as key
 def getPythonModuleContent(moduledir, modulename):
-    Sofa.msg_info("PythonAsset LOADING module " + modulename + " in " + moduledir)
+#    Sofa.msg_info("PythonAsset LOADING module " + modulename + " in " + moduledir)
     objects = {}
     # First let's load that script:
     try:
@@ -95,7 +95,7 @@ def getPythonModuleContent(moduledir, modulename):
         return objects
 
     # module loaded, let's see what's inside:
-    Sofa.msg_info("Module Loaded, let's see what's inside...")
+#    Sofa.msg_info("Module Loaded, let's see what's inside...")
     if "createScene" in dir(m):
         # print("We found a createScene entry point, let's load it")
         objects["createScene"] = "function"
@@ -118,8 +118,20 @@ def getPythonModuleContent(moduledir, modulename):
                 objects[i] = "SofaPrefab"
             else:
                 objects[i] = "function"
-    Sofa.msg_info(str(objects))
+#    Sofa.msg_info(str(objects))
     return objects
+
+
+import code
+def getPythonModuleDocstring(mpath):
+    "Get module-level docstring of Python module at mpath, e.g. 'path/to/file.py'."
+    print mpath
+    co = compile(open(mpath).read(), mpath, 'exec')
+    if co.co_consts and isinstance(co.co_consts[0], basestring):
+        docstring = co.co_consts[0]
+    else:
+        docstring = ""
+    return str(docstring)
 
 
 def sendMessageFromException(e):
@@ -359,11 +371,11 @@ def loadMeshAsset(type, path, node):
 
 
 def loadPythonAsset(moduledir, modulename, prefabname, node):
-    print "#############   LOADING PYTHON ASSET"
-    print "#############   moduledir: " + moduledir
-    print "#############   modulename: " + modulename
-    print "#############   prefabname: " + prefabname
-    print "#############   node.name: " + node.name
+#    print "#############   LOADING PYTHON ASSET"
+#    print "#############   moduledir: " + moduledir
+#    print "#############   modulename: " + modulename
+#    print "#############   prefabname: " + prefabname
+#    print "#############   node.name: " + node.name
     functions = {}
     pythonScripts = {}
     classes = {}

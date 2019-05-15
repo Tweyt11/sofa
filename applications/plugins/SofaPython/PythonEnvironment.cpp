@@ -343,11 +343,41 @@ std::map<std::string, std::string> PythonEnvironment::getPythonModuleContent(con
             map[k] = v;
         }
 
-        Py_DECREF(dict) ;
+        Py_DecRef(dict) ;
         return map;
     }
     msg_warning("PythonEnvironment") << "Could not find callable getPythonModuleContent in module SofaPython";
     return map;
+}
+
+std::string PythonEnvironment::getPythonModuleDocstring(const std::string &modulepath)
+{
+    PythonEnvironment::gil lock(__func__);
+    std::map<std::string, std::string> map;
+    PyObject* pDict = PyModule_GetDict(PyImport_AddModule("SofaPython"));
+    if(pDict==nullptr)
+    {
+        msg_error("PythonEnvironment") << "Could not find SofaPython";
+        return "";
+    }
+
+    PyObject* pFunc = PyDict_GetItemString(pDict, "getPythonModuleDocstring");
+    if (PyCallable_Check(pFunc))
+    {
+        PyObject* mPath = PyString_FromString(modulepath.c_str());
+        PyObject* args = PyTuple_Pack(1, mPath);
+        PyObject* ret = PyObject_CallObject(pFunc, args);
+
+        if (ret == nullptr)
+        {
+            return "";
+        }
+        std::string docstring = PyString_AsString(ret);
+        Py_DecRef(ret);
+        return docstring;
+    }
+    msg_warning("PythonEnvironment") << "Could not find callable getPythonModuleDocstring in module SofaPython";
+    return "";
 }
 
 PyObject*    PythonEnvironment::callObject(const std::string& callableName,

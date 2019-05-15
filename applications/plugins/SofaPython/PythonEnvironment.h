@@ -68,6 +68,8 @@ public:
      \return map of the callable objects in the module
     **/
     static std::map<std::string, std::string> getPythonModuleContent(const std::string& moduleDir, const std::string& moduleName);
+    static std::string getPythonModuleDocstring(const std::string& modulepath);
+
 
     /// add module to python context, Init() must have been called before
     static void addModule(const std::string& name, PyMethodDef* methodDef);
