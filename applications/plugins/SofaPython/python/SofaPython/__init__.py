@@ -77,10 +77,14 @@ def getPythonCallingPoint():
 
 # returns a dictionary of all callable objects in the module, with their type as key
 def getPythonModuleContent(moduledir, modulename):
+    Sofa.msg_info("PythonAsset LOADING module " + modulename + " in " + moduledir)
     objects = {}
     # First let's load that script:
     try:
         sys.path.append(moduledir)
+
+        if modulename in sys.modules:
+            del(sys.modules[modulename])
         m = importlib.import_module(modulename)
     except ImportError, e:
         print ("PythonAsset ERROR: could not import module " + modulename)
@@ -91,6 +95,7 @@ def getPythonModuleContent(moduledir, modulename):
         return objects
 
     # module loaded, let's see what's inside:
+    Sofa.msg_info("Module Loaded, let's see what's inside...")
     if "createScene" in dir(m):
         # print("We found a createScene entry point, let's load it")
         objects["createScene"] = "function"
@@ -113,6 +118,7 @@ def getPythonModuleContent(moduledir, modulename):
                 objects[i] = "SofaPrefab"
             else:
                 objects[i] = "function"
+    Sofa.msg_info(str(objects))
     return objects
 
 
