@@ -115,7 +115,7 @@ void Base::addRef()
 
 void Base::release()
 {
-    if (ref_counter.dec_and_test_null())
+    if (ref_counter.fetch_sub(1) == 1)
     {
         delete this;
     }
