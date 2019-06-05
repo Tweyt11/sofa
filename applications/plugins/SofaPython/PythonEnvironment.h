@@ -67,7 +67,7 @@ public:
      \param moduleName
      \return map of the callable objects in the module
     **/
-    static std::map<std::string, std::string> getPythonModuleContent(const std::string& moduleDir, const std::string& moduleName);
+    static std::map<std::string, std::map<std::string, std::string>> getPythonModuleContent(const std::string& moduleDir, const std::string& moduleName);
     static std::string getPythonModuleDocstring(const std::string& modulepath);
 
 

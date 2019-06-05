@@ -98,27 +98,31 @@ def getPythonModuleContent(moduledir, modulename):
 #    Sofa.msg_info("Module Loaded, let's see what's inside...")
     if "createScene" in dir(m):
         # print("We found a createScene entry point, let's load it")
-        objects["createScene"] = "function"
+        objects["createScene"] = { "type":"function", "docstring": m.createScene.__doc__ }
     for i in dir(m):
         if i == "SofaObject" or i == "SofaPrefab" or inspect.isbuiltin(i) or not callable(getattr(m, i)):
             continue
+        class_ = getattr(m, i)
+        if inspect.getmodule(class_).__file__ != m.__file__:
+            continue
+
+        docstring = str(class_.__doc__) if class_.__doc__ != None else "Undocumented callable"
         if inspect.isclass(eval("m." + i)):
             # A non-decorated class
             if issubclass(eval("m." + i), Sofa.PythonScriptController):
-                objects[i] = "PythonScriptController"
+                objects[i] = { "type":"PythonScriptController", "docstring": docstring }
             elif issubclass(eval("m." + i), Sofa.PythonScriptDataEngine):
-                objects[i] = "PythonScriptDataEngine"
+                objects[i] = { "type":"PythonScriptDataEngine", "docstring": docstring }
             else:
-                objects[i] = "Class"
+                objects[i] = { "type":"Class", "docstring": docstring }
         else:
-            class_ = getattr(m, i)
             # a class decorated with @SofaPrefab:
             if class_.__class__.__name__ == "SofaPrefab" \
                and i != "SofaPrefab":
-                objects[i] = "SofaPrefab"
+                objects[i] = { "type":"SofaPrefab", "docstring": docstring }
             else:
-                objects[i] = "function"
-#    Sofa.msg_info(str(objects))
+                objects[i] = { "type":"function", "docstring": docstring }
+                #    Sofa.msg_info(str(objects))
     return objects
 
 

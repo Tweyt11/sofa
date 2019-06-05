@@ -19,7 +19,6 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <fstream>
 #include "PythonMacros.h"
 #include "PythonFactory.h"
 #include "PythonEnvironment.h"
@@ -37,6 +36,8 @@ using sofa::helper::getAStringCopy ;
 using sofa::helper::system::PluginManager;
 using sofa::helper::system::Plugin;
 
+#include <fstream>
+#include <map>
 #if defined(__linux__)
 #  include <dlfcn.h>            // for dlopen(), see workaround in Init()
 #endif
@@ -312,10 +313,10 @@ void PythonEnvironment::addPythonModulePathsForPluginsByName(const std::string& 
     msg_warning("PythonEnvironment") << pluginName << " not found in PluginManager's map.";
 }
 
-std::map<std::string, std::string> PythonEnvironment::getPythonModuleContent(const std::string& moduleDir, const std::string& moduleName)
+std::map<std::string, std::map<std::string, std::string>> PythonEnvironment::getPythonModuleContent(const std::string& moduleDir, const std::string& moduleName)
 {
     PythonEnvironment::gil lock(__func__);
-    std::map<std::string, std::string> map;
+    std::map<std::string, std::map<std::string, std::string>> map;
     PyObject* pDict = PyModule_GetDict(PyImport_AddModule("SofaPython"));
     if(pDict==nullptr)
     {
@@ -350,8 +351,21 @@ std::map<std::string, std::string> PythonEnvironment::getPythonModuleContent(con
         while (PyDict_Next(dict, &pos, &key, &value))
         {
             std::string k = PyString_AsString(key);
-            std::string v = PyString_AsString(value);
-            map[k] = v;
+
+            std::map<std::string, std::string> stringmap;
+
+            if (value == nullptr)
+            {
+                map[k] = stringmap;
+                continue;
+            }
+
+            PyObject* _key;
+            PyObject* _value;
+            Py_ssize_t _pos = 0;
+            while (PyDict_Next(value, &_pos, &_key, &_value))
+                stringmap[PyString_AsString(_key)] = PyString_AsString(_value);
+            map[k] = stringmap;
         }
 
         Py_DecRef(dict) ;
