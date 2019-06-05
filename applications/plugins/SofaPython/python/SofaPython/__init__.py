@@ -106,7 +106,7 @@ def getPythonModuleContent(moduledir, modulename):
         if inspect.getmodule(class_).__file__ != m.__file__:
             continue
 
-        docstring = str(class_.__doc__) if class_.__doc__ != None else "Undocumented callable"
+        docstring = str(class_.__doc__) if class_.__doc__ != None else "Undocumented prefab"
         if inspect.isclass(eval("m." + i)):
             # A non-decorated class
             if issubclass(eval("m." + i), Sofa.PythonScriptController):
