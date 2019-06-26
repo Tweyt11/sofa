@@ -75,7 +75,38 @@ public:
 
 };
 
+template<class T>
+class OrigamiLinearSpring
+{
+public:
+    typedef T Real;
+    int  m1, m2, m3, m4, foldType;            ///< the two extremities of the spring: masses m1 and m2, and the two faces opposite nodes and type of folde: montain +1, valley -1 or none 0
+    Real ks;                ///< spring stiffness
+//    Real kcrease;            /// face angular stiffness
+//    Real kface;            /// face stiffness
+    Real kd;                ///< damping factor
+    Real initpos;           ///< rest length of the spring
+    bool elongationOnly;    ///< only forbid elongation, not compression
+    bool enabled;           ///< false to disable this spring (i.e. broken)
 
+    OrigamiLinearSpring(int m1=0, int m2=0, int m3=0, int m4=0, Real ks=0.0, Real kd=0.0, Real initpos=0.0, bool noCompression=false, bool enabled=true)
+        : m1(m1), m2(m2), m3(m3), m4(m4), foldType(foldType), ks(ks), kd(kd), initpos(initpos), elongationOnly(noCompression), enabled(enabled)
+    {
+    }
+
+    inline friend std::istream& operator >> ( std::istream& in, OrigamiLinearSpring<Real>& s )
+    {
+        in>>s.m1>>s.m2>>s.m3>>s.m4>>s.foldType>>s.ks>>s.kd>>s.initpos;
+        return in;
+    }
+
+    inline friend std::ostream& operator << ( std::ostream& out, const OrigamiLinearSpring<Real>& s )
+    {
+        out<<s.m1<<" "<<s.m2<<" "<<s.m3<<" "<<s.m4<<" "<<s.foldType<<" "<<s.ks<<" "<<s.kd<<" "<<s.initpos<<"\n";
+        return out;
+    }
+
+};
 /// This class can be overridden if needed for additionnal storage within template specializations.
 template<class DataTypes>
 class SpringForceFieldInternalData
@@ -107,12 +138,16 @@ public:
     typedef core::behavior::MechanicalState<DataTypes> MechanicalState;
 
     typedef LinearSpring<Real> Spring;
+    typedef OrigamiLinearSpring<Real> OrigamiSpring;
 
     Data<SReal> ks; ///< uniform stiffness for the all springs
     Data<SReal> kd; ///< uniform damping for the all springs
+
     Data<float> showArrowSize; ///< size of the axis
     Data<int> drawMode;             ///Draw Mode: 0=Line - 1=Cylinder - 2=Arrow
+    Data<Real> angleTarget;             ///Angle to be reached at the crease
     Data<sofa::helper::vector<Spring> > springs; ///< pairs of indices, stiffness, damping, rest length
+    Data<sofa::helper::vector<OrigamiSpring> > origamiSprings; ///< pairs of indices and face opposite nodes, stiffness, damping, rest length
 
 protected:
     core::objectmodel::DataFileName fileSprings;

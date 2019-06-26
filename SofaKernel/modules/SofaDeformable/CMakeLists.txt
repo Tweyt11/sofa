@@ -6,6 +6,8 @@ set(HEADER_FILES
     AngularSpringForceField.inl
     MeshSpringForceField.h
     MeshSpringForceField.inl
+    OrigamiSpringForceField.h
+    OrigamiSpringForceField.inl
     RestShapeSpringsForceField.h
     RestShapeSpringsForceField.inl
     SpringForceField.h
@@ -19,6 +21,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
     AngularSpringForceField.cpp
     MeshSpringForceField.cpp
+    OrigamiSpringForceField.cpp
     RestShapeSpringsForceField.cpp
     SpringForceField.cpp
     StiffSpringForceField.cpp

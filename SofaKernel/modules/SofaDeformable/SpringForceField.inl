@@ -53,6 +53,8 @@ SpringForceField<DataTypes>::SpringForceField(MechanicalState* mstate1, Mechanic
     , showArrowSize(initData(&showArrowSize,0.01f,"showArrowSize","size of the axis"))
     , drawMode(initData(&drawMode,0,"drawMode","The way springs will be drawn:\n- 0: Line\n- 1:Cylinder\n- 2: Arrow"))
     , springs(initData(&springs,"spring","pairs of indices, stiffness, damping, rest length"))
+    , origamiSprings(initData(&origamiSprings,"origamiSpring","pairs of indices + faces opposite indices, stiffness, damping, rest length"))
+    , angleTarget(initData(&angleTarget,3.14,"angleTarget","Target Angle of fold"))
     , maskInUse(false)
 {
 }
@@ -64,6 +66,8 @@ SpringForceField<DataTypes>::SpringForceField(SReal _ks, SReal _kd)
     , showArrowSize(initData(&showArrowSize,0.01f,"showArrowSize","size of the axis"))
     , drawMode(initData(&drawMode,0,"drawMode","The way springs will be drawn:\n- 0: Line\n- 1:Cylinder\n- 2: Arrow"))
     , springs(initData(&springs,"spring","pairs of indices, stiffness, damping, rest length"))
+    , origamiSprings(initData(&origamiSprings,"origamiSpring","pairs of indices + faces opposite indices, stiffness, damping, rest length"))
+    , angleTarget(initData(&angleTarget,3.14,"angleTarget","Target Angle of foldddddd"))
     , fileSprings(initData(&fileSprings, "filename", "Xsp file describing the springs."))
     , maskInUse(false)
 {
@@ -157,7 +161,6 @@ void SpringForceField<DataTypes>::addForce(
 
 
     const helper::vector<Spring>& springs= this->springs.getValue();
-
     f1.resize(x1.size());
     f2.resize(x2.size());
     this->m_potentialEnergy = 0;
@@ -216,20 +219,26 @@ void SpringForceField<DataTypes>::draw(const core::visual::VisualParams* vparams
     const VecCoord& p1 =this->mstate1->read(core::ConstVecCoordId::position())->getValue();
     const VecCoord& p2 =this->mstate2->read(core::ConstVecCoordId::position())->getValue();
 
-    std::vector< Vector3 > points[4];
+    std::vector< Vector3 > points[5];
     bool external = (this->mstate1!=this->mstate2);
-    const helper::vector<Spring>& springs = this->springs.getValue();
+    //const helper::vector<Spring>& springs = this->springs.getValue();
+    const helper::vector<OrigamiSpring>& springs = this->origamiSprings.getValue();
+    std::vector<sofa::defaulttype::Vec4f> colorVector;
+    std::vector<sofa::defaulttype::Vector3> vertices;
+
     for (unsigned int i=0; i<springs.size(); i++)
     {
         if (!springs[i].enabled) continue;
         Real d = (p2[springs[i].m2]-p1[springs[i].m1]).norm();
-        Vector3 point2,point1;
+        Vector3 point2,point1,point3, point4;
         point1 = DataTypes::getCPos(p1[springs[i].m1]);
         point2 = DataTypes::getCPos(p2[springs[i].m2]);
+        point3 = DataTypes::getCPos(p1[springs[i].m3]);
+        point4 = DataTypes::getCPos(p2[springs[i].m4]);
 
         if (external)
         {
-            if (d<springs[i].initpos*0.9999)
+            if (springs[i].foldType == 1)
             {
                 points[0].push_back(point1);
                 points[0].push_back(point2);
@@ -242,7 +251,7 @@ void SpringForceField<DataTypes>::draw(const core::visual::VisualParams* vparams
         }
         else
         {
-            if (d<springs[i].initpos*0.9999)
+            if (springs[i].foldType == 1)
             {
                 points[2].push_back(point1);
                 points[2].push_back(point2);
@@ -253,6 +262,29 @@ void SpringForceField<DataTypes>::draw(const core::visual::VisualParams* vparams
                 points[3].push_back(point2);
             }
         }
+//        points[4].push_back(point3);
+//        points[4].push_back(point4);
+
+
+//        if (springs[i].m3 != -1){
+//            colorVector.push_back(sofa::defaulttype::RGBAColor(0,1,0,1));
+//            vertices.push_back(sofa::defaulttype::Vector3(point1));
+//            colorVector.push_back(sofa::defaulttype::RGBAColor(0,0.5,0.5,1));
+//            vertices.push_back(sofa::defaulttype::Vector3(point2));
+//            colorVector.push_back(sofa::defaulttype::RGBAColor(0,0,1,1));
+//            vertices.push_back(sofa::defaulttype::Vector3(point3));
+
+//        }
+        if (springs[i].m4 != -1){
+            colorVector.push_back(sofa::defaulttype::RGBAColor(0,1,0,1));
+            vertices.push_back(sofa::defaulttype::Vector3(point1));
+            colorVector.push_back(sofa::defaulttype::RGBAColor(0,0.5,0.5,1));
+            vertices.push_back(sofa::defaulttype::Vector3(point2));
+            colorVector.push_back(sofa::defaulttype::RGBAColor(0,0,1,1));
+            vertices.push_back(sofa::defaulttype::Vector3(point4));
+        }
+
+
     }
 
     const Vec<4,float> c0(1,0,0,1);
@@ -266,7 +298,9 @@ void SpringForceField<DataTypes>::draw(const core::visual::VisualParams* vparams
         vparams->drawTool()->drawLines(points[0], 1, c0);
         vparams->drawTool()->drawLines(points[1], 1, c1);
         vparams->drawTool()->drawLines(points[2], 1, c2);
-        vparams->drawTool()->drawLines(points[3], 1, c3);
+        vparams->drawTool()->drawLines(points[3], 1, c2);
+        vparams->drawTool()->drawLines(points[4], 1, c3);
+
     }
     else if (drawMode.getValue() == 1)
     {
@@ -279,6 +313,7 @@ void SpringForceField<DataTypes>::draw(const core::visual::VisualParams* vparams
         for (unsigned int i=0; i<numLines1; ++i) vparams->drawTool()->drawCylinder(points[1][2*i+1], points[1][2*i], showArrowSize.getValue(), c1);
         for (unsigned int i=0; i<numLines2; ++i) vparams->drawTool()->drawCylinder(points[2][2*i+1], points[2][2*i], showArrowSize.getValue(), c2);
         for (unsigned int i=0; i<numLines3; ++i) vparams->drawTool()->drawCylinder(points[3][2*i+1], points[3][2*i], showArrowSize.getValue(), c3);
+        vparams->drawTool()->drawTriangles(vertices,colorVector);
 
     }
     else if (drawMode.getValue() == 2)
