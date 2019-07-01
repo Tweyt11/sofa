@@ -86,7 +86,6 @@ QGLFormat QtGLViewer::setupGLFormat(const unsigned int nbMSAASamples)
 
     if(!SOFA_GUI_VSYNC)
     {
-        std::cout << "QtGLViewer: disabling vertical refresh sync" << std::endl;
         QSurfaceFormat format;
         format.setSwapInterval(0);
         QSurfaceFormat::setDefaultFormat(format);
@@ -201,9 +200,7 @@ void QtGLViewer::init(void)
         specref[3] = 1.0f;
 
         // Here we initialize our multi-texturing functions
-#ifdef SOFA_HAVE_GLEW
         glewInit();
-#endif
 
         _clearBuffer = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
         _lightModelTwoSides = false;
