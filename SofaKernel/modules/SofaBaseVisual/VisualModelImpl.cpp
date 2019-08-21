@@ -282,6 +282,12 @@ bool VisualModelImpl::hasOpaque()
     return false;
 }
 
+void VisualModelImpl::draw(const core::visual::VisualParams* vparams)
+{
+    if(vparams->displayFlags().getShowVisual())
+        drawVisual(vparams);
+}
+
 void VisualModelImpl::drawVisual(const core::visual::VisualParams* vparams)
 {
     //Update external buffers (like VBO) if the mesh change AFTER doing the updateVisual() process

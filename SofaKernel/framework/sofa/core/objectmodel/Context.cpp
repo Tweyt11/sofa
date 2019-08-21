@@ -41,6 +41,9 @@ Context::Context()
 	, d_canChangeSleepingState(initData(&d_canChangeSleepingState, false, "canChangeSleepingState", "The node can change its sleeping state."))
 {
 
+    animate_.setReadOnly(true);
+    dt_.setReadOnly(true);
+    time_.setReadOnly(true);
 }
 
 /// The Context is active

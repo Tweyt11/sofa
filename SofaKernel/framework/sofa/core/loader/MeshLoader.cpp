@@ -20,8 +20,11 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <sofa/core/loader/MeshLoader.h>
+#include <sofa/core/visual/VisualParams.h>
 #include <sofa/helper/io/Mesh.h>
 #include <cstdlib>
+
+using sofa::helper::ReadAccessor;
 
 namespace sofa
 {
@@ -900,6 +903,20 @@ void MeshLoader::copyMeshToData(sofa::helper::io::Mesh* _mesh)
     d_highOrderQuadPositions.endEdit();
 
 }
+
+void MeshLoader::draw(const sofa::core::visual::VisualParams* params)
+{
+    //TODO(dmarchal 13/05/2019) add a getShowAll MeshLoader ou getShowGeometry and replace
+    // the getShowAll in the following
+    if(!params->displayFlags().getShowVisual()){
+        ReadAccessor<decltype (d_positions)> positions = d_positions;
+        for(auto& point : positions)
+        {
+            params->drawTool()->drawPoint(point, RGBAColor::red());
+        }
+    }
+}
+
 
 } // namespace loader
 

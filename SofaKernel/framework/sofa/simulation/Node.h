@@ -509,6 +509,8 @@ public:
 
     /// Get a descendant node given its name
     Node* getTreeNode(const std::string& name) const;
+
+    /// Get a node in the scene graph matching the given absolute path
     Node* getNodeInGraph(const std::string& absolutePath) const;
 
     /// Get children nodes
@@ -575,26 +577,26 @@ protected:
     virtual void doMoveObject(sofa::core::objectmodel::BaseObject::SPtr sobj, Node* prev_parent);
 
     std::stack<Visitor*> actionStack;
-private:    
-    virtual void notifyBeginAddChild(Node::SPtr parent, Node::SPtr child);
-    virtual void notifyBeginRemoveChild(Node::SPtr parent, Node::SPtr child);
+private:
+    virtual void notifyBeginAddChild(Node::SPtr parent, Node::SPtr child) const;
+    virtual void notifyBeginRemoveChild(Node::SPtr parent, Node::SPtr child) const;
 
-    virtual void notifyBeginAddObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj);
-    virtual void notifyBeginRemoveObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj);
+    virtual void notifyBeginAddObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj) const;
+    virtual void notifyBeginRemoveObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj) const;
 
-    virtual void notifyEndAddChild(Node::SPtr parent, Node::SPtr child);
-    virtual void notifyEndRemoveChild(Node::SPtr parent, Node::SPtr child);
+    virtual void notifyEndAddChild(Node::SPtr parent, Node::SPtr child) const;
+    virtual void notifyEndRemoveChild(Node::SPtr parent, Node::SPtr child) const;
 
-    virtual void notifyEndAddObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj);
-    virtual void notifyEndRemoveObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj);
+    virtual void notifyEndAddObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj) const;
+    virtual void notifyEndRemoveObject(Node::SPtr parent, sofa::core::objectmodel::BaseObject::SPtr obj) const;
 
-    virtual void notifySleepChanged(Node* node);
+    virtual void notifySleepChanged(Node* node) const;
 
-    virtual void notifyBeginAddSlave(sofa::core::objectmodel::BaseObject* master, sofa::core::objectmodel::BaseObject* slave);
-    virtual void notifyBeginRemoveSlave(sofa::core::objectmodel::BaseObject* master, sofa::core::objectmodel::BaseObject* slave);
+    virtual void notifyBeginAddSlave(sofa::core::objectmodel::BaseObject* master, sofa::core::objectmodel::BaseObject* slave) const;
+    virtual void notifyBeginRemoveSlave(sofa::core::objectmodel::BaseObject* master, sofa::core::objectmodel::BaseObject* slave) const;
 
-    virtual void notifyEndAddSlave(sofa::core::objectmodel::BaseObject* master, sofa::core::objectmodel::BaseObject* slave);
-    virtual void notifyEndRemoveSlave(sofa::core::objectmodel::BaseObject* master, sofa::core::objectmodel::BaseObject* slave);
+    virtual void notifyEndAddSlave(sofa::core::objectmodel::BaseObject* master, sofa::core::objectmodel::BaseObject* slave) const;
+    virtual void notifyEndRemoveSlave(sofa::core::objectmodel::BaseObject* master, sofa::core::objectmodel::BaseObject* slave) const;
 
 
 protected:

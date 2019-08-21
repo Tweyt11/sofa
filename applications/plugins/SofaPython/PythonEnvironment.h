@@ -57,6 +57,20 @@ public:
     static void addPythonModulePathsForPlugins(const std::string& pluginsDirectory);
     static void addPythonModulePathsForPluginsByName(const std::string& pluginName);
 
+
+    /** \brief getPythonModuleContent
+     Returns a map of all callable objects in the python module. Each
+     callable object's name (key) is assigned a type (value) in the map
+     Possible types are: function, class, SofaPrefab,
+     PythonScriptController and PythonScriptDataEngine
+     \param moduleDir
+     \param moduleName
+     \return map of the callable objects in the module
+    **/
+    static std::map<std::string, std::map<std::string, std::string>> getPythonModuleContent(const std::string& moduleDir, const std::string& moduleName);
+    static std::string getPythonModuleDocstring(const std::string& modulepath);
+
+
     /// add module to python context, Init() must have been called before
     static void addModule(const std::string& name, PyMethodDef* methodDef);
 
@@ -67,6 +81,17 @@ public:
     static std::string  getError();
     static bool         runString(const std::string& script);
     static bool         runFile(const std::string& filename, const std::vector<std::string>& arguments=std::vector<std::string>(0) );
+
+    /** Calls a python callable
+     * \param callableName The name of the callable object.
+     * \param module The module containing the callable object.
+     * \param args The arguments to pass to the function.
+     * \param kwargs Optional keyword arguments to pass to the function.
+     * \return The return value of the python function. Returns the Py_None
+     * object If the module is not accessible, if the callable is not found
+     * in the given module, or if the function fails to execute.
+     **/
+    static PyObject*    callObject(const std::string& callableName, const std::string& callableModule, PyObject* args, PyObject* kwargs = nullptr);
 
     /// returns the file information associated with the current frame.
     static std::string getStackAsString() ;

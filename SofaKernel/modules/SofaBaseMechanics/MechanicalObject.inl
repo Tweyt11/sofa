@@ -2765,17 +2765,9 @@ inline void MechanicalObject<DataTypes>::draw(const core::visual::VisualParams* 
     vparams->drawTool()->saveLastState();
     vparams->drawTool()->setLightingEnabled(false);
 
-    if (showIndices.getValue())
-    {
-        drawIndices(vparams);
-    }
 
-    if (showVectors.getValue())
-    {
-        drawVectors(vparams);
-    }
 
-    if (showObject.getValue())
+    if (showObject.getValue() || vparams->displayFlags().getShowBehavior())
     {
         const float& scale = showObjectScale.getValue();
         helper::vector<Vector3> positions(d_size.getValue());
@@ -2807,7 +2799,19 @@ inline void MechanicalObject<DataTypes>::draw(const core::visual::VisualParams* 
             msg_error() << "No proper drawing mode found!";
             break;
         }
+
+        if (showIndices.getValue())
+        {
+            drawIndices(vparams);
+        }
+
+        if (showVectors.getValue())
+        {
+            drawVectors(vparams);
+        }
     }
+
+
     vparams->drawTool()->restoreLastState();
 }
 

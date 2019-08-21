@@ -240,6 +240,8 @@ public:
     bool hasOpaque();
 
     void drawVisual(const core::visual::VisualParams* vparams) override;
+    void draw(const core::visual::VisualParams* vparams) override;
+
     void drawTransparent(const core::visual::VisualParams* vparams) override;
     void drawShadow(const core::visual::VisualParams* vparams) override;
 

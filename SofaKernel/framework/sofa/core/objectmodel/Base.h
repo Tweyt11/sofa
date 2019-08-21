@@ -111,6 +111,21 @@ namespace core
 namespace objectmodel
 {
 
+/// enum class is a C++ x11 feature (http://en.cppreference.com/w/cpp/language/enum),
+/// Indicate the state of an object.
+enum class ComponentStatus {
+    Undefined,                        ///< component that does not make use of this field have this one
+    Loading,                          ///< the component is loading but never passed successfully its init() function
+    Valid,                            ///< the component has passed successfully its init function
+    Dirty,                            ///< the component is ready to be used but requires a call to reinit
+    Busy,                             ///< the component is doing "something"
+    Invalid                           ///< the component reached an error and is thus unable to behave normally.
+};
+
+/// Defining the in/ou operator for use of component status with Data<>
+std::ostream& operator<<(std::ostream& o, const ComponentStatus& s);
+std::istream& operator>>(std::istream& i, ComponentStatus& s);
+
 /**
  *  \brief Base class for everything
  *
@@ -480,12 +495,13 @@ public:
     /// Name of the object.
     Data<std::string> name;
 
-
     Data<bool> f_printLog; ///< if true, emits extra messages at runtime.
 
     Data< sofa::core::objectmodel::TagSet > f_tags; ///< list of the subsets the objet belongs to
 
     Data< sofa::defaulttype::BoundingBox > f_bbox; ///< this object bounding box
+
+    Data < ComponentStatus > d_status;             ///< the status of the object.
 
     std::string m_definitionSourceFileName        {""};
     int         m_definitionSourceFilePos         {-1};
