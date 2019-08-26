@@ -1294,6 +1294,39 @@ struct DataTypeInfo< sofa::helper::vector<bool,Alloc> > : public VectorTypeInfo<
     static void* getValuePtr(sofa::helper::vector<bool,Alloc>& /*data*/) { return NULL; }
 };
 
+// Cannot use default impl of VectorTypeInfo for non-fixed size BaseTypes
+template<class Alloc>
+struct DataTypeInfo< sofa::helper::vector<std::string,Alloc> > : public VectorTypeInfo<sofa::helper::vector<std::string,Alloc> >
+{
+    static std::string name() { return "vector<string>"; }
+
+    // BaseType size is not fixed. Returning 1
+    static size_t size() { return 1; }
+
+    // Total number of elements in the vector
+    static size_t size(const sofa::helper::vector<std::string,Alloc>& data) { return data.size(); }
+
+    // Resizes the vector
+    static bool setSize(sofa::helper::vector<std::string,Alloc>& data, size_t size) { data.resize(size); return true; }
+
+    // Sets the value for element at index `index`
+    static void setValueString(sofa::helper::vector<std::string,Alloc>& data, size_t index, const std::string& value)
+    {
+        if (data.size() <= index)
+            data.resize(index + 1);
+        data[index] = value;
+    }
+
+    // Gets the value for element at index `index`
+    static void getValueString(const sofa::helper::vector<std::string,Alloc>& data, size_t index, std::string& value)
+    {
+        if (data.size() <= index)
+            msg_error("DataTypeInfo<helper::vector<std::string>") << "Index out of bounds for getValueString";
+        else
+            value = data[index];
+    }
+};
+
 template<class T, class Compare, class Alloc>
 struct DataTypeInfo< std::set<T,Compare,Alloc> > : public SetTypeInfo<std::set<T,Compare,Alloc> >
 {

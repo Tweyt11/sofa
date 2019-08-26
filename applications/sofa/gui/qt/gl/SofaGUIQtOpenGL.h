@@ -3,29 +3,41 @@
 *                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
-* under the terms of the GNU Lesser General Public License as published by    *
-* the Free Software Foundation; either version 2.1 of the License, or (at     *
-* your option) any later version.                                             *
+* under the terms of the GNU General Public License as published by the Free  *
+* Software Foundation; either version 2 of the License, or (at your option)   *
+* any later version.                                                          *
 *                                                                             *
 * This program is distributed in the hope that it will be useful, but WITHOUT *
 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       *
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License *
-* for more details.                                                           *
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    *
+* more details.                                                               *
 *                                                                             *
-* You should have received a copy of the GNU Lesser General Public License    *
-* along with this program. If not, see <http://www.gnu.org/licenses/>.        *
+* You should have received a copy of the GNU General Public License along     *
+* with this program. If not, see <http://www.gnu.org/licenses/>.              *
 *******************************************************************************
 * Authors: The SOFA Team and external contributors (see Authors.txt)          *
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef BINDING_OBJEXPORTER_H
-#define BINDING_OBJEXPORTER_H
+#ifndef SOFA_GUI_QT_SOFAGUIQTOPENGL_H
+#define SOFA_GUI_QT_SOFAGUIQTOPENGL_H
 
-#include "PythonMacros.h"
+#include <SofaGui/config.h>
 
-#include <SofaExporter/OBJExporter.h>
+#ifdef SOFA_BUILD_SOFAGUIQTOPENGL
+#	define SOFA_SOFAGUIQTOPENGL_API SOFA_EXPORT_DYNAMIC_LIBRARY
+#else
+#	define SOFA_SOFAGUIQTOPENGL_API SOFA_IMPORT_DYNAMIC_LIBRARY
+#endif
 
-SP_DECLARE_CLASS_TYPE(OBJExporter)
+namespace sofa
+{
+namespace gui
+{
+	SOFA_SOFAGUIQTOPENGL_API void initSofaGUIQtOpenGL();
+
+} // namespace gui
+
+} // namespace sofa
 
 #endif

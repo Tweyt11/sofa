@@ -43,6 +43,7 @@ set(HEADER_FILES
     StructDataWidget.h
     TableDataWidget.h
     viewer/SofaViewer.h
+    viewer/EngineBackend.h
     viewer/VisualModelPolicy.h
     GenericWidget.h
 )
@@ -82,6 +83,7 @@ set(SOURCE_FILES
     TableDataWidget.cpp
     WDoubleLineEdit.cpp
     viewer/SofaViewer.cpp
+    viewer/VisualModelPolicy.cpp
     panels/QDocBrowser.cpp
 )
 
@@ -130,22 +132,8 @@ if(SOFAGUI_ENABLE_QWT)
          GraphDataWidget.cpp
          QGraphStatWidget.cpp
          QEnergyStatWidget.cpp
-         QMomentumStatWidget.cpp
+         QMomentumStatWidget.cpp∫
          )
-endif()
-
-# QtViewer
-if(SOFAGUI_QTVIEWER)
-    list(APPEND MOC_HEADER_FILES viewer/qt/QtViewer.h)
-    list(APPEND SOURCE_FILES viewer/qt/QtViewer.cpp)
-endif()
-
-# QGLViewer
-if(SOFAGUI_QGLVIEWER)
-    find_package(QGLViewer)
-
-    list(APPEND MOC_HEADER_FILES viewer/qgl/QtGLViewer.h)
-    list(APPEND SOURCE_FILES viewer/qgl/QtGLViewer.cpp)
 endif()
 
 # QChart
@@ -165,8 +153,6 @@ endif()
 
 set(QT_USE_IMPORTED_TARGETS 1)
 
-find_package(FFMPEGexec QUIET)
-
 find_package(Qt5 COMPONENTS Core QUIET)
 
 if(Qt5Core_FOUND)
@@ -176,19 +162,23 @@ if(Qt5Core_FOUND)
 
     set(QT_TARGETS ${QT_TARGETS} Qt5::Core Qt5::Gui Qt5::OpenGL)
     set(EXT_QT_INCLUDES ${EXT_QT_INCLUDES} ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS})
-    set(EXT_QT_LIBRARIES ${EXT_QT_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES})
+    set(EXT_QT_LIBRARIES ${EXT_QT_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5OpenGL_LIBRARIES} )
 
     qt5_wrap_cpp(MOC_FILES ${MOC_HEADER_FILES})
     set(MOC_FILES_GROUP "Generated")
     qt5_wrap_ui(FORM_FILES ${UI_FILES})
     set(FORM_FILES_GROUP "Generated")
 
-    sofa_install_libraries(TARGETS ${QT_TARGETS})
-
     # QT INSTALL (dirty)
+    sofa_install_libraries(TARGETS ${QT_TARGETS})
     # Get Qt libraries dir
     get_target_property(QtCore_location Qt5::Core LOCATION)
     get_filename_component(QT_LIBRARIES_DIR ${QtCore_location} DIRECTORY)
+    get_filename_component(QT_LIBRARIES_DIR_NAME ${QT_LIBRARIES_DIR} NAME)
+    if(NOT "${QT_LIBRARIES_DIR_NAME}" STREQUAL "lib")
+        get_filename_component(QT_LIBRARIES_DIR ${QT_LIBRARIES_DIR} DIRECTORY) # parent dir
+        get_filename_component(QT_LIBRARIES_DIR_NAME ${QT_LIBRARIES_DIR} NAME)
+    endif()
     # Get Qt plugins dir
     list(GET Qt5Gui_PLUGINS 1 QT_PLUGIN_ANY)
     if(TARGET ${QT_PLUGIN_ANY})
@@ -214,19 +204,18 @@ if(Qt5Core_FOUND)
     if(EXISTS "${QT_PLUGINS_DIR}/styles")
         install(DIRECTORY "${QT_PLUGINS_DIR}/styles" DESTINATION "bin" COMPONENT applications)
     endif()
-    # Install Qt XCB libraries
-    file(GLOB QT_XCB_LIBRARIES
-        "${QT_LIBRARIES_DIR}/libQt5DBus${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        "${QT_LIBRARIES_DIR}/libQt5XcbQpa${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        )
-    sofa_install_libraries(LIBRARIES ${QT_XCB_LIBRARIES})
-    # Install Qt ICU libraries
-    file(GLOB QT_ICU_LIBRARIES
-        "${QT_LIBRARIES_DIR}/libicudata${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        "${QT_LIBRARIES_DIR}/libicui18n${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        "${QT_LIBRARIES_DIR}/libicuuc${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        )
-    sofa_install_libraries(LIBRARIES ${QT_ICU_LIBRARIES})
+    if(EXISTS "${QT_PLUGINS_DIR}/xcbglintegrations")
+        install(DIRECTORY "${QT_PLUGINS_DIR}/xcbglintegrations" DESTINATION "bin" COMPONENT applications)
+    endif()
+    # Install Apple Qt frameworks
+    if(APPLE)
+        if(EXISTS "${QT_LIBRARIES_DIR}/QtDBus.framework")
+            install(DIRECTORY "${QT_LIBRARIES_DIR}/QtDBus.framework" DESTINATION "lib" COMPONENT appications)
+        endif()
+        if(EXISTS "${QT_LIBRARIES_DIR}/QtPrintSupport.framework")
+            install(DIRECTORY "${QT_LIBRARIES_DIR}/QtPrintSupport.framework" DESTINATION "lib" COMPONENT appications)
+        endif()
+    endif()
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${MOC_HEADER_FILES} ${HEADER_FILES} ${MOC_FILES} ${FORM_FILES} ${SOURCE_FILES})
@@ -243,9 +232,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${EXT_QT_LIBRARIES})
 if(SOFAGUI_ENABLE_QWT)
     target_link_libraries(${PROJECT_NAME} PUBLIC qwt)
 endif()
-if(SOFAGUI_QGLVIEWER)
-    target_link_libraries(${PROJECT_NAME} PUBLIC QGLViewer)
-endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_SOFAGUIQT")
 
@@ -254,11 +240,7 @@ sofa_install_targets(SofaGui SofaGuiQt "SofaGui/sofa/gui/qt")
 # Create build and install versions of .ini file for resources finding
 set(RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/etc/${PROJECT_NAME}.ini.in "${CMAKE_BINARY_DIR}/etc/${PROJECT_NAME}.ini")
-if(APPLE AND SOFA_BUILD_APP_BUNDLE)
-    set(RESOURCES_DIR "share/sofa/gui/qt")
-else()
-    set(RESOURCES_DIR "../share/sofa/gui/qt")
-endif()
+set(RESOURCES_DIR "../share/sofa/gui/qt")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/etc/${PROJECT_NAME}.ini.in "${CMAKE_BINARY_DIR}/etc/installed${PROJECT_NAME}.ini")
 install(FILES "${CMAKE_BINARY_DIR}/etc/installed${PROJECT_NAME}.ini" DESTINATION etc RENAME ${PROJECT_NAME}.ini COMPONENT applications)
 
