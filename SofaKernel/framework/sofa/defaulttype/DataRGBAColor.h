@@ -28,8 +28,8 @@
 #include <sofa/helper/rmath.h>
 #include <sofa/helper/types/RGBAColor.h>
 
+#include <sofa/core/objectmodel/Data.h>
 #include <sofa/defaulttype/DataTypeInfo.h>
-
 
 namespace sofa
 {
@@ -37,6 +37,14 @@ namespace sofa
 namespace defaulttype
 {
     using sofa::helper::types::RGBAColor ;
+
+    typedef Data<RGBAColor> DataRGBAColor ;
+
+    template <>
+    struct DataTypeName<RGBAColor>
+    {
+        static const char *name() { return "RGBAColor"; }
+    };
 }
 }
 

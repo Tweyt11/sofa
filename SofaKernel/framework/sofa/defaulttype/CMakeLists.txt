@@ -29,7 +29,7 @@ set(HEADER_FILES
     VecTypes.h
     defaulttype.h
     init.h
-    Color.h
+    DataRGBAColor.h
 )
 
 if(EIGEN3_FOUND OR Eigen3_FOUND)
@@ -42,7 +42,6 @@ set(SOURCE_FILES
     BaseMatrix.cpp
     BoundingBox.cpp
     Frame.cpp
-    # RigidInertia.cpp
     SolidTypes.cpp
     TemplatesAliases.cpp
     init.cpp
