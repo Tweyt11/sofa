@@ -116,7 +116,7 @@ void BilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const Cons
 {
     if (!activated)
         return;
-
+    msg_warning() << "BilateralInteractionConstraint id is : " << constraintId;
     unsigned minp = std::min(m1.getValue().size(), m2.getValue().size());
     if (minp == 0)
         return;
@@ -284,6 +284,7 @@ void BilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const Cons
 
     c1_d.endEdit();
     c2_d.endEdit();
+    msg_warning() << "BilateralInteractionConstraint id is in the end: " << constraintId;
 }
 
 

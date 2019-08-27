@@ -82,6 +82,7 @@ void DefaultContactManager::init()
 
 void DefaultContactManager::cleanup()
 {
+    msg_warning() << "cleaning up in DefaultContactManager";
     for (sofa::helper::vector<core::collision::Contact::SPtr>::iterator it=contacts.begin(); it!=contacts.end(); ++it)
     {
         (*it)->removeResponse();
@@ -91,6 +92,7 @@ void DefaultContactManager::cleanup()
     }
     contacts.clear();
     contactMap.clear();
+    msg_warning() << "Done cleaning up in DefaultContactManager";
 }
 
 void DefaultContactManager::reset()
@@ -124,6 +126,7 @@ void DefaultContactManager::changeInstance(Instance inst)
 
 void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
 {
+//    msg_warning() << "creating contacts..";
     using core::CollisionModel;
     using core::collision::Contact;
 
@@ -142,7 +145,7 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
             CollisionModel* model1 = outputsIt->first.first;
             CollisionModel* model2 = outputsIt->first.second;
             std::string responseUsed = getContactResponse(model1, model2);
-
+            msg_warning() << "Responseeeeeeeeeeeeeeeeeeeeeeeeeeeee:" << responseUsed;
             // We can create rules in order to not respond to specific collisions
             if (!responseUsed.compare("nullptr"))
             {
@@ -193,12 +196,13 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
         }
         else
         {
+//            msg_warning() << "pre-existing and still active contact";
             // pre-existing and still active contact
             contactIt->second->setDetectionOutputs(outputsIt->second);
             ++nbContact;
         }
     }
-
+//    msg_warning() << "Maybe remove inactive contacts...";
     // Then look at previous contacts
     // and remove inactive contacts
     for (ContactMap::iterator contactIt = contactMap.begin(), contactItEnd = contactMap.end();
@@ -216,6 +220,7 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
             }
             else
             {
+                msg_warning() << "removing stuff!!!!!!!!!!";
                 remove = true;
             }
         }
@@ -236,16 +241,17 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
             ++contactIt;
         }
     }
-
+//    msg_warning() << "MOre stuff with contacts... " << nbContact;
     // now update contactVec
     contacts.clear();
+//    msg_warning() << "Plop again...";
     contacts.reserve(nbContact);
     for (ContactMap::const_iterator contactIt = contactMap.begin(), contactItEnd = contactMap.end();
         contactIt != contactItEnd; ++contactIt)
     {
         contacts.push_back(contactIt->second);
     }
-
+//    msg_warning() << "MOre stuff with contacts...";
     // compute number of contacts attached to each collision model
     std::map< CollisionModel*, int > nbContactsMap;
     for (unsigned int i = 0; i < contacts.size(); ++i)
@@ -255,16 +261,17 @@ void DefaultContactManager::createContacts(const DetectionOutputMap& outputsMap)
         if (cms.second != cms.first)
             nbContactsMap[cms.second]++;
     }
-
+//    msg_warning() << "MOre stuff with contacts...";
     // TODO: this is VERY inefficient, should be replaced with a visitor
     helper::vector< CollisionModel* > collisionModels;
     simulation::Node* context = dynamic_cast< simulation::Node* >(getContext());
     context->getTreeObjects< CollisionModel >(&collisionModels);
-
+//    msg_warning() << "MOre stuff with contacts...";
     for (unsigned int i = 0; i < collisionModels.size(); ++i)
     {
         collisionModels[i]->setNumberOfContacts(nbContactsMap[collisionModels[i]]);
     }
+//    msg_warning() << "This is it";
 }
 
 std::string DefaultContactManager::getContactResponse(core::CollisionModel* model1, core::CollisionModel* model2)
@@ -298,6 +305,7 @@ void DefaultContactManager::draw(const core::visual::VisualParams* vparams)
 
 void DefaultContactManager::removeContacts(const ContactVector &c)
 {
+    msg_warning() << "removing contacts";
     ContactVector::const_iterator remove_it = c.begin();
     ContactVector::const_iterator remove_itEnd = c.end();
 
@@ -351,6 +359,7 @@ void DefaultContactManager::removeContacts(const ContactVector &c)
 
         ++remove_it;
     }
+    msg_warning() << "End of removing contacts";
 }
 
 void DefaultContactManager::setContactTags(core::CollisionModel* model1, core::CollisionModel* model2, core::collision::Contact::SPtr contact)

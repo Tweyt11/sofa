@@ -73,24 +73,29 @@ FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::~FrictionC
 template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
 void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::cleanup()
 {
+    msg_warning() << "Cleaning up frictionContact!!!";
     if (m_constraint)
     {
+        msg_warning() << "plop!";
         m_constraint->cleanup();
-
-        if (parent != NULL)
-            parent->removeObject(m_constraint);
-
+        msg_warning() << "plip!";
+        if (parent != NULL){
+            msg_warning() << "Really Cleaning up frictionContact!!!";
+            parent->removeObject(m_constraint);}
+        msg_warning() << "plap!";
         parent = NULL;
         m_constraint.reset();
-
+        msg_warning() << "plup!";
         mapper1.cleanup();
-
+        msg_warning() << "plep!";
         if (!selfCollision)
             mapper2.cleanup();
+        msg_warning() << "plp!";
     }
 
     contacts.clear();
     mappedContacts.clear();
+    msg_warning() << "Done cleaning up frictionContact!!!";
 }
 
 
@@ -138,6 +143,14 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::setDe
 template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
 void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::activateMappers()
 {
+    auto it = contacts.begin();
+    auto o = *it;
+    CollisionElement1 elem1(o->elem.first);
+    CollisionElement2 elem2(o->elem.second);
+    int index1 = elem1.getIndex();
+    int index2 = elem2.getIndex();
+    msg_warning() << "index1 in activatemappeers but earlier: " << index1;
+    msg_warning() << "index2 in activatemappeers but earlier: " << index2;
     if (!m_constraint)
     {
         // Get the mechanical model from mapper1 to fill the constraint vector
@@ -152,11 +165,16 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::activ
         {
             mmodel2 = mapper2.createMapping(getName().c_str());
         }
+
+
+        msg_warning() << "Creating new UnilateralInteractionConstraint!!!!!!!!!!!!!!!!!";
         m_constraint = sofa::core::objectmodel::New<constraintset::UnilateralInteractionConstraint<defaulttype::Vec3Types> >(mmodel1, mmodel2);
+
         m_constraint->setName( getName() );
         setInteractionTags(mmodel1, mmodel2);
         m_constraint->setCustomTolerance( tol.getValue() );
     }
+
 
     int size = contacts.size();
     m_constraint->clear(size);
@@ -178,6 +196,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::activ
         CollisionElement2 elem2(o->elem.second);
         int index1 = elem1.getIndex();
         int index2 = elem2.getIndex();
+        msg_warning() << "index1 in activatemappeers: " << index1;
+        msg_warning() << "index2 in activatemappeers: " << index2;
 
         typename DataTypes1::Real r1 = 0.;
         typename DataTypes2::Real r2 = 0.;

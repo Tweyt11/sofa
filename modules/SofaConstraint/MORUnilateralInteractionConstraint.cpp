@@ -19,57 +19,40 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_CORE_BEHAVIOR_BASEINTERACTIONCONSTRAINT_H
-#define SOFA_CORE_BEHAVIOR_BASEINTERACTIONCONSTRAINT_H
-
-#include <sofa/core/behavior/BaseConstraint.h>
+#define SOFA_COMPONENT_CONSTRAINTSET_MORUNILATERALINTERACTIONCONSTRAINT_CPP
+#include <SofaConstraint/MORUnilateralInteractionConstraint.inl>
+#include <sofa/defaulttype/VecTypes.h>
+#include <SofaBaseMechanics/MechanicalObject.h>
+#include <sofa/core/ObjectFactory.h>
 
 namespace sofa
 {
 
-namespace core
+namespace component
 {
 
-namespace behavior
+namespace constraintset
 {
 
-/**
- *  \brief BaseInteractionConstraint is a constraint linking several bodies (MechanicalState) together.
- *
- *  A BaseInteractionConstraint computes constraints applied to several simulated
- *  bodies given their current positions and velocities.
- *
- */
-class SOFA_CORE_API BaseInteractionConstraint : public BaseConstraint
-{
-public:
-    SOFA_ABSTRACT_CLASS(BaseInteractionConstraint, BaseConstraint);
-    SOFA_BASE_CAST_IMPLEMENTATION(BaseInteractionConstraint)
+using namespace sofa::defaulttype;
+using namespace sofa::helper;
 
-    /// Get the first MechanicalState
-    /// \todo Rename to getMechState1()
-    /// \todo Replace with an accessor to a list of states, as an InteractionConstraint can be applied to more than two.
-    virtual BaseMechanicalState* getMechModel1() = 0;
+//TODO(dmarchal) What does this TODO mean ?
+int MORUnilateralInteractionConstraintClass = core::RegisterObject("TODO-MORUnilateralInteractionConstraint")
+        .add< MORUnilateralInteractionConstraint<Vec3Types> >()
 
-    /// Get the first MechanicalState
-    /// \todo Rename to getMechState2()
-    /// \todo Replace with an accessor to a list of states, as an InteractionConstraint can be applied to more than two.
-    virtual BaseMechanicalState* getMechModel2() = 0;
-	
-protected:
-    BaseInteractionConstraint() {}
-    virtual ~BaseInteractionConstraint()override {}
-	
-private:
-	BaseInteractionConstraint(const BaseInteractionConstraint& n) ;
-	BaseInteractionConstraint& operator=(const BaseInteractionConstraint& n) ;
-	
-};
+        ;
 
-} // namespace behavior
 
-} // namespace core
+template class SOFA_CONSTRAINT_API MORUnilateralInteractionConstraint<Vec3Types>;
+
+
+
+
+
+} // namespace constraintset
+
+} // namespace component
 
 } // namespace sofa
 
-#endif // SOFA_CORE_BEHAVIOR_BASEINTERACTIONCONSTRAINT_H

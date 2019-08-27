@@ -49,7 +49,7 @@ protected:
     {
     }
 
-    ~BaseConstraintSet() override { }
+    virtual ~BaseConstraintSet() override { }
 
 private:
     BaseConstraintSet(const BaseConstraintSet& n) ;

@@ -28,6 +28,11 @@
 #include "ConstraintStoreLambdaVisitor.h"
 #include <algorithm>
 
+#include <fstream> // for reading the file
+#include <iostream>
+#include "/home/olivier/sofa/plugins/ModelOrderReduction/src/component/loader/MatrixLoader.h"
+#include "/home/olivier/sofa/plugins/ModelOrderReduction/src/component/loader/MatrixLoader.inl"
+
 namespace sofa
 {
 
@@ -43,6 +48,7 @@ namespace
 using sofa::helper::ReadAccessor;
 using sofa::helper::WriteOnlyAccessor;
 using sofa::core::objectmodel::Data;
+using sofa::component::loader::MatrixLoader;
 
 template< typename TMultiVecId >
 void clearMultiVecId(sofa::core::objectmodel::BaseContext* ctx, const sofa::core::ConstraintParams* cParams, const TMultiVecId& vid)
@@ -77,6 +83,7 @@ GenericConstraintSolver::GenericConstraintSolver()
     , d_computeConstraintForces(initData(&d_computeConstraintForces,false,
                                         "computeConstraintForces",
                                         "enable the storage of the constraintForces (default = False)."))
+    ,l_contactMstate(initLink("contactMstate","The mechanicalState storing the contact"))
     , current_cp(&m_cpBuffer[0])
     , last_cp(NULL)
 {
@@ -140,6 +147,29 @@ void GenericConstraintSolver::init()
         dx.realloc(&vop,false,true);
         m_dxId = dx.id();
     }
+//    MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
+//    matLoaderModes->setFileName("lambdaModes.txt");
+//    msg_warning(this) << "Name of data file read";
+
+//    matLoaderModes->load();
+//    msg_warning(this) << "file loaded";
+
+//    matLoaderModes->getMatrix(lambdaModes);
+//    msg_warning(this) << "Matrix Obtained";
+
+
+//    MatrixLoader<Eigen::MatrixXd>* matLoader = new MatrixLoader<Eigen::MatrixXd>();
+//    matLoader->setFileName("lambdaCoeffs.txt");
+//    msg_warning(this) << "Name of data file read";
+
+//    matLoader->load();
+//    msg_warning(this) << "file loaded";
+
+//    matLoader->getMatrix(contactIndices);
+//    msg_warning(this) << "Matrix Obtained";
+//    for (int i=0; i<10; i++)
+//        msg_warning("MatrixLoader") << "Lambda coeffs:" << contactIndices(i);
+
 }
 
 void GenericConstraintSolver::cleanup()
@@ -210,8 +240,9 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
     // mechanical action executed from root node to propagate the constraints
     simulation::MechanicalResetConstraintVisitor(cParams).execute(context);
     // calling buildConstraintMatrix
+    msg_warning() << "numConstraints before call:" << numConstraints;
     simulation::MechanicalBuildConstraintMatrix(cParams, cParams->j(), numConstraints).execute(context);
-
+    msg_warning() << "numConstraints after call:" << numConstraints;
     simulation::MechanicalAccumulateMatrixDeriv(cParams, cParams->j(), reverseAccumulateOrder.getValue()).execute(context);
 
     // suppress the constraints that are on DOFS currently concerned by projective constraint
@@ -220,18 +251,19 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
 
     sofa::helper::AdvancedTimer::stepEnd  ("Accumulate Constraint");
     sofa::helper::AdvancedTimer::valSet("numConstraints", numConstraints);
-
+//    numConstraints =5;
     current_cp->clear(numConstraints);
-
+//    current_cp->clear(5);
     sofa::helper::AdvancedTimer::stepBegin("Get Constraint Value");
     MechanicalGetConstraintViolationVisitor(cParams, &current_cp->dFree).execute(context);
+
     sofa::helper::AdvancedTimer::stepEnd ("Get Constraint Value");
 
     sofa::helper::AdvancedTimer::stepBegin("Get Constraint Resolutions");
     MechanicalGetConstraintResolutionVisitor(cParams, current_cp->constraintsResolutions).execute(context);
     sofa::helper::AdvancedTimer::stepEnd("Get Constraint Resolutions");
 
-    msg_info() <<"GenericConstraintSolver: "<<numConstraints<<" constraints";
+    msg_warning() <<"GenericConstraintSooooooooooooooooolver: "<<numConstraints<<" constraints";
 
     // Test if the nodes containing the constraint correction are active (not sleeping)
     for (unsigned int i = 0; i < constraintCorrections.size(); i++)
@@ -313,6 +345,13 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
         msg_info() << " build_LCP " << ( (SReal) timer.getTime() - time)*timeScale<<" ms" ;
         time = (SReal) timer.getTime();
     }
+//    sofa::defaulttype::BaseMatrix *J;
+//    msg_warning() << "In buildSystem. colsW is :" << current_cp->W.cols();
+//    msg_warning() << "In buildSystem. rowsW is :" << current_cp->W.rows();
+
+//    J->resize(30,30);
+//    unsigned int off = 0;
+//    l_contactMstate->getConstraintJacobian(cParams,J,off);
 
     return true;
 }
@@ -359,13 +398,14 @@ void printLCP(std::ostream& file, double *q, double **M, double *f, int dim, boo
 
 bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cParams*/, MultiVecId /*res1*/, MultiVecId /*res2*/)
 {
+    msg_info() << "Actually solving system..........................";
     current_cp->tolerance = tolerance.getValue();
     current_cp->maxIterations = maxIt.getValue();
     current_cp->scaleTolerance = scaleTolerance.getValue();
     current_cp->allVerified = allVerified.getValue();
     current_cp->sor = sor.getValue();
     current_cp->unbuilt = unbuilt.getValue();
-
+    msg_info() << "Still there..........................";
     if (unbuilt.getValue())
     {
         sofa::helper::AdvancedTimer::stepBegin("ConstraintsUnbuiltGaussSeidel");
@@ -379,7 +419,7 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
             std::stringstream tmp;
             tmp << "---> Before Resolution" << msgendl  ;
             printLCP(tmp, current_cp->getDfree(), current_cp->getW(), current_cp->getF(), current_cp->getDimension(), true);
-
+//            tmp << "---> Before Resolution " <<current_cp->getW()[0][7] << "  " << current_cp->getW()[1][7] << "  " << current_cp->getW()[2][7]<< "  " << current_cp->getW()[3][7]<< "  " << current_cp->getW()[4][7];//<< "  " << current_cp->getW()[5][7]<< "  " << current_cp->getW()[6][7];
             msg_info() << tmp.str() ;
         }
 
@@ -387,26 +427,39 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
         current_cp->gaussSeidel(0, this);
         sofa::helper::AdvancedTimer::stepEnd("ConstraintsGaussSeidel");
     }
-
+    msg_info() << "Still there 1..........................";
     this->currentError.setValue(current_cp->currentError);
     this->currentIterations.setValue(current_cp->currentIterations);
     this->currentNumConstraints.setValue(current_cp->getNumConstraints());
     this->currentNumConstraintGroups.setValue(current_cp->getNumConstraintGroups());
-
+    msg_info() << "getNumConstraints: " << current_cp->getNumConstraints();
     if ( displayTime.getValue() )
     {
         msg_info() <<" TOTAL solve_LCP " <<( (SReal) timer.getTime() - time)*timeScale<<" ms" ;
         time = (SReal) timer.getTime();
     }
-
+    msg_info() << "Still there 2..........................";
     if(notMuted())
     {
         std::stringstream tmp;
         tmp << "---> After Resolution" << msgendl;
         printLCP(tmp, current_cp->_d.ptr(), current_cp->getW(), current_cp->getF(), current_cp->getDimension(), false);
         msg_info() << tmp.str() ;
+        msg_info() << "dim after resolution " <<current_cp->getDimension();
+//        double *lambda = current_cp->getF();
+//        std::ofstream myLambdas ("lambdaStored.txt", std::fstream::app);
+//        for (unsigned int k=0; k<current_cp->getDimension() ;k++)
+//            myLambdas << lambda[k] << " ";
+//        myLambdas << std::endl;
+//        myLambdas.close();
     }
-
+    msg_info() << "Still there 3..........................";
+    double *lambda = current_cp->getF();
+    std::ofstream myLambdas ("lambdaStored.txt", std::fstream::app);
+    for (unsigned int k=0; k<current_cp->getDimension() ;k++)
+        myLambdas << lambda[k] << " ";
+    myLambdas << std::endl;
+    myLambdas.close();
     if(d_computeConstraintForces.getValue())
     {
         WriteOnlyAccessor<Data<helper::vector<double>>> constraints = d_constraintForces;
@@ -504,8 +557,9 @@ bool GenericConstraintSolver::applyCorrection(const core::ConstraintParams *cPar
 
     /// Some constraint correction schemes may have written the constraint motion space lambda in the lambdaId VecId.
     /// In order to be sure that we are not accumulating things twice, we need to clear.
+    msg_info() << "Before clear" ;
     clearMultiVecId(getContext(), cParams, m_lambdaId);
-
+    msg_info() << "After clear" ;
     /// Store lambda and accumulate.
     sofa::simulation::ConstraintStoreLambdaVisitor v(cParams, &current_cp->f);
     this->getContext()->executeVisitor(&v);
@@ -515,7 +569,7 @@ bool GenericConstraintSolver::applyCorrection(const core::ConstraintParams *cPar
     {
         msg_info() << " TotalTime " << ((SReal) timerTotal.getTime() - timeTotal) * timeScale << " ms";
     }
-
+    msg_info() << "End of apply correction" ;
     return true;
 }
 
@@ -558,9 +612,13 @@ void GenericConstraintSolver::lockConstraintProblem(sofa::core::objectmodel::Bas
 void GenericConstraintProblem::clear(int nbC)
 {
     ConstraintProblem::clear(nbC);
-
+//    ConstraintProblem::clear(5);
+    msg_info("solver") << "constraintsResolutions.size()}}} : " << constraintsResolutions.size();
     freeConstraintResolutions();
+    msg_info("solver") << "constraintsResolutions.size()}}}}}} : " << constraintsResolutions.size();
     constraintsResolutions.resize(nbC);
+    msg_info("solver") << "constraintsResolutions.size()}}}}}}}}} : " << constraintsResolutions.size();
+//    constraintsResolutions.resize(5);
     _d.resize(nbC);
 }
 
@@ -612,6 +670,29 @@ void GenericConstraintProblem::solveTimed(double tol, int maxIt, double timeout)
 // Debug is only available when called directly by the solver (not in haptic thread)
 void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolver* solver)
 {
+    MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
+    matLoaderModes->setFileName("lambdaModes.txt");
+//    msg_warning("GenericConstraintProblem") << "Name of data file read";
+
+    matLoaderModes->load();
+//    msg_warning("GenericConstraintProblem") << "file loaded";
+
+    matLoaderModes->getMatrix(lambdaModes);
+//    msg_warning("GenericConstraintProblem") << "Matrix Obtained";
+
+
+    MatrixLoader<Eigen::MatrixXd>* matLoader = new MatrixLoader<Eigen::MatrixXd>();
+    matLoader->setFileName("lambdaCoeffs.txt");
+//    msg_warning("GenericConstraintProblem") << "Name of data file read";
+
+    matLoader->load();
+//    msg_warning("GenericConstraintProblem") << "file loaded";
+
+    matLoader->getMatrix(contactIndices);
+//    msg_warning("GenericConstraintProblem") << "Matrix Obtained";
+    for (int i=0; i<10; i++)
+//        msg_warning("MatrixLoader") << "Lambda coeffs:" << contactIndices(i);
+
     if(!dimension)
     {
         currentError = 0.0;
@@ -630,31 +711,44 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
     double *d = _d.ptr();
 
     int i, j, k, l, nb;
-
     double error=0.0;
-
+//    solver->l_contactMstate->g
     bool convergence = false;
     sofa::helper::vector<double> tempForces;
     if(sor != 1.0) tempForces.resize(dimension);
 
     if(scaleTolerance && !allVerified)
         tol *= dimension;
-
+    msg_info(solver) << "dimension is: " << dimension;
     if(solver)
     {
         for(i=0; i<dimension; )
         {
+//            msg_warning(solver) << "constraintsResolutions: " << constraintsResolutions.size();
+//            msg_warning(solver) << "dfree: " << dfree[i];
+            msg_info(solver) << constraintsResolutions[i];
+//            msg_warning(solver) << "Num lines of constraint resolution: " << constraintsResolutions[i]->getNbLines();
             if(!constraintsResolutions[i])
             {
-                msg_error(solver) << "Bad size of constraintsResolutions in GenericConstraintProblem" ;
+                msg_info(solver) << "Bad size of constraintsResolutions in GenericConstraintProblem" ;
+                msg_info(solver) << "dimension is: " << dimension << "in consResol " << constraintsResolutions.size() << " i  " << i;
 
                 dimension = i;
                 break;
             }
+//            msg_warning(solver) << "Toto";
+//            msg_warning(solver) << "i " << i;
+//            msg_warning(solver) << "w " << w;
+//            msg_warning(solver) << "force " << force;
+//            msg_warning(solver) << "constraintsResolutions[i] " << constraintsResolutions[i];
+//            msg_warning(solver) << "constraintsResolutions[i]->getNbLines() " << constraintsResolutions[i]->getNbLines();
             constraintsResolutions[i]->init(i, w, force);
+            msg_info(solver) << "Titii  ";
             i += constraintsResolutions[i]->getNbLines();
+
         }
     }
+
 
     bool showGraphs = false;
     sofa::helper::vector<double>* graph_residuals = NULL;
@@ -689,14 +783,46 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
         }
 
         error=0.0;
+
+        msg_info(solver) << "dimension is:" << dimension;
+//        for(i=0; i<dimension; i++) {
+//            for(j=0; j<dimension; j++){
+//                msg_warning(solver) << w[i][j];}
+//        }
+            //        double ** wTimesLambdaModes, wRed;
+            //        for(i=0; i<dimension; i++) {
+            //            for(j=0; j<dimension; j++)
+            //                wTimesLambdaModes[i][k] = w[i][j]*lambdaModes(j,k);
+            //        }
+            //        dfree = lambdaModes^T * dfree
+
+
+
+
+
+//            int nbLambdaModes = lambdaModes.cols();
+//        double dfreeRed[nbLambdaModes];
+
+//        msg_warning(solver) << "Computing dfreeRed: ";
+//        for(int numMode=0; numMode < nbLambdaModes; numMode++) {
+//            dfreeRed[numMode]=0.0;
+//            msg_warning(solver) << "numMode: " << numMode;
+//            for(int j=0; j<dimension; j++) {
+//                msg_warning(solver) << "j: " << j;
+//                dfreeRed[numMode] += lambdaModes(j,numMode)*dfree[j];
+//            }
+//            msg_warning(solver) << "dfreeRed: " << dfreeRed[numMode];
+//        }
+        msg_info(solver) << "dimension is:" << dimension;
         for(j=0; j<dimension; ) // increment of j realized at the end of the loop
         {
             //1. nbLines provide the dimension of the constraint
             nb = constraintsResolutions[j]->getNbLines();
+            msg_info(solver) << "constraintsResolutions[j]->getNbLines();" << constraintsResolutions[j]->getNbLines();
 
             //2. for each line we compute the actual value of d
             //   (a)d is set to dfree
-            
+//            msg_info(solver) << "jth constraint resolution:" << j <<". dfree is:" << dfree[j]<< " nb is:" << nb;
             std::vector<double> errF(&force[j], &force[j+nb]);
             std::copy_n(&dfree[j], nb, &d[j]);
 
@@ -706,8 +832,8 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
                     d[j+l] += w[j+l][k] * force[k];
 
             //3. the specific resolution of the constraint(s) is called
+            msg_warning(solver) << "About to call constraintresolution. j is:" << j;
             constraintsResolutions[j]->resolution(j, w, d, force, dfree);
-
             //4. the error is measured (displacement due to the new resolution (i.e. due to the new force))
             double contraintError = 0.0;
             if(nb > 1)
@@ -733,7 +859,6 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
                 if(contraintError > tol)
                     constraintsAreVerified = false;
             }
-
             if(constraintsResolutions[j]->getTolerance())
             {
                 if(contraintError > constraintsResolutions[j]->getTolerance())

@@ -49,8 +49,11 @@ UnilateralInteractionConstraint<DataTypes>::UnilateralInteractionConstraint(Mech
 template<class DataTypes>
 UnilateralInteractionConstraint<DataTypes>::~UnilateralInteractionConstraint()
 {
+    msg_warning() << "Destroying Uni";
+
     if(contactsStatus)
         delete[] contactsStatus;
+    msg_warning() << "end of Destroying Uni";
 }
 
 template<class DataTypes>
@@ -101,6 +104,18 @@ void UnilateralInteractionConstraint<DataTypes>::addContact(double mu, Deriv nor
     c.contactId = id;
     c.localId	= localid;
     c.contactDistance = contactDistance;
+    msg_warning() << "Contact Info::::::::::::::::::::::";
+    msg_warning() << "c.P	" << c.P;
+    msg_warning() << "c.Q	" << c.Q;
+    msg_warning() << "c.m1	" << c.m1;
+    msg_warning() << "c.m2	" << c.m2;
+    msg_warning() << "c.norm	" << c.norm;
+    msg_warning() << "c.s	" << c.s;
+    msg_warning() << "c.t	" << c.t;
+    msg_warning() << "c.mu	" << c.mu;
+    msg_warning() << "c.contactId	" << c.contactId;
+    msg_warning() << "c.localId	" << c.localId;
+    msg_warning() << "c.contactDistance	" << c.contactDistance;
 }
 
 
@@ -110,11 +125,11 @@ void UnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const cor
 {
     assert(this->mstate1);
     assert(this->mstate2);
-
+    msg_warning() << "UnilateralInteractionConstraint id is : " << contactId;
     if (this->mstate1 == this->mstate2)
     {
         MatrixDeriv& c1 = *c1_d.beginEdit();
-
+        msg_warning() << "contacts.size() is : " << contacts.size();
         for (unsigned int i = 0; i < contacts.size(); i++)
         {
             Contact& c = contacts[i];
@@ -146,20 +161,20 @@ void UnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const cor
     {
         MatrixDeriv& c1 = *c1_d.beginEdit();
         MatrixDeriv& c2 = *c2_d.beginEdit();
-
+        msg_warning() << "2: contacts.size() is : " << contacts.size();
         for (unsigned int i = 0; i < contacts.size(); i++)
         {
             Contact& c = contacts[i];
-
             c.id = contactId++;
 
             const Deriv u(1,0,0);
 
             MatrixDerivRowIterator c1_it = c1.writeLine(c.id);
             c1_it.addCol(c.m1, -c.norm);
-
+            msg_warning() << " c1_it.index(): " << c1_it.index() << " cm1: " << c.m1 << " val: " << -c.norm;
             MatrixDerivRowIterator c2_it = c2.writeLine(c.id);
             c2_it.addCol(c.m2, c.norm);
+            msg_warning() << " c2_it.index(): " << c2_it.index()<< " cm2: " << c.m2 << " val: " << c.norm;
 
             if (c.mu > 0.0)
             {
@@ -182,6 +197,7 @@ void UnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const cor
         c1_d.endEdit();
         c2_d.endEdit();
     }
+    msg_warning() << "UnilateralInteractionConstraint id is in the end: " << contactId;
 }
 
 
@@ -190,7 +206,7 @@ void UnilateralInteractionConstraint<DataTypes>::getPositionViolation(defaulttyp
 {
     const VecCoord &PfreeVec = this->getMState2()->read(core::ConstVecCoordId::freePosition())->getValue();
     const VecCoord &QfreeVec = this->getMState1()->read(core::ConstVecCoordId::freePosition())->getValue();
-
+    msg_warning() << " getPOsitionViolation " ;
     Real dfree = (Real)0.0;
     Real dfree_t = (Real)0.0;
     Real dfree_s = (Real)0.0;
@@ -253,7 +269,7 @@ void UnilateralInteractionConstraint<DataTypes>::getPositionViolation(defaulttyp
         // Sets dfree in global violation vector
 
         v->set(c.id, dfree);
-
+        msg_warning() << " c.id in violation is: " << c.id;
         c.dfree = dfree; // PJ : For isActive() method. Don't know if it's still usefull.
 
         if (c.mu > 0.0)
@@ -270,7 +286,7 @@ void UnilateralInteractionConstraint<DataTypes>::getVelocityViolation(defaulttyp
 {
     auto P = this->getMState2()->readPositions();
     auto Q = this->getMState1()->readPositions();
-
+    msg_warning() << " getVelocityViolation " ;
     const SReal dt = this->getContext()->getDt();
     const SReal invDt = SReal(1.0) / dt;
 
@@ -416,7 +432,8 @@ void UnilateralInteractionConstraint<DataTypes>::draw(const core::visual::Visual
 
         redVertices.push_back(c.P);
         redVertices.push_back(c.Q);
-
+        msg_warning() << "cP:" << c.P;
+        msg_warning() << "cQ:" << c.Q;
         otherVertices.push_back(c.P);
         otherColors.push_back(sofa::defaulttype::RGBAColor::white());
         otherVertices.push_back(c.P + c.norm);

@@ -75,7 +75,7 @@ public:
 protected:
     BaseObject();
 
-    ~BaseObject() override;
+    virtual ~BaseObject() override;
 
 public:
 

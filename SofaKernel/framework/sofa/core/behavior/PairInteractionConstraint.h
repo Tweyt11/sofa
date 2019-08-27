@@ -62,12 +62,12 @@ public:
 protected:
     PairInteractionConstraint(MechanicalState<DataTypes> *mm1 = nullptr, MechanicalState<DataTypes> *mm2 = nullptr);
 
-    ~PairInteractionConstraint() override;
+    virtual ~PairInteractionConstraint() override;
 public:
     Data<SReal> endTime;  ///< Time when the constraint becomes inactive (-1 for infinitely active)
     virtual bool isActive() const; ///< if false, the constraint does nothing
 
-    void init() override;
+    virtual void init() override;
 
     /// Retrieve the associated MechanicalState
     MechanicalState<DataTypes>* getMState1() { return mstate1; }
