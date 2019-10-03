@@ -98,7 +98,8 @@ public:
      */
     BaseData(const std::string& helpMsg="", DataFlags flags = FLAG_DEFAULT);
 
-    [[deprecated("Replaced with one with std::string instead of char* version")]]
+    /// TODO @marques-bruno: uncomment when c++17 is enabled in SOFA 
+    //[[deprecated("Replaced with one with std::string instead of char* version")]]
     BaseData(const char* helpMsg=nullptr, DataFlags flags = FLAG_DEFAULT);
 
     /** Constructor.
@@ -108,7 +109,8 @@ public:
      */
     BaseData(const std::string& helpMsg="", bool isDisplayed=true, bool isReadOnly=false);
 
-    [[deprecated("Replaced with one with std::string instead of char* version")]]
+    /// TODO @marques-bruno: uncomment when c++17 is enabled in SOFA 
+    //[[deprecated("Replaced with one with std::string instead of char* version")]]
     BaseData(const char* helpMsg=nullptr, bool isDisplayed=true, bool isReadOnly=false);
 
     /// Destructor.
