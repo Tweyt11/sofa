@@ -42,10 +42,11 @@ enum class ComponentState {
     Invalid                           ///< the component reached an error and is thus unable to behave normally.
 };
 
-/// Defining the in/ou operator for use of component status with Data<>
-std::ostream& SOFA_CORE_API operator<<(std::ostream& o, const ComponentState& s);
-std::istream& SOFA_CORE_API operator>>(std::istream& i, ComponentState& s);
-
 }  // namespace objectmodel
 }  // namespace core
 }  // namespace sofa
+
+
+/// Defining the in/ou operator for use of component status with Data<>
+std::ostream& SOFA_CORE_API operator<<(std::ostream& o, const sofa::core::objectmodel::ComponentState& s);
+std::istream& SOFA_CORE_API operator>>(std::istream& i, sofa::core::objectmodel::ComponentState& s);
