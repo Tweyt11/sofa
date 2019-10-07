@@ -20,6 +20,8 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <map>
+#include <iostream>
+#include <string>
 #include <sofa/core/objectmodel/ComponentState.h>
 
 namespace sofa
