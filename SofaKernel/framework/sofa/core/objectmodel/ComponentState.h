@@ -21,6 +21,7 @@
 ******************************************************************************/
 #pragma once
 
+#include <sofa/config.h>
 #include <iostream>
 
 namespace sofa
@@ -42,8 +43,8 @@ enum class ComponentState {
 };
 
 /// Defining the in/ou operator for use of component status with Data<>
-std::ostream& operator<<(std::ostream& o, const ComponentState& s);
-std::istream& operator>>(std::istream& i, ComponentState& s);
+std::ostream& SOFA_CORE_API operator<<(std::ostream& o, const ComponentState& s);
+std::istream& SOFA_CORE_API operator>>(std::istream& i, ComponentState& s);
 
 }  // namespace objectmodel
 }  // namespace core
