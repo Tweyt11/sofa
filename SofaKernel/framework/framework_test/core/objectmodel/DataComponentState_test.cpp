@@ -85,7 +85,7 @@ struct DataComponentState_test: public BaseTest
             , d_componentState(initData(&d_componentState, ComponentState::Valid, "componentState", "componentState"))
         {
             m_internalCB.addOutput(&d_componentState);
-            m_internalCB.addCallback((std::bind(&NewBaseObject::reinit, this)));
+            m_internalCB.setUpdateCallback((std::bind(&NewBaseObject::reinit, this)));
         }
     };
 
@@ -114,7 +114,7 @@ struct DataComponentState_test: public BaseTest
         {
             m_internalCB.addInputs({&d_filename});
             m_internalCB.addOutputs({&d_numVertices, &d_vertices, &d_componentState});
-            m_internalCB.addCallback((std::bind(&MeshLoader::reinit, this)));
+            m_internalCB.setUpdateCallback((std::bind(&MeshLoader::reinit, this)));
         }
     };
 
@@ -133,7 +133,7 @@ struct DataComponentState_test: public BaseTest
             m_internalCB.addInput(&d_positions);
             m_internalCB.addOutput(&d_componentState);
             //m_internalCB.addOutput(&d_componentState);
-            m_internalCB.addCallback((std::bind(&MechanicalObject::reinit, this)));
+            m_internalCB.setUpdateCallback((std::bind(&MechanicalObject::reinit, this)));
         }
 
         void fakeAddForce()
@@ -178,7 +178,7 @@ struct DataComponentState_test: public BaseTest
         {
             m_internalCB.addInput(&d_topologystate);
             m_internalCB.addOutput(&d_componentState);
-            m_internalCB.addCallback((std::bind(&UniformMass::reinit, this)));
+            m_internalCB.setUpdateCallback((std::bind(&UniformMass::reinit, this)));
         }
 
         void fakeAddMass()
