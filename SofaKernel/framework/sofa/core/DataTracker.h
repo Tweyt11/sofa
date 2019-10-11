@@ -165,14 +165,9 @@ namespace core
     public:
         /// set the update function to call
         /// when asking for an output and any input changed.
-        [[deprecated("This function has been replaced by addCallback with similar signature. Update your code.")]]
-        void setUpdateCallback(std::function<void(DataTrackerEngine*)> f){ addCallback(f); }
+        void setUpdateCallback(std::function<void(DataTrackerEngine*)> f){ m_callback = f; }
 
-        /// set the update function to call
-        /// when asking for an output and any input changed.
-        void addCallback(std::function<void(DataTrackerEngine*)> f);
-
-        /// Calls the callback when one of the data has changed.
+        /// Calls the callbacks when one of the data has changed.
         void update() override;
 
         /// This method is needed by DDGNode
@@ -187,7 +182,7 @@ namespace core
         objectmodel::BaseData* getData() const override { return nullptr; }
 
     protected:
-        std::vector<std::function<void(DataTrackerEngine*)>> m_callbacks;
+        std::function<void(DataTrackerEngine*)> m_callback;
     };
 
 

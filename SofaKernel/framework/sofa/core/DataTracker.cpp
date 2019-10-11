@@ -92,17 +92,12 @@ void DataTrackerDDGNode::updateAllInputsIfDirty()
     }
 }
 ///////////////////////
-void DataTrackerEngine::addCallback( std::function<void(DataTrackerEngine*)> f)
-{
-    m_callbacks.push_back(f);
-}
 
 void DataTrackerEngine::update()
 {
-    for(auto& callback : m_callbacks)
-    {
-        callback(this);
-    }
+    DataTrackerDDGNode::updateAllInputsIfDirty();
+    DataTrackerDDGNode::cleanDirty();
+    m_callback(this);
 }
 
 
