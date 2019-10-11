@@ -10,6 +10,7 @@ set(SOURCE_FILES
     core/objectmodel/BaseObjectDescription_test.cpp
     core/objectmodel/DataFileName_test.cpp
     core/objectmodel/DataCallback_test.cpp
+    core/objectmodel/DataComponentState_test.cpp
     core/DataEngine_test.cpp
     defaulttype/MapMapSparseMatrixEigenUtils_test.cpp
     defaulttype/MatTypes_test.cpp
