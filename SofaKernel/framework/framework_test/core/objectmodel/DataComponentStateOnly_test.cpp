@@ -32,15 +32,8 @@ using sofa::helper::testing::BaseTest ;
 #include <algorithm>
 
 namespace std{
-std::istream& operator>>(std::istream& i, std::vector<int>& c)
-{
-    return i;
-}
-
-std::ostream& operator<<(std::ostream& i, const std::vector<int>& c)
-{
-    return i;
-}
+std::istream& operator>>(std::istream& i, std::vector<int>& c);
+std::ostream& operator<<(std::ostream& i, const std::vector<int>& c);
 }
 
 namespace sofa {
@@ -51,17 +44,8 @@ enum class ComponentState
     Invalid
 };
 
-std::istream& operator>>(std::istream& i, ComponentState& c)
-{
-    c = ComponentState::Valid;
-    return i;
-}
-
-std::ostream& operator<<(std::ostream& o, const ComponentState& c)
-{
-    o << "ComponentState";
-    return o;
-}
+std::istream& operator>>(std::istream& i, ComponentState& c);
+std::ostream& operator<<(std::ostream& o, const ComponentState& c);
 
 template<class B>
 class NewLink : public Data<ComponentState>
@@ -88,8 +72,9 @@ public:
     B* m_target {nullptr};
 };
 
+
 ///  Test suite for data callbacks
-struct DataComponentState_test: public BaseTest
+struct DataComponentStateOnly_test: public BaseTest
 {
     class NewBaseObject : public sofa::core::objectmodel::BaseObject
     {
@@ -113,6 +98,41 @@ struct DataComponentState_test: public BaseTest
         }
     };
 
+
+    template<class B>
+    class NewData : public Data<B>
+    {
+    public:
+        NewData(){}
+
+        void setParent(sofa::core::objectmodel::BaseData* o)
+        {
+            Data<B>::setParent(o);
+            Data<B>::setDirtyOutputs();
+        }
+
+        const B& getValue()
+        {
+            if(Data<B>::getParent()!=nullptr && Data<B>::getParent()->getOwner() != nullptr )
+            {
+                if(Data<B>::getParent()->getOwner()->findData("componentState")->isDirty())
+                {
+                    if(Data<B>::getOwner()!=nullptr)
+                    {
+                        /// We check the component State...
+                        std::cout << "GET OWNER VALUE FOR " << Data<B>::getOwner()->getName()  << ":" << Data<B>::getName() << std::endl;
+                        Data<B>::getOwner()->findData("componentState")->getValueString();
+                    }
+
+                    /// We check the component State...
+                    std::cout << "   - GET PARENT VALUE FOR " << Data<B>::getParent()->getOwner()->getName()  << ":" << Data<B>::getName() << std::endl;
+                    Data<B>::getParent()->getOwner()->findData("componentState")->getValueString();
+                }
+            }
+            return Data<B>::getValue();
+        }
+    };
+
     class MeshLoader : public NewBaseObject
     {
     public:
@@ -123,15 +143,19 @@ struct DataComponentState_test: public BaseTest
 
         void reinit()
         {
+            msg_warning() << "BEGIN MeshLoader";
+
             d_numVertices = d_numVertices.getValue()*2;
             std::vector<int> f;
             f.resize(d_numVertices.getValue());
             d_vertices = f;
 
-            msg_warning() << "Loading a new mesh from: " << d_filename.getValue() << msgendl
+            msg_warning() << "Loading a new mesh from: " << d_filename.getValue()
                           << "     number of vertices: " << d_numVertices.getValue();
 
             d_componentState = ComponentState::Valid;
+            msg_warning() << "END MeshLoader";
+
         }
 
         MeshLoader() : NewBaseObject()
@@ -140,7 +164,8 @@ struct DataComponentState_test: public BaseTest
           , d_vertices(initData(&d_vertices, std::vector<int>(), "vertices", "vertices"))
         {
             m_internalCB.addInputs({&d_filename});
-            m_internalCB.addOutputs({&d_numVertices, &d_vertices, &d_componentState});
+            m_internalCB.addOutputs({&d_componentState});
+            m_internalCB.addOutputs({&d_vertices});
             m_internalCB.setUpdateCallback((std::bind(&MeshLoader::reinit, this)));
         }
     };
@@ -148,21 +173,22 @@ struct DataComponentState_test: public BaseTest
     class MechanicalObject : public NewBaseObject
     {
     public:
-        //Data<std::vector<int>> d_INpositions {};
-        Data<std::vector<int>> d_positions {};
+        NewData<std::vector<int>> d_positions {};
 
         void reinit()
         {
-            //d_positions = d_INpositions.getValue();
-            msg_warning() << "Update mechanical object. " << msgendl
-                          << "     number of positions: " << d_positions.getValue().size();
-
+            msg_warning() << "BEGIN MechanicaObjectl object. ";
+            msg_warning() << "        number of positions: " << d_positions.getValue().size();
+            d_componentState = ComponentState::Valid;
+            msg_warning() << "END MechanicaObjectl";
         }
 
         MechanicalObject() : NewBaseObject()
+
         {
-            //m_internalCB.addInput(&d_INpositions);
-            m_internalCB.addOutput(&d_positions);
+            d_positions.setName("positions");
+            d_positions.setOwner(this);
+            m_internalCB.addInput(&d_positions);
             m_internalCB.addOutput(&d_componentState);
             m_internalCB.setUpdateCallback((std::bind(&MechanicalObject::reinit, this)));
         }
@@ -174,9 +200,8 @@ struct DataComponentState_test: public BaseTest
 
             std::vector<int> newPos;
             newPos.resize(d_positions.getValue().size());
-            d_positions = newPos;
+            d_positions.setValue(newPos);
             std::cout << "fakeAddForce with number of positions: " << d_positions.getValue().size() << std::endl;
-            d_componentState.setValue(ComponentState::Valid);
         }
     };
 
@@ -188,27 +213,33 @@ struct DataComponentState_test: public BaseTest
 
         void reinit()
         {
+            msg_warning() << "BEGIN Uniform Mass";
             /// If this didn't worked then we quit
             if(l_mstate.get()==nullptr){
                 d_componentState = ComponentState::Invalid;
                 msg_error() << "The component UniformMass is not yet ready because there is a missing link to the 'mstate'";
                 return;
             }
-            if( d_masses.getValue().size() != l_mstate.get()->d_positions.getValue().size())
-            {
-                d_masses = l_mstate.get()->d_positions.getValue();
+            //if( d_masses.getValue().size() != l_mstate.get()->d_positions.getValue().size())
+            //{
 
-                msg_warning() << "UniformMass is updated from: " << l_mstate.get()->getName() << msgendl
-                              << "                  mass size: " << d_masses.getValue().size() ;
-            }
+            d_masses = l_mstate.get()->d_positions.getValue();
+
+            msg_warning() << "UniformMass is updated from: " << l_mstate.get()->getName()
+                          << "                  mass size: " << d_masses.getValue().size() ;
+            //}
             d_componentState = ComponentState::Valid;
+            msg_warning() << "END Uniform Mass";
         }
 
         UniformMass() : NewBaseObject()
         {
+            d_masses.setName("masses");
+            d_masses.setOwner(this);
+            d_componentState.setName("componentstate");
             m_internalCB.addInput(&l_mstate);
             m_internalCB.addOutput(&d_componentState);
-            m_internalCB.addOutput(&d_masses);
+            //m_internalCB.addOutput(&d_masses);
             m_internalCB.setUpdateCallback((std::bind(&UniformMass::reinit, this)));
         }
 
@@ -221,138 +252,46 @@ struct DataComponentState_test: public BaseTest
     };
 };
 
-TEST_F(DataComponentState_test, testNewLink)
-{
-    /// two object are connected with a Link. When the first object change
-    /// the second is dirtyfied and updated on demand.
-    MechanicalObject state;
-    state.setName("mymeca");
 
-    UniformMass mass;
-    mass.setName("mass");
-
-    {
-        EXPECT_MSG_EMIT(Error);
-        /// Normally the mass component state is not valid until a link is set.
-        ASSERT_EQ( mass.d_componentState.getValue(), ComponentState::Invalid );
-    }
-
-    /// Set the link from the mass to the mechanical object
-    mass.l_mstate.set(&state);
-
-    /// As the link between the mass and a mstate is set the mass should be valid
-    ASSERT_EQ( mass.d_componentState.getValue(), ComponentState::Valid );
-
-    /// But as the mstate is of zero size then the mass should be the same.
-    ASSERT_EQ( mass.d_masses.getValue().size(), 0 );
-
-    std::vector<int> tmp;
-    tmp.resize(10);
-    state.d_positions = tmp;
-
-    ASSERT_EQ(state.d_positions.isDirty(), false);
-    ASSERT_EQ(state.d_componentState.isDirty(), false);
-    ASSERT_EQ(mass.d_masses.isDirty(), false);
-    ASSERT_EQ(mass.d_componentState.isDirty(), false);
-
-    /// We want to check now that when we update the mechanical counter we update the mass.
-    /// For that we call a function that change the state of the component and check that its
-    /// successor are dirty and get updated.
-    auto cp = mass.d_componentState.getCounter();
-    state.fakeAddForce();
-
-    ASSERT_EQ(state.d_positions.isDirty(), false);
-    ASSERT_EQ(state.d_componentState.isDirty(), false);
-    ASSERT_EQ(mass.d_masses.isDirty(), true);
-    ASSERT_EQ(mass.d_componentState.isDirty(), true);
-
-    /// Force the update by getting the state.
-    mass.d_componentState.getValue();
-    ASSERT_NE(mass.d_componentState.getCounter(), cp);
-}
-
-TEST_F(DataComponentState_test, testScenario1)
-{
-    /// Mimick the following scene:
-    /// <MeshLoader name="loader">
-    /// <MechanicalObject name="state", position="@loader.position"/>
-    /// <UniformMass mstate="@state"/>
-    EXPECT_MSG_EMIT(Error);
-
-    /// mimicking the following scene
-    /// <MeshLoader name="loader">>
-    std::cout << "CREATE LOADER" << std::endl;
-    MeshLoader loader;
-    loader.setName("loader1");
-    ASSERT_EQ(loader.d_componentState.getValue(), ComponentState::Valid);
-
-    /// <MechanicalObject position="@loader.position"/>
-    std::cout << "CREATE MECHANICAL OBJECT" << std::endl;
-    MechanicalObject state;
-    state.setName("state");
-    ASSERT_EQ(state.d_componentState.getValue(), ComponentState::Valid);
-
-    std::cout << "CONNECT DATA PARENTING" << std::endl;
-    state.d_positions.setParent( &loader.d_vertices );
-    state.m_internalCB.addInput( &loader.d_vertices );
-    ASSERT_TRUE(state.d_positions.isDirty());
-    ASSERT_TRUE(state.d_componentState.isDirty());
-    ASSERT_EQ(state.d_componentState.getValue(), ComponentState::Valid);
-
-    /// <UniformMass/>
-    std::cout << "CREATE UNIFORM MASS" << std::endl;
-    UniformMass mass;
-    mass.setName("mass");
-    ASSERT_EQ(mass.d_componentState.getValue(), ComponentState::Invalid);
-
-    std::cout << "CONNECT OBJECT LINK" << std::endl;
-    mass.l_mstate.set( &state );
-    ASSERT_EQ(mass.d_componentState.getValue(), ComponentState::Valid);
-
-    std::cout << "RETRY FULL CHAIN" << std::endl;
-    loader.d_filename.setValue("file2.obj");
-    ASSERT_EQ(mass.d_componentState.getValue(), ComponentState::Valid);
-
-    std::cout << "RETRY FULL CHAIN" << std::endl;
-    loader.d_filename.setValue("file3.obj");
-    ASSERT_EQ(mass.d_componentState.getValue(), ComponentState::Valid);
-
-
-    std::cout << "FAKE ANIMATION LOOP:::" << std::endl;
-    for(unsigned int i=0;i<10;i++)
-    {
-        state.fakeAddForce();
-        mass.fakeAddMass();
-    }
-
-    std::cout << "CHANGE FILENAME:::" << std::endl;
-    loader.d_filename.setValue("file3.obj");
-
-    std::cout << "FAKE ANIMATION LOOP:::" << std::endl;
-    for(unsigned int i=0;i<10;i++)
-    {
-        state.fakeAddForce();
-        mass.fakeAddMass();
-    }
-}
-
-TEST_F(DataComponentState_test, testUpdatePolicy)
+TEST_F(DataComponentStateOnly_test, testUpdatePolicy)
 {
     /// <MechanicalObject position="@loader.position"/>
     MeshLoader loader;
     loader.setName("loader1");
+    loader.d_filename.setValue("file1.obj");
 
     MechanicalObject state;
     state.setName("state");
 
     state.d_positions.setParent( &loader.d_vertices ); /// Parenting is tricky as we need to connect set the parent.
-    state.m_internalCB.addInput( &loader.d_vertices ); /// then connect it to the state cb.
 
     UniformMass mass;
     mass.setName("mass");
     mass.l_mstate.set( &state );  /// Connect the mass to the mechanical object
 
+    std::cout << "STEP 1:" << std::endl;
+    ASSERT_EQ(mass.d_componentState.getValue(), ComponentState::Valid);
+
+    std::cout << "STEP 2:" << std::endl;
     mass.d_masses.getValue();
+
+    std::cout << "STEP 3:" << std::endl;
+    loader.d_filename.setValue("file2.obj");
+    ASSERT_EQ(mass.d_componentState.getValue(), ComponentState::Valid);
+
+
+    std::cout << "STEP 4:" << std::endl;
+    state.fakeAddForce();
+    mass.fakeAddMass();
+
+    std::cout << "STEP 5:" << std::endl;
+    state.fakeAddForce();
+    mass.fakeAddMass();
+
+    std::cout << "STEP 6:" << std::endl;
+    state.fakeAddForce();
+    mass.fakeAddMass();
+
 }
 
 

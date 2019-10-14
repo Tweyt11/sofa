@@ -24,7 +24,7 @@
 
 #include <sofa/core/core.h>
 #include <sofa/core/objectmodel/DDGNode.h>
-
+#include <iostream>
 namespace sofa
 {
 
@@ -36,6 +36,14 @@ namespace objectmodel
 
 class Base;
 class BaseData;
+
+enum class UpdatePolicy
+{
+    OnDemand,
+    Always
+};
+
+std::ostream& operator<<(std::ostream& o, const UpdatePolicy& pol);
 
 /**
  *  \brief Abstract base class for Data.
@@ -133,6 +141,52 @@ public:
     /// This pointer should be used via the instance of AbstractTypeInfo
     /// returned by getValueTypeInfo().
     virtual const void* getValueVoidPtr() const = 0;
+
+    bool m_needUpdate { false };
+    UpdatePolicy m_updatePolicy {UpdatePolicy::Always};
+
+
+    /// Indicate the value needs to be updated
+    void setDirtyValue(const core::ExecParams* params = nullptr) override
+    {
+        if(m_updatePolicy == UpdatePolicy::Always)
+        {
+            return DDGNode::setDirtyValue(params);
+        }
+
+        /// We are in the OnDemand case
+        if( m_needUpdate )
+            return DDGNode::setDirtyValue(params);
+    }
+
+    /// Indicate the outputs needs to be updated. This method must be called after changing the value of this node.
+    void setDirtyOutputs(const core::ExecParams* params = nullptr) override
+    {
+        if(m_updatePolicy == UpdatePolicy::Always)
+        {
+            return DDGNode::setDirtyOutputs(params);
+        }
+
+        /// We are in the OnDemand case
+        if( m_needUpdate )
+            return DDGNode::setDirtyOutputs(params);
+    }
+
+    /// Set dirty flag to false
+    void cleanDirty(const core::ExecParams* params = nullptr)
+    {
+        if(m_updatePolicy == UpdatePolicy::Always)
+        {
+            return DDGNode::cleanDirty(params);
+        }
+
+        /// We are in the OnDemand case
+        if( m_needUpdate ){
+            m_needUpdate=false;
+            return DDGNode::cleanDirty(params);
+        }
+    }
+
 
     /// Get a void pointer to the value held in this %Data, to be used with AbstractTypeInfo.
     ///

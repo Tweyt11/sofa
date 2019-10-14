@@ -35,6 +35,16 @@ namespace objectmodel
 
 //#define SOFA_DDG_TRACE
 
+std::ostream& operator<<(std::ostream& o, const UpdatePolicy& pol)
+{
+    if(pol==UpdatePolicy::OnDemand)
+        o << "OnDemand";
+    else
+        o << "Always";
+    return o;
+}
+
+
 BaseData::BaseData(const char* h, DataFlags dataflags)
     : help(h), ownerClass(""), group(""), widget("")
     , m_counters(), m_isSets(), m_dataFlags(dataflags)
@@ -117,6 +127,7 @@ bool BaseData::setParent(BaseData* parent, const std::string& path)
         }
         return false;
     }
+
     doSetParent(parent);
     if (!path.empty())
         parentBaseData.set(parent, path);
