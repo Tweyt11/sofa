@@ -77,26 +77,6 @@ MeshObjLoader::MeshObjLoader()
     d_positionsList.setGroup("Geometry");
     d_vertPosIdx.setGroup("Geometry");
     d_vertNormIdx.setGroup("Geometry");
-
-    //BUGFIX: data loaded from OBJ file should not be saved to XML
-    d_faceList.setPersistent(false);
-    d_texIndexList.setPersistent(false);
-    d_texCoordsList.setPersistent(false);
-    d_normalsIndexList.setPersistent(false);
-    d_normalsList.setPersistent(false);
-    d_positionsList.setPersistent(false);
-    d_texCoords.setPersistent(false);
-    d_positions.setPersistent(false);
-    d_normals.setPersistent(false);
-    d_edges.setPersistent(false);
-    d_triangles.setPersistent(false);
-    d_quads.setPersistent(false);
-    d_edgesGroups.setPersistent(false);
-    d_trianglesGroups.setPersistent(false);
-    d_quadsGroups.setPersistent(false);
-    d_texCoords.setPersistent(false);
-    d_vertPosIdx.setPersistent(false);
-    d_vertNormIdx.setPersistent(false);
 }
 
 

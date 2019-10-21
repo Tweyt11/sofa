@@ -60,7 +60,6 @@ Base::Base()
 {
     name.setOwnerClass("Base");
     name.setAutoLink(false);
-    name.setReadOnly(true);
     d_componentstate.setAutoLink(false);
     d_componentstate.setReadOnly(true);
     d_componentstate.setOwnerClass("Base");
@@ -70,7 +69,6 @@ Base::Base()
     f_tags.setAutoLink(false);
     f_bbox.setOwnerClass("Base");
     f_bbox.setReadOnly(true);
-    f_bbox.setPersistent(false);
     f_bbox.setDisplayed(false);
     f_bbox.setAutoLink(false);
     sendl.setParent(this);
