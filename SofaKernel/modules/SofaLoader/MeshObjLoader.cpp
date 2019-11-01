@@ -77,8 +77,18 @@ MeshObjLoader::MeshObjLoader()
     d_positionsList.setGroup("Geometry");
     d_vertPosIdx.setGroup("Geometry");
     d_vertNormIdx.setGroup("Geometry");
-}
 
+    m_internalEngine.addInputs({&m_filename});
+    m_internalEngine.addCallback([this](sofa::core::DataTrackerEngine* e){
+        m_internalEngine.updateAllInputsIfDirty();
+        std::cout << "FILENAME HAS CHANGED: " << m_filename.getValue() << std::endl;
+        m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
+        if(load())
+            m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
+        m_internalEngine.cleanDirty();
+    });
+    m_internalEngine.addOutputs({&m_componentstate});
+}
 
 MeshObjLoader::~MeshObjLoader()
 {

@@ -26,6 +26,7 @@
 #include <sofa/core/loader/MeshLoader.h>
 #include <sofa/helper/SVector.h>
 #include <sofa/helper/types/Material.h>
+#include <sofa/core/DataTracker.h>
 
 namespace sofa
 {
@@ -47,6 +48,8 @@ protected:
     ~MeshObjLoader() override;
 
 public:
+    sofa::core::DataTrackerEngine m_internalEngine;
+
     bool load() override;
 
     template <class T>
