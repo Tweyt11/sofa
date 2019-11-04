@@ -78,21 +78,34 @@ MeshObjLoader::MeshObjLoader()
     d_vertPosIdx.setGroup("Geometry");
     d_vertNormIdx.setGroup("Geometry");
 
-    m_internalEngine.addInputs({&m_filename});
-    m_internalEngine.addCallback([this](sofa::core::DataTrackerEngine* e){
-        m_internalEngine.updateAllInputsIfDirty();
-        std::cout << "FILENAME HAS CHANGED: " << m_filename.getValue() << std::endl;
+    /// name change => component state update
+    addUpdateCallback("name", {&name}, [](sofa::core::DataTrackerEngine*){}, {&m_componentstate});
+
+    /// name filename => component state update + change of all data field...but not visible ?
+    addUpdateCallback("filename", {&m_filename}, [this](sofa::core::DataTrackerEngine* t)
+    {
+        t->updateAllInputsIfDirty();
         m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
         if(load())
             m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
-        m_internalEngine.cleanDirty();
-    });
-    m_internalEngine.addOutputs({&m_componentstate});
+        t->cleanDirty();
+    }, {&m_componentstate});
+
 }
 
 MeshObjLoader::~MeshObjLoader()
 {
 
+}
+
+void MeshObjLoader::addUpdateCallback(const std::string& name,
+                                      std::initializer_list<BaseData*> inputs,
+                                      std::function<void(sofa::core::DataTrackerEngine*)> function,
+                                      std::initializer_list<BaseData*> outputs)
+{
+    m_internalEngine[name].addInputs(inputs);
+    m_internalEngine[name].addCallback(function);
+    m_internalEngine[name].addOutputs(outputs);
 }
 
 
@@ -147,7 +160,7 @@ void MeshObjLoader::addGroup (const PrimitiveGroup& g)
 
 bool MeshObjLoader::readOBJ (std::ifstream &file, const char* filename)
 {
- 
+
     const bool handleSeams = d_handleSeams.getValue();
     helper::vector<sofa::defaulttype::Vector3>& my_positions = *(d_positions.beginEdit());
     helper::vector<sofa::defaulttype::Vector2>& my_texCoords = *(d_texCoordsList.beginEdit());
@@ -213,7 +226,7 @@ bool MeshObjLoader::readOBJ (std::ifstream &file, const char* filename)
         }
         else if (token == "vn")
         {
-            // normal 
+            // normal
             values >> result[0] >> result[1] >> result[2];
             my_normals.push_back(Vector3(result[0],result[1], result[2]));
         }
@@ -447,7 +460,7 @@ bool MeshObjLoader::readOBJ (std::ifstream &file, const char* filename)
             nbVOut += s;
         }
 
-		dmsg_info() << nbVIn << " input positions, " << nbVOut << " final vertices.";
+        dmsg_info() << nbVIn << " input positions, " << nbVOut << " final vertices.";
 
         if (nbVIn != nbVOut)
             vsplit = true;
@@ -645,8 +658,8 @@ bool MeshObjLoader::readMTL(const char* filename, helper::vector <Material>& mat
                 /* eat up rest of line */
                 if ( fgets(buf, sizeof(buf), file) == nullptr)
                 {
-					if (feof(file))
-						msg_error() << "Error: MeshObjLoader: fgets function has encounter end of file. case #.";
+                    if (feof(file))
+                        msg_error() << "Error: MeshObjLoader: fgets function has encounter end of file. case #.";
                     else
                         msg_error() << "Error: MeshObjLoader: fgets function has encounter an error. case #.";
                 }
@@ -730,72 +743,72 @@ bool MeshObjLoader::readMTL(const char* filename, helper::vector <Material>& mat
                 break;
             case 'd':
             case 'T':
-				if (!mat)
-				{
-					msg_error("MeshOBJ") << "readMTL 'T' no material";
-					break;
-				}
+                if (!mat)
+                {
+                    msg_error("MeshOBJ") << "readMTL 'T' no material";
+                    break;
+                }
                 // transparency value
                 if ( fscanf(file, "%f", &mat->diffuse[3]) == EOF)
                     msg_error() << "Error: MeshObjLoader: fscanf function has encounter an error. case T i.";
                 break;
 
-			case 'm':
-			{
-				if (!mat)
-				{
-					msg_error("MeshOBJ") << "readMTL 'm' no material";
-					break;
-				}
-				//texture map
-				char charFilename[128] = { 0 };
-				if (fgets(charFilename, sizeof(charFilename), file) == nullptr)
-				{
-					msg_error("MeshOBJ") << "fgets has encountered an error";
-				}
-				else
-				{
-					mat->useTexture = true;
+            case 'm':
+            {
+                if (!mat)
+                {
+                    msg_error("MeshOBJ") << "readMTL 'm' no material";
+                    break;
+                }
+                //texture map
+                char charFilename[128] = { 0 };
+                if (fgets(charFilename, sizeof(charFilename), file) == nullptr)
+                {
+                    msg_error("MeshOBJ") << "fgets has encountered an error";
+                }
+                else
+                {
+                    mat->useTexture = true;
 
-					//store the filename of the texture map in the material
-					std::string stringFilename(charFilename);
+                    //store the filename of the texture map in the material
+                    std::string stringFilename(charFilename);
 
-					//delete carriage return from the string assuming the next property of the .mtl file is at the next line
-					stringFilename.erase(stringFilename.end() - 1, stringFilename.end());
-					stringFilename.erase(stringFilename.begin(), stringFilename.begin() + 1);
-					mat->textureFilename = stringFilename;
-				}
+                    //delete carriage return from the string assuming the next property of the .mtl file is at the next line
+                    stringFilename.erase(stringFilename.end() - 1, stringFilename.end());
+                    stringFilename.erase(stringFilename.begin(), stringFilename.begin() + 1);
+                    mat->textureFilename = stringFilename;
+                }
 
-				break;
-			}
-			case 'b':
-			{
-				if (!mat)
-				{
-					msg_error("MeshOBJ") << "readMTL 'b' no material";
-					break;
-				}
-				//bump mapping texture map
-				char charFilename[128] = { 0 };
-				if (fgets(charFilename, sizeof(charFilename), file) == nullptr)
-				{
-					msg_error("MeshOBJ") << "fgets has encountered an error";
-				}
-				else
-				{
-					mat->useBumpMapping = true;
+                break;
+            }
+            case 'b':
+            {
+                if (!mat)
+                {
+                    msg_error("MeshOBJ") << "readMTL 'b' no material";
+                    break;
+                }
+                //bump mapping texture map
+                char charFilename[128] = { 0 };
+                if (fgets(charFilename, sizeof(charFilename), file) == nullptr)
+                {
+                    msg_error("MeshOBJ") << "fgets has encountered an error";
+                }
+                else
+                {
+                    mat->useBumpMapping = true;
 
-					//store the filename of the texture map in the material
-					std::string stringFilename(charFilename);
+                    //store the filename of the texture map in the material
+                    std::string stringFilename(charFilename);
 
-					//delete carriage return from the string assuming the next property of the .mtl file is at the next line
-					stringFilename.erase(stringFilename.end() - 1, stringFilename.end());
-					stringFilename.erase(stringFilename.begin(), stringFilename.begin() + 1);
-					mat->bumpTextureFilename = stringFilename;
-				}
+                    //delete carriage return from the string assuming the next property of the .mtl file is at the next line
+                    stringFilename.erase(stringFilename.end() - 1, stringFilename.end());
+                    stringFilename.erase(stringFilename.begin(), stringFilename.begin() + 1);
+                    mat->bumpTextureFilename = stringFilename;
+                }
 
-				break;
-			}
+                break;
+            }
             default:
                 /* eat up rest of line */
                 if ( fgets(buf, sizeof(buf), file) == nullptr)

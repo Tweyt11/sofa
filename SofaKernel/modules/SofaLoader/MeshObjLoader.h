@@ -37,6 +37,8 @@ namespace component
 namespace loader
 {
 
+using sofa::core::objectmodel::BaseData;
+
 class SOFA_LOADER_API MeshObjLoader : public sofa::core::loader::MeshLoader
 {
 public:
@@ -48,7 +50,12 @@ protected:
     ~MeshObjLoader() override;
 
 public:
-    sofa::core::DataTrackerEngine m_internalEngine;
+    std::map<std::string, sofa::core::DataTrackerEngine> m_internalEngine;
+
+    void addUpdateCallback(const std::string& name,
+                           std::initializer_list<BaseData*> inputs,
+                           std::function<void(sofa::core::DataTrackerEngine*)> function,
+                           std::initializer_list<BaseData*> outputs);
 
     bool load() override;
 
