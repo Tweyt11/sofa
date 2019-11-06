@@ -59,30 +59,30 @@ MORUnilateralInteractionConstraint<DataTypes>::~MORUnilateralInteractionConstrai
 template<class DataTypes>
 void MORUnilateralInteractionConstraint<DataTypes>::init()
 {
-        UnilateralInteractionConstraint<DataTypes>::init();
-        msg_warning(this) << "Calling iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiit";
-        MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
-        matLoaderModes->setFileName("lambdaModesNG2.txt");
-        msg_warning(this) << "Name of data file readddddddddddddddddddddddddd";
+//        UnilateralInteractionConstraint<DataTypes>::init();
+//        msg_warning(this) << "Calling iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiit";
+//        MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
+//        matLoaderModes->setFileName("lambdaModesNG2.txt");
+//        msg_warning(this) << "Name of data file readddddddddddddddddddddddddd";
 
-        matLoaderModes->load();
-        msg_warning(this) << "file loaded";
+//        matLoaderModes->load();
+//        msg_warning(this) << "file loaded";
 
-        matLoaderModes->getMatrix(lambdaModes);
-        msg_warning(this) << "Matrix Obtained";
+//        matLoaderModes->getMatrix(lambdaModes);
+//        msg_warning(this) << "Matrix Obtained";
 
 
-        MatrixLoader<Eigen::MatrixXd>* matLoader = new MatrixLoader<Eigen::MatrixXd>();
-        matLoader->setFileName("lambdaCoeffsReverseNG2.txt");
-        msg_warning(this) << "Name of data file read";
+//        MatrixLoader<Eigen::MatrixXd>* matLoader = new MatrixLoader<Eigen::MatrixXd>();
+//        matLoader->setFileName("lambdaCoeffsReverseNG2.txt");
+//        msg_warning(this) << "Name of data file read";
 
-        matLoader->load();
-        msg_warning(this) << "file loaded";
+//        matLoader->load();
+//        msg_warning(this) << "file loaded";
 
-        matLoader->getMatrix(contactIndices);
-        msg_warning(this) << "Matrix Obtained";
-        for (int i=0; i<10; i++)
-            msg_warning("MatrixLoader") << "Lambda coeffs:" << contactIndices(i);
+//        matLoader->getMatrix(contactIndices);
+//        msg_warning(this) << "Matrix Obtained";
+//        for (int i=0; i<10; i++)
+//            msg_warning("MatrixLoader") << "Lambda coeffs:" << contactIndices(i);
 
 }
 
@@ -93,6 +93,7 @@ void MORUnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const 
 {
     MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
     matLoaderModes->setFileName("lambdaModesVLONG7.txt");
+//    matLoaderModes->setFileName("lambdaModesWithFrictionPoint.txt");
     msg_warning(this) << "Name of data file read";
 
     matLoaderModes->load();
@@ -104,6 +105,7 @@ void MORUnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const 
 
     MatrixLoader<Eigen::MatrixXd>* matLoader = new MatrixLoader<Eigen::MatrixXd>();
     matLoader->setFileName("lambdaCoeffsVLONG7.txt");
+//    matLoader->setFileName("lambdaCoeffsWithFrictionPoint.txt");
     msg_warning(this) << "Name of data file read";
 
     matLoader->load();
@@ -116,6 +118,8 @@ void MORUnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const 
     assert(this->mstate1);
     assert(this->mstate2);
     msg_warning() << "MORUnilateralInteractionConstraint id is : " << contactId;
+    double myMuForAllContacts;
+    reducedContacts.resize(0);
     if (this->mstate1 == this->mstate2)
     {
         MatrixDeriv& c1 = *c1_d.beginEdit();
@@ -153,6 +157,7 @@ void MORUnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const 
         msg_warning() << "2: contacts.size() is : " << contacts.size();
         unsigned int line = 0;
         bool somethingAdded;
+
         for (unsigned int numMode=0; numMode < lambdaModes.cols(); numMode++)
         {
             msg_warning() << "Building H: numMode is :" << numMode;
@@ -163,37 +168,71 @@ void MORUnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const 
             for (unsigned int i = 0; i < contacts.size(); i++)
             {
                 auto& c = contacts[i];
+                myMuForAllContacts = c.mu;
                 c.id = i;
-                if (contactIndices(c.m2) != -1 && lambdaModes(contactIndices(c.m2),numMode)!=0.0){
-                    c1_it.addCol(c.m1, -lambdaModes(contactIndices(c.m2),numMode)*c.norm);
-                    c2_it.addCol(c.m2, lambdaModes(contactIndices(c.m2),numMode)*c.norm);
-                    somethingAdded = true;
-                    msg_warning() << "lambdaModes(contactIndices(c.m2),numMode):" << lambdaModes(contactIndices(c.m2),numMode);
-                    msg_warning() << "c.norm:" << c.norm;
-                    msg_warning() << "lambdaModes(contactIndices(c.m2),numMode)*c.norm:" << lambdaModes(contactIndices(c.m2),numMode)*c.norm;
+                if (c.mu == 0.0)
+                    if (contactIndices(c.m2) != -1 && lambdaModes(contactIndices(c.m2),numMode)!=0.0){
+                        c1_it.addCol(c.m1, -lambdaModes(contactIndices(c.m2),numMode)*c.norm);
+                        c2_it.addCol(c.m2, lambdaModes(contactIndices(c.m2),numMode)*c.norm);
+                        somethingAdded = true;
+                        msg_warning() << "c.m2::::: " << c.m2;
+                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode):" << lambdaModes(contactIndices(c.m2),numMode);
+                        msg_warning() << "c.norm:" << c.norm;
+                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode)*c.norm:" << lambdaModes(contactIndices(c.m2),numMode)*c.norm;
+                    }
+
+                if (c.mu > 0.0)
+                {
+                    if (contactIndices(3*c.m2) != -1 && lambdaModes(contactIndices(3*c.m2),numMode)!=0.0){
+                        c1_it.addCol(c.m1, -lambdaModes(contactIndices(3*c.m2),numMode)*c.norm);
+                        c2_it.addCol(c.m2, lambdaModes(contactIndices(3*c.m2),numMode)*c.norm);
+                        somethingAdded = true;
+                        msg_warning() << "c.m2::::: " << c.m2;
+                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode):" << lambdaModes(contactIndices(3*c.m2),numMode);
+                        msg_warning() << "c.norm:" << c.norm;
+                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode)*c.norm:" << lambdaModes(contactIndices(3*c.m2),numMode)*c.norm;
+
+                        MatrixDerivRowIterator c1_it_1 = c1.writeLine(line+1);
+
+                        //                    c1_it = c1.writeLine(c.id + 1);
+                        c1_it_1.addCol(c.m1, -lambdaModes(contactIndices(3*c.m2+1),numMode)*c.t);
+
+                        MatrixDerivRowIterator c1_it_2 = c1.writeLine(line+2);
+                        //                    c1_it = c1.writeLine(c.id + 2);
+                        c1_it_2.addCol(c.m1, -lambdaModes(contactIndices(3*c.m2+2),numMode)*c.s);
+
+                        MatrixDerivRowIterator c2_it_1 = c2.writeLine(line+1);
+                        //                    c2_it = c2.writeLine(c.id + 1);
+                        c2_it_1.addCol(c.m2, lambdaModes(contactIndices(3*c.m2+1),numMode)*c.t);
+
+                        MatrixDerivRowIterator c2_it_2 = c2.writeLine(line+2);
+                        //                    c2_it = c2.writeLine(c.id + 2);
+                        c2_it_2.addCol(c.m2,lambdaModes(contactIndices(3*c.m2+2),numMode)*c.s);
+                    }
                 }
 
-
-//                for (unsigned int numMode=0; numMode < lambdaModes.cols(); numMode++)
-//                {
-//                    MatrixDerivRowIterator c1_it = c1.writeLine(numMode);
-//                    MatrixDerivRowIterator c2_it = c2.writeLine(numMode);
-//                    if (contactIndices(c.m2) != -1){
-//                        c1_it.addCol(c.m1, -lambdaModes(contactIndices(c.m2),numMode)*c.norm);
-//                        c2_it.addCol(c.m2, lambdaModes(contactIndices(c.m2),numMode)*c.norm);
-//                    }
-//                    msg_warning() << " c1_it.index(): " << c1_it.index() << " cm1: " << c.m1 << " val: " << -c.norm;
-//                    msg_warning() << " c2_it.index(): " << c2_it.index()<< " cm2: " << c.m2 << " val: " << c.norm;
-
-//                }
 
             }
             if (somethingAdded){
                 msg_warning() << "Something was added at line:" << line;
-                reducedContacts.resize(line+1);
-                reducedContacts[line] = numMode;
-                line++;
+                msg_warning() << "myMuForAllContacts:" << myMuForAllContacts;
+                if (myMuForAllContacts == 0.0)
+                {
+                    reducedContacts.resize(line+1);
+                    reducedContacts[line] = numMode;
+                    line++;
+                }
+                else
+                {
+                    reducedContacts.resize(line+3);
+                    reducedContacts[line] = numMode;
+                    reducedContacts[line+1] = numMode;
+                    reducedContacts[line+2] = numMode;
+                    line = line + 3;
+                }
+
             }
+
 
         }
         contactId += line;
@@ -201,6 +240,10 @@ void MORUnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const 
         c1_d.endEdit();
         c2_d.endEdit();
     }
+//    if (myMuForAllContacts == 0.0)
+//        contactId = contactId - 1;
+//    else
+//       contactId = contactId - 3;
     msg_warning() << "MORUnilateralInteractionConstraint id is in the end: " << contactId;
 }
 
@@ -232,6 +275,7 @@ void MORUnilateralInteractionConstraint<DataTypes>::getPositionViolation(default
     const VecCoord &PfreeVec = this->getMState2()->read(core::ConstVecCoordId::freePosition())->getValue();
     const VecCoord &QfreeVec = this->getMState1()->read(core::ConstVecCoordId::freePosition())->getValue();
     msg_warning() << " getPOsitionViolation: size is: " << v->size();
+     msg_warning() << "reducedContacts size is: " << reducedContacts.size();
     Real dfree = (Real)0.0;
     Real dfree_t = (Real)0.0;
     Real dfree_s = (Real)0.0;
@@ -295,34 +339,61 @@ void MORUnilateralInteractionConstraint<DataTypes>::getPositionViolation(default
 
         // Sets dfree in global violation vector
         msg_warning() << "c.m2:" << c.m2;
-        for (int k=0;k<v->size();k++){
-            if (contactIndices(c.m2) != -1)
-                dfreeRed(k) += dfree*lambdaModes(contactIndices(c.m2),reducedContacts[k]);
-            msg_warning() << "dfree:" << dfree;
-            msg_warning() << "dfreeRed(k):" << dfreeRed(k);
+        msg_warning() << "v->size():" << v->size();
+        if (c.mu == 0.0){
+            for (int k=0;k<reducedContacts.size();k++){
+                if (contactIndices(c.m2) != -1)
+                    dfreeRed(k) += dfree*lambdaModes(contactIndices(c.m2),reducedContacts[k]);
+            }
+        }
+        else
+        {
+            for (int k=0;k<reducedContacts.size()/3;k++){
+                if (contactIndices(3*c.m2) != -1){
+                    dfreeRed(3*k) += dfree*lambdaModes(contactIndices(3*c.m2),reducedContacts[3*k]);
+                    dfreeRed(3*k+1) += dfree_t*lambdaModes(contactIndices(3*c.m2+1),reducedContacts[3*k]);
+                    dfreeRed(3*k+2) += dfree_s*lambdaModes(contactIndices(3*c.m2+2),reducedContacts[3*k]);
+
+                }
+            }
         }
 
 
 
         msg_warning() << " c.id in violation is: " << c.id;
         c.dfree = dfree; // PJ : For isActive() method. Don't know if it's still usefull.
-
-        if (c.mu > 0.0)
-        {
-            v->set(c.id + 1, dfree_t);
-            v->set(c.id + 2, dfree_s);
-        }
     }
      msg_warning() << " v size is: " << v->size();
-    for (int k=0;k<v->size();k++){
-        v->set(k, dfreeRed(k));}
+    for (int k=0;k<reducedContacts.size();k++){
+        v->set(k, dfreeRed(k));
+    }
     msg_warning() << " v is: " << v[0];
+
 
 }
 
 template<class DataTypes>
 void MORUnilateralInteractionConstraint<DataTypes>::getConstraintResolution(const core::ConstraintParams *, std::vector<core::behavior::ConstraintResolution*>& resTab, unsigned int& offset)
 {
+//    if(contactsStatus)
+//    {
+//        delete[] contactsStatus;
+//        contactsStatus = NULL;
+//    }
+
+//    if (contacts.size() > 0)
+//    {
+//        contactsStatus = new bool[contacts.size()];
+//        memset(contactsStatus, 0, sizeof(bool)*contacts.size());
+//    }
+
+//    for(unsigned int i=0; i<reducedContacts.size(); i++)
+//    {
+
+//            resTab[offset++] = new UnilateralConstraintResolution();
+//    }
+
+    msg_warning("MORUnilateralInteractionConstraint") << " in getConstraintResolution @@@@@@@@@@@@@";
     if(contactsStatus)
     {
         delete[] contactsStatus;
@@ -331,14 +402,33 @@ void MORUnilateralInteractionConstraint<DataTypes>::getConstraintResolution(cons
 
     if (contacts.size() > 0)
     {
-        contactsStatus = new bool[contacts.size()];
-        memset(contactsStatus, 0, sizeof(bool)*contacts.size());
+        contactsStatus = new bool[reducedContacts.size()];
+        memset(contactsStatus, 0, sizeof(bool)*reducedContacts.size());
     }
 
     for(unsigned int i=0; i<reducedContacts.size(); i++)
     {
-
+        msg_warning("MORUnilateralInteractionConstraint") << " i is:" << i;
+        auto& c = contacts[0];
+        msg_warning("MORUnilateralInteractionConstraint") << " mu is:" << c.mu;
+        if(c.mu > 0.0)
+        {
+            i = i+2;
+            UnilateralConstraintResolutionWithFriction* ucrwf = new UnilateralConstraintResolutionWithFriction(c.mu, NULL, &contactsStatus[i]);
+            ucrwf->setTolerance(customTolerance);
+            resTab[offset] = ucrwf;
+            msg_warning("MORUnilateralInteractionConstraint") <<  "offset: " << offset;
+            msg_warning("MORUnilateralInteractionConstraint") <<  "resTab[offset]: " << resTab[offset];
+            // TODO : cette méthode de stockage des forces peu mal fonctionner avec 2 threads quand on utilise l'haptique
+            offset += 3;
+            msg_warning("MORUnilateralInteractionConstraint") <<  "offset after incrementation: " << offset;
+        }
+        else
+        {
+            msg_warning("MORUnilateralInteractionConstraint") <<  "offset: " << offset;
             resTab[offset++] = new UnilateralConstraintResolution();
+//            msg_warning("MORUnilateralInteractionConstraint") <<  "resTab: " << resTab[offset;
+        }
     }
 }
 

@@ -421,6 +421,7 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
             printLCP(tmp, current_cp->getDfree(), current_cp->getW(), current_cp->getF(), current_cp->getDimension(), true);
 //            tmp << "---> Before Resolution " <<current_cp->getW()[0][7] << "  " << current_cp->getW()[1][7] << "  " << current_cp->getW()[2][7]<< "  " << current_cp->getW()[3][7]<< "  " << current_cp->getW()[4][7];//<< "  " << current_cp->getW()[5][7]<< "  " << current_cp->getW()[6][7];
             msg_info() << tmp.str() ;
+            msg_warning() << "dim before resolution " <<current_cp->getDimension();
         }
 
         sofa::helper::AdvancedTimer::stepBegin("ConstraintsGaussSeidel");
@@ -455,11 +456,14 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
     }
     msg_info() << "Still there 3..........................";
     double *lambda = current_cp->getF();
-    std::ofstream myLambdas ("lambdaStored.txt", std::fstream::app);
-    for (unsigned int k=0; k<current_cp->getDimension() ;k++)
-        myLambdas << lambda[k] << " ";
-    myLambdas << std::endl;
-    myLambdas.close();
+    if (f_printLog.getValue())
+    {
+        std::ofstream myLambdas ("lambdaStored.txt", std::fstream::app);
+        for (unsigned int k=0; k<current_cp->getDimension() ;k++)
+            myLambdas << lambda[k] << " ";
+        myLambdas << std::endl;
+        myLambdas.close();
+    }
     if(d_computeConstraintForces.getValue())
     {
         WriteOnlyAccessor<Data<helper::vector<double>>> constraints = d_constraintForces;
@@ -818,7 +822,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
         {
             //1. nbLines provide the dimension of the constraint
             nb = constraintsResolutions[j]->getNbLines();
-            msg_info(solver) << "constraintsResolutions[j]->getNbLines();" << constraintsResolutions[j]->getNbLines();
+//            msg_info(solver) << "constraintsResolutions[j]->getNbLines();" << constraintsResolutions[j]->getNbLines();
 
             //2. for each line we compute the actual value of d
             //   (a)d is set to dfree
@@ -832,7 +836,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
                     d[j+l] += w[j+l][k] * force[k];
 
             //3. the specific resolution of the constraint(s) is called
-            msg_warning(solver) << "About to call constraintresolution. j is:" << j;
+//            msg_warning(solver) << "About to call constraintresolution. j is:" << j;
             constraintsResolutions[j]->resolution(j, w, d, force, dfree);
             //4. the error is measured (displacement due to the new resolution (i.e. due to the new force))
             double contraintError = 0.0;
@@ -865,7 +869,7 @@ void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolv
                     constraintsAreVerified = false;
                 contraintError *= tol / constraintsResolutions[j]->getTolerance();
             }
-
+//            msg_warning(solver) << "contraintError " << contraintError;
             error += contraintError;
             if(solver)
                 tabErrors[j] = contraintError;
