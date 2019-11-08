@@ -30,6 +30,7 @@ set(HEADER_FILES
     defaulttype.h
     init.h
     Color.h
+    Ray.h
 )
 
 if(EIGEN3_FOUND OR Eigen3_FOUND)
