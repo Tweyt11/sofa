@@ -596,6 +596,7 @@ BaseCamera::Vec3 BaseCamera::viewportToWorldPoint(const BaseCamera::Vec3& p)
     Mat4 glP, glM;
     getOpenGLProjectionMatrix(glP.ptr());
     getOpenGLModelViewMatrix(glM.ptr());
+
     Vec4 vsPosition = glP.inverted() * Vec4(nsPosition, 1.0);
     vsPosition /= vsPosition.w();
 
@@ -633,11 +634,11 @@ BaseCamera::Vec3 BaseCamera::worldToViewportPoint(const BaseCamera::Vec3& p)
 
 BaseCamera::Ray BaseCamera::viewportPointToRay(const BaseCamera::Vec3& p)
 {
-    return Ray(this->p_position.getValue(), (this->p_position.getValue() - viewportToWorldPoint(p)));
+    return Ray(this->p_position.getValue(), (viewportToWorldPoint(p) - this->p_position.getValue()));
 }
 BaseCamera::Ray BaseCamera::screenPointToRay(const BaseCamera::Vec3& p)
 {
-    return Ray(this->p_position.getValue(), (this->p_position.getValue() - screenToWorldPoint(p)));
+    return Ray(this->p_position.getValue(), (screenToWorldPoint(p) - this->p_position.getValue()));
 }
 
 BaseCamera::Ray BaseCamera::toRay() const
