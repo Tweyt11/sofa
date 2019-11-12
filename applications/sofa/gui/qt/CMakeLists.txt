@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 project(SofaGuiQt)
 
+set (CMAKE_CXX_STANDARD 17)
+
 # Qt dependencies
 set(QT_TARGETS "")
 set(QT_USE_IMPORTED_TARGETS 1)
