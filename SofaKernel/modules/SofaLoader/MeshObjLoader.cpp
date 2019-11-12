@@ -79,15 +79,22 @@ MeshObjLoader::MeshObjLoader()
     d_vertNormIdx.setGroup("Geometry");
 
     /// name change => component state update
-    addUpdateCallback("name", {&name}, [](sofa::core::DataTrackerEngine*){}, {&m_componentstate});
+    addUpdateCallback("name", {&name}, [this](sofa::core::DataTrackerEngine* t){
+        t->updateAllInputsIfDirty();
+        /// Increment the state counter but without changing the state.
+        m_componentstate = m_componentstate.getValue();
+        t->cleanDirty();
+    }, {&m_componentstate});
 
     /// name filename => component state update + change of all data field...but not visible ?
     addUpdateCallback("filename", {&m_filename}, [this](sofa::core::DataTrackerEngine* t)
     {
         t->updateAllInputsIfDirty();
         m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
-        if(load())
+        if(load()){
+            clearLoggedMessages();
             m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
+        }
         t->cleanDirty();
     }, {&m_componentstate});
 
