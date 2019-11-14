@@ -72,7 +72,27 @@ Base::Base()
     f_bbox.setDisplayed(false);
     f_bbox.setAutoLink(false);
     sendl.setParent(this);
+
+    /// name change => component state update
+    addUpdateCallback("name", {&name}, [this](sofa::core::DataTrackerEngine* t){
+        t->updateAllInputsIfDirty();
+        /// Increment the state counter but without changing the state.
+        m_componentstate = m_componentstate.getValue();
+        t->cleanDirty();
+    }, {&m_componentstate});
 }
+
+
+void Base::addUpdateCallback(const std::string& name,
+                                      std::initializer_list<BaseData*> inputs,
+                                      std::function<void(sofa::core::DataTrackerEngine*)> function,
+                                      std::initializer_list<BaseData*> outputs)
+{
+    m_internalEngine[name].addInputs(inputs);
+    m_internalEngine[name].addCallback(function);
+    m_internalEngine[name].addOutputs(outputs);
+}
+
 
 Base::~Base()
 {

@@ -33,6 +33,7 @@
 #include <deque>
 
 #include <sofa/core/objectmodel/ComponentState.h>
+#include <sofa/core/DataTracker.h>
 
 // forward declaration of castable classes
 // @author Matthieu Nesme, 2015
@@ -170,6 +171,12 @@ private:
 
 public:
 
+    std::map<std::string, sofa::core::DataTrackerEngine> m_internalEngine;
+
+    void addUpdateCallback(const std::string& name,
+                           std::initializer_list<BaseData*> inputs,
+                           std::function<void(sofa::core::DataTrackerEngine*)> function,
+                           std::initializer_list<BaseData*> outputs);
 
 
     /// Accessor to the object name
