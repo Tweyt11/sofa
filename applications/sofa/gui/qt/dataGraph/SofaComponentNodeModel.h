@@ -51,18 +51,18 @@ static const char* ignoredData[] = { "name", "printLog", "tags", "bbox", "listen
 * This Class is a NodeDataModel specialisation to represent a Sofa component on the QtNodes graph.
 * It will take a SOFA BaseObject as target and parse all Data, storing Data, Links and connections with parents components.
 */
-class SofaComponentNodeModel : public NodeDataModel
+class SofaComponentGraphModel : public NodeDataModel
 {
     Q_OBJECT
 
 public:
     /// Default empty Object constructor with 0 Data
-    SofaComponentNodeModel(std::string name = "EmptyNode");
+    SofaComponentGraphModel(std::string name = "EmptyNode");
 
     /// constructor with a Sofa BaseObject as target
-    SofaComponentNodeModel(sofa::core::objectmodel::BaseObject* _sofaObject, bool debugMode = false);
+    SofaComponentGraphModel(sofa::core::objectmodel::BaseObject* _sofaObject, bool debugMode = false);
 
-    virtual ~SofaComponentNodeModel() {}
+    virtual ~SofaComponentGraphModel() {}
 
     /// Interface for caption.
     QString caption() const override {return m_caption;}

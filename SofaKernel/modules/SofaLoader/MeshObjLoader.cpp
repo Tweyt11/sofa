@@ -78,16 +78,15 @@ MeshObjLoader::MeshObjLoader()
     d_vertPosIdx.setGroup("Geometry");
     d_vertNormIdx.setGroup("Geometry");
 
-    /// name change => component state update
-    addUpdateCallback("name", {&name}, [](sofa::core::DataTrackerEngine*){}, {&m_componentstate});
-
     /// name filename => component state update + change of all data field...but not visible ?
     addUpdateCallback("filename", {&m_filename}, [this](sofa::core::DataTrackerEngine* t)
     {
         t->updateAllInputsIfDirty();
         m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
-        if(load())
+        if(load()){
+            clearLoggedMessages();
             m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
+        }
         t->cleanDirty();
     }, {&m_componentstate});
 
@@ -97,17 +96,6 @@ MeshObjLoader::~MeshObjLoader()
 {
 
 }
-
-void MeshObjLoader::addUpdateCallback(const std::string& name,
-                                      std::initializer_list<BaseData*> inputs,
-                                      std::function<void(sofa::core::DataTrackerEngine*)> function,
-                                      std::initializer_list<BaseData*> outputs)
-{
-    m_internalEngine[name].addInputs(inputs);
-    m_internalEngine[name].addCallback(function);
-    m_internalEngine[name].addOutputs(outputs);
-}
-
 
 bool MeshObjLoader::load()
 {
