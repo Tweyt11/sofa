@@ -597,10 +597,10 @@ BaseCamera::Vec3 BaseCamera::viewportToWorldPoint(const BaseCamera::Vec3& p)
     getOpenGLProjectionMatrix(glP.ptr());
     getOpenGLModelViewMatrix(glM.ptr());
 
-    Vec4 vsPosition = glP.inverted() * Vec4(nsPosition, 1.0);
+    Vec4 vsPosition = glP.inverted().transposed() * Vec4(nsPosition, 1.0);
     vsPosition /= vsPosition.w();
 
-    Vec4 v = (glM * vsPosition);
+    Vec4 v = (glM.inverted().transposed() * vsPosition);
 
     return Vec3(v[0],v[1],v[2]);
 }
@@ -611,7 +611,7 @@ BaseCamera::Vec3 BaseCamera::worldToScreenPoint(const BaseCamera::Vec3& p)
     getOpenGLProjectionMatrix(glP.ptr());
     getOpenGLModelViewMatrix(glM.ptr());
 
-    Vec4 nsPosition = (glP * glM * Vec4(p, 1.0));
+    Vec4 nsPosition = (glP.transposed() * glM.transposed() * Vec4(p, 1.0));
     nsPosition /= nsPosition.w();
 
     return Vec3((nsPosition.x() * 0.5 + 0.5) * p_widthViewport.getValue() + 0.5,
@@ -620,16 +620,8 @@ BaseCamera::Vec3 BaseCamera::worldToScreenPoint(const BaseCamera::Vec3& p)
 }
 BaseCamera::Vec3 BaseCamera::worldToViewportPoint(const BaseCamera::Vec3& p)
 {
-    Mat4 glP, glM;
-    getOpenGLProjectionMatrix(glP.ptr());
-    getOpenGLModelViewMatrix(glM.ptr());
-
-    Vec4 nsPosition = (glP * glM * Vec4(p, 1.0));
-    nsPosition /= nsPosition.w();
-
-    return Vec3((nsPosition.x() * 0.5 + 0.5),
-                ((1.0 - nsPosition.y()) * 0.5 - 0.5),
-                nsPosition.z() * 0.5 + 0.5);
+    Vec3 ssPoint = worldToScreenPoint(p);
+    return Vec3(ssPoint.x() / p_widthViewport.getValue(), ssPoint.y() / p_heightViewport.getValue(), ssPoint.z());
 }
 
 BaseCamera::Ray BaseCamera::viewportPointToRay(const BaseCamera::Vec3& p)
