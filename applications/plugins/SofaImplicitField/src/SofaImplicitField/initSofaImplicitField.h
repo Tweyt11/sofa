@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -19,72 +19,19 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
+#ifndef SOFA_COMPONENT_VOLUMETRIC_DATA_INIT_H
+#define SOFA_COMPONENT_VOLUMETRIC_DATA_INIT_H
 #include <SofaImplicitField/config.h>
-
-#include "initSofaImplicitField.h"
-#include "components/geometry/ScalarField.h"
-#include "components/geometry/SphericalField.h"
-#include "components/geometry/DiscreteGridField.h"
-
-#include <sofa/helper/system/PluginManager.h>
-using sofa::helper::system::PluginManager ;
 
 namespace sofa
 {
 
 namespace component
 {
-extern "C" {
-SOFA_SOFAIMPLICITFIELD_API void initExternalModule();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleName();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleVersion();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleLicense();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleDescription();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleComponentList();
-}
 
-void initExternalModule()
-{
-    static bool first = true;
-    if (first)
-    {
-        first = false;
-    }
+} // namespace component
 
-    if(SOFAIMPLICITFIELD_HAVE_SOFAPYTHON)
-        PluginManager::getInstance().loadPlugin("SofaPython") ;
-}
+} // namespace sofa
 
-const char* getModuleName()
-{
-    return "SofaImplicitField";
-}
-
-const char* getModuleVersion()
-{
-    return "1.0";
-}
-
-const char* getModuleLicense()
-{
-    return "LGPL";
-}
-
-
-const char* getModuleDescription()
-{
-    return "ImplicitField describe shapes of objects using implicit equation.  \n"
-           "In general of function of a n-dimentional space f(X) returns a scalar value  \n"
-           "The surface is then defined as f(x) = aConstant.";
-}
-
-const char* getModuleComponentList()
-{
-    return "SphereSurface ImplicitSurfaceMapping InterpolatedImplicitSurface "
-           "SphericalField DiscreteGridField";
-}
-
-} /// component
-
-} /// sofa
+#endif
 

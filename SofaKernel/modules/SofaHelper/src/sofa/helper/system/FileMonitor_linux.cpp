@@ -265,7 +265,9 @@ int FileMonitor::updates(int timeout)
             ListOfListeners::iterator it = file2listener[*f].begin() ;
             ListOfListeners::iterator end = file2listener[*f].end() ;
             for(;it!=end;++it){
+                std::cout << "WTF:::: file has hcnaged 1" << std::endl;
                 (*it)->fileHasChanged(*f) ;
+                std::cout << "WTF:::: file has hcnaged 2" << std::endl;
             }
         }
 

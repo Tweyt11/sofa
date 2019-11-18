@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -42,7 +42,8 @@ template <class In, class Out>
 class ImplicitSurfaceMapping : public core::Mapping<In, Out>, public topology::MeshTopology
 {
 public:
-    SOFA_CLASS2(SOFA_TEMPLATE2(ImplicitSurfaceMapping, In, Out), SOFA_TEMPLATE2(core::Mapping, In, Out), topology::MeshTopology);
+    SOFA_CLASS2(SOFA_TEMPLATE2(ImplicitSurfaceMapping, In, Out),
+                SOFA_TEMPLATE2(core::Mapping, In, Out), topology::MeshTopology);
 
     typedef core::Mapping<In, Out> Inherit;
     typedef typename Out::VecCoord OutVecCoord;
@@ -77,13 +78,13 @@ protected:
     {
     }
 
-    ~ImplicitSurfaceMapping() override
+    virtual ~ImplicitSurfaceMapping()
     {
     }
 public:
-    void init() override;
+    virtual void init() override;
 
-    void parse(core::objectmodel::BaseObjectDescription* arg) override;
+    virtual void parse(core::objectmodel::BaseObjectDescription* arg) override;
 
     double getStep() const { return mStep.getValue(); }
     void setStep(double val) { mStep.setValue(val); }
@@ -180,8 +181,8 @@ protected:
     }
 
 public:
-    bool insertInNode( core::objectmodel::BaseNode* node ) override { Inherit1::insertInNode(node); Inherit2::insertInNode(node); return true; }
-    bool removeInNode( core::objectmodel::BaseNode* node ) override { Inherit1::removeInNode(node); Inherit2::removeInNode(node); return true; }
+    virtual bool insertInNode( core::objectmodel::BaseNode* node ) override { Inherit1::insertInNode(node); Inherit2::insertInNode(node); return true; }
+    virtual bool removeInNode( core::objectmodel::BaseNode* node ) override { Inherit1::removeInNode(node); Inherit2::removeInNode(node); return true; }
 
 };
 
@@ -213,13 +214,9 @@ Y
 */
 
 
-#if  !defined(SOFA_COMPONENT_MAPPING_IMPLICITSURFACEMAPPING_CPP)
-extern template class SOFA_SOFAIMPLICITFIELD_API ImplicitSurfaceMapping< defaulttype::Vec3dTypes, defaulttype::Vec3dTypes >;
-
-
-
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_MAPPING_IMPLICITSURFACEMAPPING_CPP)
+extern template class SOFA_SOFAIMPLICITFIELD_API ImplicitSurfaceMapping< defaulttype::Vec3Types, defaulttype::Vec3Types >;
 #endif
-
 
 } // namespace mapping
 

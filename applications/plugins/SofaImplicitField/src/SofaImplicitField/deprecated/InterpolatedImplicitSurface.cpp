@@ -10,6 +10,8 @@ namespace component
 namespace container
 {
 
+SOFA_DECL_CLASS(InterpolatedImplicitSurface)
+
 ///factory register
 int InterpolatedImplicitSurfaceClass = RegisterObject("Deprecated. This class is forwarding DiscreteGridField.")
         .add< InterpolatedImplicitSurface >()

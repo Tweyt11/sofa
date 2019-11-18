@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -25,6 +25,7 @@
 
 #include <sofa/core/objectmodel/DataFileName.h>
 #include <SofaImplicitField/components/geometry/ScalarField.h>
+#include <sofa/defaulttype/Vec.h>
 
 namespace sofa
 {
@@ -56,13 +57,13 @@ public:
 
 public:
     DiscreteGridField();
-    ~DiscreteGridField() override;
+    ~DiscreteGridField();
 
-    void init() override;
+    virtual void init() override;
 
-    virtual double getValue( Vec3d &transformedPos );
-    double getValue( Vec3d &transformedPos, int &domain ) override;
-    int getDomain( Vec3d &pos, int ref_domain ) override { (void)pos; return ref_domain; }
+    virtual double getValue( const Vec3d &transformedPos );
+    virtual double getValue(const Vec3d &transformedPos, int &domain ) override;
+    virtual int getDomain( Vec3d &pos, int ref_domain ) override { (void)pos; return ref_domain; }
 
     void setFilename(const std::string& filename) ;
     bool loadGridFromMHD( const char *filename ) ;
@@ -80,10 +81,14 @@ public:
     unsigned int m_imgSize[3];      // number of voxels
     double m_spacing[3];            // physical distance between two neighboring voxels
     double m_scale[3];              // (1/spacing)
-    double m_imgMin[3], m_imgMax[3];  // physical locations of the centers of both corner voxels
+    Vec3d m_imgMin;
+    Vec3d m_imgMax;  // physical locations of the centers of both corner voxels
     float *m_imgData;               // raw data
     unsigned int m_deltaOfs[8];     // offsets to define 8 corners of cube for interpolation
     std::vector<DomainCache> m_domainCache;
+    Data<int> d_state ;
+
+    virtual void draw(const core::visual::VisualParams *vparms) override ;
 };
 
 } /// namespace _discretegrid_

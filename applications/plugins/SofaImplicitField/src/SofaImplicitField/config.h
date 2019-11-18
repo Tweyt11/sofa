@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -19,19 +19,16 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_VOLUMETRIC_DATA_INIT_H
-#define SOFA_COMPONENT_VOLUMETRIC_DATA_INIT_H
-#include <SofaImplicitField/config.h>
+#ifndef SOFA_SOFAIMPLICITFIELD_CONFIG_H
+#define SOFA_SOFAIMPLICITFIELD_CONFIG_H
 
-namespace sofa
-{
+#include <SofaBase/config.h>
 
-namespace component
-{
-
-} // namespace component
-
-} // namespace sofa
-
+#ifdef SOFA_HAVE_SOFAIMPLICITFIELD
+#  define SOFA_TARGET SofaImplicitField
+#  define SOFA_SOFAIMPLICITFIELD_API SOFA_EXPORT_DYNAMIC_LIBRARY
+#else
+#  define SOFA_SOFAIMPLICITFIELD_API SOFA_IMPORT_DYNAMIC_LIBRARY
 #endif
 
+#endif

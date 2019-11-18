@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -55,7 +55,7 @@ void SphericalField::reinit()
     init();
 }
 
-double SphericalField::getValue(Vec3d& Pos, int& domain)
+double SphericalField::getValue(const defaulttype::Vec3d &Pos, int& domain)
 {
     SOFA_UNUSED(domain) ;
     double result = (Pos[0] - m_center[0])*(Pos[0] - m_center[0]) +
@@ -68,7 +68,7 @@ double SphericalField::getValue(Vec3d& Pos, int& domain)
     return result;
 }
 
-Vec3d SphericalField::getGradient(Vec3d &Pos, int &domain)
+Vec3d SphericalField::getGradient(const Vec3d &Pos, int &domain)
 {
     SOFA_UNUSED(domain);
     Vec3d g;
@@ -88,7 +88,7 @@ Vec3d SphericalField::getGradient(Vec3d &Pos, int &domain)
     return g;
 }
 
-void SphericalField::getValueAndGradient(Vec3d& Pos, double &value, Vec3d& /*grad*/, int& domain)
+void SphericalField::getValueAndGradient(const defaulttype::Vec3d &Pos, double &value, Vec3d& /*grad*/, int &domain)
 {
     SOFA_UNUSED(domain);
     Vec3d g;
@@ -109,6 +109,8 @@ void SphericalField::getValueAndGradient(Vec3d& Pos, double &value, Vec3d& /*gra
     return;
 }
 
+
+SOFA_DECL_CLASS(SphericalField)
 
 // Register in the Factory
 int SphericalFieldClass = core::RegisterObject("A spherical implicit field.")

@@ -6,7 +6,14 @@ set(SOURCE_FILES
     ImplicitShape_test.cpp
 )
 
-
+find_package(SofaPython QUIET)
+if(SofaPython_FOUND)
+    list(APPEND SOURCE_FILES
+        CustomField_test.cpp)
+    add_definitions("-DDO_SOFAPYTHON_FEATURES=1")
+else()
+    add_definitions("-DDO_SOFAPYTHON_FEATURES=0")
+endif()
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} SofaGTestMain SofaTest SofaImplicitField)

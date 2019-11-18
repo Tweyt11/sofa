@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -19,10 +19,10 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_IMPLICIT_SPHERICALFIELD_H
-#define SOFA_IMPLICIT_SPHERICALFIELD_H
+#define SOFA_COMPONENT_MAPPING_IMPLICITSURFACEMAPPING_CPP
+#include <sofa/core/ObjectFactory.h>
 
-#include "ScalarField.h"
+#include "ImplicitSurfaceMapping.inl"
 
 namespace sofa
 {
@@ -30,54 +30,22 @@ namespace sofa
 namespace component
 {
 
-namespace geometry
+namespace mapping
 {
 
-namespace _sphericalfield_
-{
+using namespace sofa::defaulttype;
 
-using sofa::defaulttype::Vec3d ;
+SOFA_DECL_CLASS(ImplicitSurfaceMapping)
 
-class  SOFA_SOFAIMPLICITFIELD_API SphericalField  : public ScalarField
-{
-public:
-    SOFA_CLASS(SphericalField, ScalarField);
+// Register in the Factory
+static int ImplicitSurfaceMappingClass = core::RegisterObject("Compute an iso-surface from a set of particles")
+        .add< ImplicitSurfaceMapping< Vec3Types, Vec3Types > >();
 
-public:
-    SphericalField() ;
-    ~SphericalField() override { }
+template class SOFA_SOFAIMPLICITFIELD_API ImplicitSurfaceMapping< Vec3Types, Vec3Types >;
 
-    /// Inherited from BaseObject
-    void init() override ;
-    void reinit() override ;
+} // namespace mapping
 
-    /// Inherited from ScalarField.
-    double getValue(Vec3d& Pos, int &domain) override ;
-    Vec3d getGradient(Vec3d &Pos, int& domain) override ;
-    void getValueAndGradient(Vec3d& pos, double& val, Vec3d& grad, int& domain) override ;
+} // namespace component
 
-    using ScalarField::getValue ;
-    using ScalarField::getGradient ;
-    using ScalarField::getValueAndGradient ;
+} // namespace sofa
 
-    Data<bool> d_inside; ///< If true the field is oriented inside (resp. outside) the sphere. (default = false)
-    Data<double> d_radiusSphere; ///< Radius of Sphere emitting the field. (default = 1)
-    Data<Vec3d> d_centerSphere; ///< Position of the Sphere Surface. (default=0 0 0)
-
-protected:
-    Vec3d m_center;
-    double m_radius;
-    bool m_inside;
-};
-
-} /// _sphericalfield_
-
-using _sphericalfield_::SphericalField ;
-
-} /// geometry
-
-} /// component
-
-} /// sofa
-
-#endif
