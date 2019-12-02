@@ -146,9 +146,9 @@ template <class DataTypes> TriangularQuadraticSpringsForceField<DataTypes>::Tria
     , f_useAngularSprings(initData(&f_useAngularSprings,true,"useAngularSprings","If Angular Springs should be used or not"))
     , lambda(0)
     , mu(0)
+    , l_topology(initLink("topology", "link to the topology container"))
     , triangleInfo(initData(&triangleInfo, "triangleInfo", "Internal triangle data"))
     , edgeInfo(initData(&edgeInfo, "edgeInfo", "Internal edge data"))
-    , l_topology(initLink("topology", "link to the topology container"))
     , m_topology(nullptr)
 {
     triangleHandler = new TRQSTriangleHandler(this, &triangleInfo);
@@ -168,14 +168,16 @@ template <class DataTypes> void TriangularQuadraticSpringsForceField<DataTypes>:
 
     if (l_topology.empty())
     {
-        msg_warning() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
+        msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
         l_topology.set(this->getContext()->getMeshTopology());
     }
 
     m_topology = l_topology.get();
+    msg_info() << "Topology path used: '" << l_topology.getLinkedPath() << "'";
+
     if (m_topology == nullptr)
     {
-        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath();
+        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath() << ", nor in current context: " << this->getContext()->name;
         sofa::core::objectmodel::BaseObject::d_componentstate.setValue(sofa::core::objectmodel::ComponentState::Invalid);
         return;
     }

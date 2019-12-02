@@ -493,12 +493,12 @@ void QuadularBendingSprings<DataTypes>::EdgeBSHandler::ApplyTopologyChange(const
 
 template<class DataTypes>
 QuadularBendingSprings<DataTypes>::QuadularBendingSprings()
-    : updateMatrix(true)
-    , f_ks ( initData(&f_ks,(double) 100000.0,"stiffness","uniform stiffness for the all springs"))
+    : f_ks ( initData(&f_ks,(double) 100000.0,"stiffness","uniform stiffness for the all springs"))
     , f_kd ( initData(&f_kd,(double) 1.0,"damping","uniform damping for the all springs"))
-    , edgeInfo ( initData(&edgeInfo, "edgeInfo","Internal edge data"))
     , l_topology(initLink("topology", "link to the topology container"))
+    , edgeInfo ( initData(&edgeInfo, "edgeInfo","Internal edge data"))
     , m_topology(nullptr)
+    , updateMatrix(true)
 {
     edgeHandler = new EdgeBSHandler(this, &edgeInfo);
 }
@@ -520,23 +520,23 @@ void QuadularBendingSprings<DataTypes>::init()
 
     if (l_topology.empty())
     {
-        msg_warning() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
+        msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
         l_topology.set(this->getContext()->getMeshTopology());
     }
 
     m_topology = l_topology.get();
+    msg_info() << "Topology path used: '" << l_topology.getLinkedPath() << "'";
+
     if (m_topology == nullptr)
     {
-        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath();
+        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath() << ", nor in current context: " << this->getContext()->name;
         sofa::core::objectmodel::BaseObject::d_componentstate.setValue(sofa::core::objectmodel::ComponentState::Invalid);
         return;
     }
 
     if (m_topology->getNbQuads()==0)
     {
-        msg_error() << "Object must have a Quadular Set Topology.";
-        sofa::core::objectmodel::BaseObject::d_componentstate.setValue(sofa::core::objectmodel::ComponentState::Invalid);
-        return;
+        msg_warning() << "No Quads found in linked Topology.";
     }
 
     edgeInfo.createTopologicalEngine(m_topology,edgeHandler);

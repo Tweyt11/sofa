@@ -456,12 +456,12 @@ void TriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::ApplyTopology
 
 template<class DataTypes>
 TriangularBendingSprings<DataTypes>::TriangularBendingSprings(/*double _ks, double _kd*/)
-    : edgeInfo(initData(&edgeInfo, "edgeInfo", "Internal edge data"))
-    , updateMatrix(true)
-    , f_ks(initData(&f_ks,(double) 100000.0,"stiffness","uniform stiffness for the all springs")) //(Real)0.3 ??
+    : f_ks(initData(&f_ks,(double) 100000.0,"stiffness","uniform stiffness for the all springs")) //(Real)0.3 ??
     , f_kd(initData(&f_kd,(double) 1.0,"damping","uniform damping for the all springs")) // (Real)1000. ??
-    , edgeHandler(nullptr)
     , l_topology(initLink("topology", "link to the topology container"))
+    , edgeInfo(initData(&edgeInfo, "edgeInfo", "Internal edge data"))
+    , updateMatrix(true)
+    , edgeHandler(nullptr)
     , m_topology(nullptr)
 {
     // Create specific handler for EdgeData
@@ -484,14 +484,16 @@ void TriangularBendingSprings<DataTypes>::init()
 
     if (l_topology.empty())
     {
-        msg_warning() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
+        msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
         l_topology.set(this->getContext()->getMeshTopology());
     }
 
     m_topology = l_topology.get();
+    msg_info() << "Topology path used: '" << l_topology.getLinkedPath() << "'";
+
     if (m_topology == nullptr)
     {
-        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath();
+        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath() << ", nor in current context: " << this->getContext()->name;
         sofa::core::objectmodel::BaseObject::d_componentstate.setValue(sofa::core::objectmodel::ComponentState::Invalid);
         return;
     }

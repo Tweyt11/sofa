@@ -352,8 +352,8 @@ template<class DataTypes>
 FastTriangularBendingSprings<DataTypes>::FastTriangularBendingSprings(/*double _ks, double _kd*/)
     : d_bendingStiffness(initData(&d_bendingStiffness,(SReal) 1.0,"bendingStiffness","bending stiffness of the material"))
     , d_minDistValidity(initData(&d_minDistValidity,(SReal) 0.000001,"minDistValidity","Distance under which a spring is not valid"))
-    , d_edgeSprings(initData(&d_edgeSprings, "edgeInfo", "Internal edge data"))
     , l_topology(initLink("topology", "link to the topology container"))
+    , d_edgeSprings(initData(&d_edgeSprings, "edgeInfo", "Internal edge data"))
     , d_edgeHandler(nullptr)
 {
     // Create specific handler for EdgeData
@@ -374,14 +374,16 @@ void FastTriangularBendingSprings<DataTypes>::init()
 
     if (l_topology.empty())
     {
-        msg_warning() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
+        msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
         l_topology.set(this->getContext()->getMeshTopology());
     }
 
     m_topology = l_topology.get();
+    msg_info() << "Topology path used: '" << l_topology.getLinkedPath() << "'";
+
     if (m_topology == nullptr)
     {
-        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath();
+        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath() << ", nor in current context: " << this->getContext()->name;
         sofa::core::objectmodel::BaseObject::d_componentstate.setValue(sofa::core::objectmodel::ComponentState::Invalid);
         return;
     }
@@ -389,9 +391,7 @@ void FastTriangularBendingSprings<DataTypes>::init()
 
     if (m_topology->getNbTriangles()==0)
     {
-        msg_error() << "Object must have a Triangular Set Topology.";
-        sofa::core::objectmodel::BaseObject::d_componentstate.setValue(sofa::core::objectmodel::ComponentState::Invalid);
-        return;
+        msg_warning() << "No triangles found in linked Topology.";
     }
     d_edgeSprings.createTopologicalEngine(m_topology,d_edgeHandler);
     d_edgeSprings.linkToPointDataArray();

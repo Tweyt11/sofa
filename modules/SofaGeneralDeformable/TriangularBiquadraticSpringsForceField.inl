@@ -165,9 +165,9 @@ template <class DataTypes> TriangularBiquadraticSpringsForceField<DataTypes>::Tr
     , f_useAngularSprings(initData(&f_useAngularSprings,true,"useAngularSprings","If Angular Springs should be used or not"))
     , f_compressible(initData(&f_compressible,true,"compressible","If additional energy penalizing compressibility should be used"))
     , f_stiffnessMatrixRegularizationWeight(initData(&f_stiffnessMatrixRegularizationWeight,(Real)0.4,"matrixRegularization","Regularization of the Stiffnes Matrix (between 0 and 1)"))
-    , l_topology(initLink("topology", "link to the topology container"))
     , lambda(0)
     , mu(0)
+    , l_topology(initLink("topology", "link to the topology container"))
     , edgeHandler(nullptr)
     , triangleHandler(nullptr)
     , m_topology(nullptr)
@@ -189,23 +189,23 @@ template <class DataTypes> void TriangularBiquadraticSpringsForceField<DataTypes
     
     if (l_topology.empty())
     {
-        msg_warning() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
+        msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
         l_topology.set(this->getContext()->getMeshTopology());
     }
 
     m_topology = l_topology.get();
+    msg_info() << "Topology path used: '" << l_topology.getLinkedPath() << "'";
+
     if (m_topology == nullptr)
     {
-        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath();
+        msg_error() << "No topology component found at path: " << l_topology.getLinkedPath() << ", nor in current context: " << this->getContext()->name;
         sofa::core::objectmodel::BaseObject::d_componentstate.setValue(sofa::core::objectmodel::ComponentState::Invalid);
         return;
     }
 
     if (m_topology->getNbTriangles()==0)
     {
-        msg_error() << "Object must have a Triangular Set Topology." ;
-        sofa::core::objectmodel::BaseObject::d_componentstate.setValue(sofa::core::objectmodel::ComponentState::Invalid);
-        return;
+        msg_warning() << "No triangles found in linked Topology.";
     }
     updateLameCoefficients();
 
