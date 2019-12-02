@@ -282,27 +282,6 @@ struct DataTrackerEngine_test: public BaseTest
     }
 
 
-    static void myUpdate( core::DataTrackerEngine* dataTrackerEngine )
-    {
-        ++updateCounter;
-
-        // get the list of inputs for this DDGNode
-        const core::DataTrackerEngine::DDGLinkContainer& inputs = dataTrackerEngine->getInputs();
-        // get the list of outputs for this DDGNode
-        const core::DataTrackerEngine::DDGLinkContainer& outputs = dataTrackerEngine->getOutputs();
-
-        // we known who is who from the order Data were added to the DataTrackerEngine
-        bool input = static_cast<Data< bool >*>( inputs[0] )->getValue();
-
-        dataTrackerEngine->cleanDirty();
-
-
-        Data< bool >* output = static_cast<Data< bool >*>( outputs[0] );
-
-        output->setValue( input );
-    }
-
-
     /// to test DataTrackerEngine between Data in separated components
     void testBetweenComponents()
     {
@@ -313,7 +292,11 @@ struct DataTrackerEngine_test: public BaseTest
         core::DataTrackerEngine dataTracker;
         dataTracker.addInput(&testObject.myData); // several inputs can be added
         dataTracker.addOutput(&testObject2.myData); // several output can be added
-        dataTracker.addCallback( &DataTrackerEngine_test::myUpdate );
+        dataTracker.addCallback( [&](){
+            ++updateCounter;
+            testObject2.myData.setValue(testObject.myData.getValue());
+            return core::objectmodel::ComponentState::Valid;
+        });
         dataTracker.setDirtyValue();
         unsigned localCounter = 0u;
 
