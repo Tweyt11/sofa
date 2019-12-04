@@ -597,21 +597,26 @@ void DrawToolGL::drawArrow(const Vector3& p1, const Vector3 &p2, float radius, c
 
 void DrawToolGL::drawArrow(const Vector3& p1, const Vector3 &p2, float radius, float coneLength, const Vec<4,float>& color, int subd)
 {
+    drawArrow(p1, p2, radius, coneLength, radius * 2.5f, color, subd);
+}
+
+void DrawToolGL::drawArrow   (const Vector3& p1, const Vector3 &p2, float radius, float coneLength, float coneRadius, const Vec4f& color, int subd)
+{
     // fixed coneLength ; cone can be stretched or when its length depends on the total arrow length
 
     Vector3 a = p2 - p1;
     SReal n = a.norm();
     if( coneLength >= n )
-        drawCone( p1,p2,radius*2.5f,0,color,subd);
+        drawCone( p1,p2,coneRadius,0,color,subd);
     else
     {
         a /= n; // normalizing
         Vector3 p3 = p2 - coneLength*a;
         drawCylinder( p1,p3,radius,color,subd);
-        drawCone( p3,p2,radius*2.5f,0,color,subd);
+        drawCone( p3,p2,coneRadius,0,color,subd);
     }
-
 }
+
 
 void DrawToolGL::drawCross(const Vector3&p, float length, const Vec4f& color)
 {

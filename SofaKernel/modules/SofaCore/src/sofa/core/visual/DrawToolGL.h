@@ -118,6 +118,7 @@ public:
 
     void drawArrow   (const Vector3& p1, const Vector3 &p2, float radius, const Vec4f& color,  int subd=16) override;
     void drawArrow   (const Vector3& p1, const Vector3 &p2, float radius, float coneLength, const Vec4f& color,  int subd=16) override;
+    void drawArrow   (const Vector3& p1, const Vector3 &p2, float radius, float coneLength, float coneRadius, const Vec4f& color,  int subd=16) override;
 
     void drawCross(const Vector3&p, float length, const Vec4f& color) override;
 
