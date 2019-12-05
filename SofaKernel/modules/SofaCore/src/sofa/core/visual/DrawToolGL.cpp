@@ -125,6 +125,15 @@ void DrawToolGL::drawLine(const Vector3 &p1, const Vector3 &p2, const Vec4f& col
     glEnd();
 }
 
+void DrawToolGL::drawInfiniteLine(const Vector3 &point, const Vector3 &direction, const Vec4f& color)
+{
+    glBegin(GL_LINES);
+    glColor4f(color[0],color[1],color[2],color[3]);
+    glVertex4d(point[0], point[1], point[2], 1.0);
+    glVertex4d(direction[0], direction[1], direction[2], 0.0);
+    glEnd();
+}
+
 void DrawToolGL::drawLines(const std::vector<Vector3> &points, float size, const Vec<4,float>& color)
 {
     setMaterial(color);
@@ -221,6 +230,32 @@ void DrawToolGL::drawLineLoop(const std::vector<Vector3> &points, float size, co
     resetMaterial(color);
     glLineWidth(1);
 }
+
+
+void DrawToolGL::drawCircle(const Vector3& pos, const Quaternion& orientation, float radius, float lineThickness, int resolution, const Vec4f& color)
+{
+    glLineWidth(lineThickness);
+    glEnable(GL_LINE_SMOOTH);
+
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glBegin(GL_LINE_STRIP);
+    {
+        glColor4f(color.x(), color.y(), color.z(), color.w());
+        for (int i  = 0 ; i < resolution ; ++i)
+        {
+            float angle = i / (resolution - 1.0f) * 2.0f * M_PI;
+            float alpha = std::cos(angle);
+            float beta = std::sin(angle);
+
+            glVertex3f(radius * alpha, radius * beta, 0.0);
+        }
+    }
+    glEnd();
+
+    glDisable(GL_LINE_SMOOTH);
+    glLineWidth(1.0f);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

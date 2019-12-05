@@ -66,12 +66,15 @@ public:
     virtual void drawPoints(const std::vector<Vector3> &points, float size, const std::vector<Vec4f>& colour) = 0;
 
     virtual void drawLine(const Vector3 &p1, const Vector3 &p2, const Vec4f& colour) =  0;
+    virtual void drawInfiniteLine(const Vector3 &point, const Vector3 &direction, const Vec4f& color) = 0;
     virtual void drawLines(const std::vector<Vector3> &points, float size, const Vec4f& colour) = 0 ;
     virtual void drawLines(const std::vector<Vector3> &points, float size, const std::vector<Vec4f>& colours) = 0 ;
     virtual void drawLines(const std::vector<Vector3> &points, const std::vector< Vec2i > &index , float size, const Vec4f& colour) = 0 ;
 
     virtual void drawLineStrip(const std::vector<Vector3> &points, float size, const Vec4f& colour) = 0 ;
     virtual void drawLineLoop(const std::vector<Vector3> &points, float size, const Vec4f& colour) = 0 ;
+
+    virtual void drawCircle(const Vector3& pos, const Quaternion& orientation, float radius, float lineThickness, int resolution, const Vec4f& color) = 0;
 
     virtual void drawTriangles(const std::vector<Vector3> &points, const Vec4f& colour) = 0 ;
     virtual void drawTriangles(const std::vector<Vector3> &points, const Vector3& normal, const Vec4f& colour) = 0 ;
