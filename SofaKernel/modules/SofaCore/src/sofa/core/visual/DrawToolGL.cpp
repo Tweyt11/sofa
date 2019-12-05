@@ -231,13 +231,39 @@ void DrawToolGL::drawLineLoop(const std::vector<Vector3> &points, float size, co
     glLineWidth(1);
 }
 
+void DrawToolGL::drawDisk(float radius, int resolution, const Vec4f& color)
+{
+    glBegin(GL_TRIANGLES);
+    {
+        glColor4f(color.x(), color.y(), color.z(), color.w());
+        float prev_alpha = 0;
+        float prev_beta = 0;
+        for (int i  = 0 ; i < resolution ; ++i)
+        {
+            float angle = i / (resolution - 1.0f) * 2.0f * M_PI;
+            float alpha = std::cos(angle);
+            float beta = std::sin(angle);
 
-void DrawToolGL::drawCircle(const Vector3& pos, const Quaternion& orientation, float radius, float lineThickness, int resolution, const Vec4f& color)
+            if (prev_alpha == 0)
+            {
+                prev_alpha = alpha;
+                prev_beta = beta;
+            }
+            glVertex3f(0.0, 0.0, 0.0);
+            glVertex3f(radius * prev_alpha, radius * prev_beta, 0.0);
+            glVertex3f(radius * alpha, radius * beta, 0.0);
+            prev_alpha = alpha;
+            prev_beta = beta;
+        }
+    }
+    glEnd();
+}
+
+void DrawToolGL::drawCircle(float radius, float lineThickness, int resolution, const Vec4f& color)
 {
     glLineWidth(lineThickness);
     glEnable(GL_LINE_SMOOTH);
 
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glBegin(GL_LINE_STRIP);
     {
         glColor4f(color.x(), color.y(), color.z(), color.w());

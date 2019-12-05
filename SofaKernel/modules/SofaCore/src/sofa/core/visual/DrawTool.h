@@ -74,7 +74,8 @@ public:
     virtual void drawLineStrip(const std::vector<Vector3> &points, float size, const Vec4f& colour) = 0 ;
     virtual void drawLineLoop(const std::vector<Vector3> &points, float size, const Vec4f& colour) = 0 ;
 
-    virtual void drawCircle(const Vector3& pos, const Quaternion& orientation, float radius, float lineThickness, int resolution, const Vec4f& color) = 0;
+    virtual void drawDisk(float radius, int resolution, const Vec4f& color) = 0;
+    virtual void drawCircle(float radius, float lineThickness, int resolution, const Vec4f& color) = 0;
 
     virtual void drawTriangles(const std::vector<Vector3> &points, const Vec4f& colour) = 0 ;
     virtual void drawTriangles(const std::vector<Vector3> &points, const Vector3& normal, const Vec4f& colour) = 0 ;
