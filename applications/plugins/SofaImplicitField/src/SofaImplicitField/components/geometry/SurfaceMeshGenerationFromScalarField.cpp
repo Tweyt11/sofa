@@ -35,6 +35,7 @@ using sofa::defaulttype::Vec4f ;
 #include <sofa/helper/MarchingCubeUtility.h>
 
 #include "SurfaceMeshGenerationFromScalarField.h"
+using sofa::core::objectmodel::ComponentState;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace sofa
@@ -73,6 +74,13 @@ SurfaceMeshGenerationFromScalarField::~SurfaceMeshGenerationFromScalarField()
 
 void SurfaceMeshGenerationFromScalarField::init()
 {
+    addUpdateCallback("source", {}, {&l_field},
+                      [this](sofa::core::DataTrackerEngine * d){
+        d->updateAllInputsIfDirty();
+
+        this->generateSurfaceMesh() ;
+        d->cleanDirty();
+    }, {&m_componentstate});
     generateSurfaceMesh() ;
 }
 
@@ -83,7 +91,8 @@ static bool inited = false ;
 
 void SurfaceMeshGenerationFromScalarField::draw(const VisualParams* vparams)
 {
-
+    if( m_componentstate == ComponentState::Invalid )
+        return ;
 
     if(!inited){
         //if( l_field.get() != 0 ){
@@ -125,6 +134,7 @@ void SurfaceMeshGenerationFromScalarField::draw(const VisualParams* vparams)
 
 void SurfaceMeshGenerationFromScalarField::generateSurfaceMesh()
 {
+    std::cout << "HELLO WORDL " << std::endl;
     if( l_field.get() == 0 )
         return ;
 
