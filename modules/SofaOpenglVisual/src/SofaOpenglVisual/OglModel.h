@@ -127,6 +127,7 @@ public:
     bool hasTransparent() override;
     bool hasTexture();
 
+    bool m_isDirty{true};
 public:
     bool isUseEdges()	{ return useEdges; }
     bool isUseTriangles()	{ return useTriangles; }
