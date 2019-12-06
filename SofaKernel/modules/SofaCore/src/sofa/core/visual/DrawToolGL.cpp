@@ -233,6 +233,8 @@ void DrawToolGL::drawLineLoop(const std::vector<Vector3> &points, float size, co
 
 void DrawToolGL::drawDisk(float radius, double from, double to, int resolution, const Vec4f& color)
 {
+    if (from > to)
+        std::swap(from, to);
     glBegin(GL_TRIANGLES);
     {
         glColor4f(color.x(), color.y(), color.z(), color.w());
