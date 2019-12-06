@@ -241,14 +241,14 @@ void DrawToolGL::drawDisk(float radius, double from, double to, int resolution, 
         bool stop = false;
         for (int i  = 0 ; i < resolution ; ++i)
         {
-            float angle = from + i / (resolution - 1.0f) * 2.0f * M_PI;
+            float angle = (i / (resolution - 1.0f) * 2.0f * M_PI) + from;
             if(angle >= to)
             {
                 angle = to;
                 stop = true;
             }
-            float alpha = std::cos(angle);
-            float beta = std::sin(angle);
+            float alpha = std::sin(angle);
+            float beta = std::cos(angle);
 
             if (prev_alpha == 0)
             {
