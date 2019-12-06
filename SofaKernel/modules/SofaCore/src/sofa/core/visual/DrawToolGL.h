@@ -67,7 +67,7 @@ public:
     virtual void drawLineStrip(const std::vector<Vector3> &points, float size, const Vec4f& color) override;
     virtual void drawLineLoop(const std::vector<Vector3> &points, float size, const Vec4f& color) override;
 
-    virtual void drawDisk(float radius, int resolution, const Vec4f& color) override;
+    virtual void drawDisk(float radius, double from, double to, int resolution, const Vec4f& color) override;
     virtual void drawCircle(float radius, float lineThickness, int resolution, const Vec4f& color) override;
 
     void drawTriangle(const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,

@@ -231,7 +231,7 @@ void DrawToolGL::drawLineLoop(const std::vector<Vector3> &points, float size, co
     glLineWidth(1);
 }
 
-void DrawToolGL::drawDisk(float radius, int resolution, const Vec4f& color)
+void DrawToolGL::drawDisk(float radius, double from, double to, int resolution, const Vec4f& color)
 {
     glBegin(GL_TRIANGLES);
     {
