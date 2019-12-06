@@ -74,6 +74,7 @@ Base::Base()
     sendl.setParent(this);
 
     /// name change => component state update
+
     addUpdateCallback("name", {&name}, [this](){
         /// Increment the state counter but without changing the state.
         return m_componentstate.getValue();
