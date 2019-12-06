@@ -87,6 +87,18 @@ protected:
 MeshVTKLoader::MeshVTKLoader() : MeshLoader()
     , reader(nullptr)
 {
+
+    /// name filename => component state update + change of all data field...but not visible ?
+    addUpdateCallback("filename", {&m_filename}, {}, [this](sofa::core::DataTrackerEngine* t)
+    {
+        t->updateAllInputsIfDirty();
+        m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
+        if(load()){
+            clearLoggedMessages();
+            m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
+        }
+        t->cleanDirty();
+    }, {&m_componentstate});
 }
 
 MeshVTKLoader::VTKFileType MeshVTKLoader::detectFileType(const char* filename)
