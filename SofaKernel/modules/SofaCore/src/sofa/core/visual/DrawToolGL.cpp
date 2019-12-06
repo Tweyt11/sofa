@@ -238,9 +238,15 @@ void DrawToolGL::drawDisk(float radius, double from, double to, int resolution, 
         glColor4f(color.x(), color.y(), color.z(), color.w());
         float prev_alpha = 0;
         float prev_beta = 0;
+        bool stop = false;
         for (int i  = 0 ; i < resolution ; ++i)
         {
-            float angle = i / (resolution - 1.0f) * 2.0f * M_PI;
+            float angle = from + i / (resolution - 1.0f) * 2.0f * M_PI;
+            if(angle >= to)
+            {
+                angle = to;
+                stop = true;
+            }
             float alpha = std::cos(angle);
             float beta = std::sin(angle);
 
@@ -252,6 +258,8 @@ void DrawToolGL::drawDisk(float radius, double from, double to, int resolution, 
             glVertex3f(0.0, 0.0, 0.0);
             glVertex3f(radius * prev_alpha, radius * prev_beta, 0.0);
             glVertex3f(radius * alpha, radius * beta, 0.0);
+            if (stop)
+                break;
             prev_alpha = alpha;
             prev_beta = beta;
         }
