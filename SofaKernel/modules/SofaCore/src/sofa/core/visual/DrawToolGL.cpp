@@ -234,26 +234,28 @@ void DrawToolGL::drawLineLoop(const std::vector<Vector3> &points, float size, co
 void DrawToolGL::drawDisk(float radius, double from, double to, int resolution, const Vec4f& color)
 {
     if (from > to)
-        std::swap(from, to);
+        to += 2.0 * M_PI;
     glBegin(GL_TRIANGLES);
     {
         glColor4f(color.x(), color.y(), color.z(), color.w());
+        bool first = true;
         float prev_alpha = 0;
         float prev_beta = 0;
         bool stop = false;
-        for (int i  = 0 ; i < resolution ; ++i)
+        for (int i  = 0 ; i <= resolution ; ++i)
         {
-            float angle = (i / (resolution - 1.0f) * 2.0f * M_PI) + from;
+            double angle = (double(i) / double(resolution) * 2.0 * M_PI) + from;
             if(angle >= to)
             {
                 angle = to;
                 stop = true;
             }
-            float alpha = std::sin(angle);
-            float beta = std::cos(angle);
+            float alpha = float(std::sin(angle));
+            float beta = float(std::cos(angle));
 
-            if (prev_alpha == 0)
+            if (first)
             {
+                first = false;
                 prev_alpha = alpha;
                 prev_beta = beta;
             }
@@ -277,11 +279,11 @@ void DrawToolGL::drawCircle(float radius, float lineThickness, int resolution, c
     glBegin(GL_LINE_STRIP);
     {
         glColor4f(color.x(), color.y(), color.z(), color.w());
-        for (int i  = 0 ; i < resolution ; ++i)
+        for (int i  = 0 ; i <= resolution ; ++i)
         {
-            float angle = i / (resolution - 1.0f) * 2.0f * M_PI;
-            float alpha = std::cos(angle);
-            float beta = std::sin(angle);
+            float angle = float(double(i) / double(resolution) * 2.0 * M_PI);
+            float alpha = std::sin(angle);
+            float beta = std::cos(angle);
 
             glVertex3f(radius * alpha, radius * beta, 0.0);
         }
