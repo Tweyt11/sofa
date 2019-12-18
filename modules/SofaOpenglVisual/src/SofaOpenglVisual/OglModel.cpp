@@ -96,20 +96,20 @@ OglModel::OglModel()
     primitiveTypeOptions->setSelectedItem(0);
     primitiveType.endEdit();
 
-    addUpdateCallback("translation", {&m_positions},
-                      {},
-                      [this](sofa::core::DataTrackerEngine* t)
-    {
-        t->updateAllInputsIfDirty();
-        m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
-        clearLoggedMessages();
-        init();
-        m_isDirty=true;
-        //initDone=false;
-        t->cleanDirty();
-        m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
+//    addUpdateCallback("translation", {&m_positions},
+//                      {},
+//                      [this](sofa::core::DataTrackerEngine* t)
+//    {
+//        t->updateAllInputsIfDirty();
+//        m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
+//        clearLoggedMessages();
+//        init();
+//        m_isDirty=true;
+//        //initDone=false;
+//        t->cleanDirty();
+//        m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
 
-    }, {&m_componentstate});
+//    }, {&m_componentstate});
 }
 
 OglModel::~OglModel()
