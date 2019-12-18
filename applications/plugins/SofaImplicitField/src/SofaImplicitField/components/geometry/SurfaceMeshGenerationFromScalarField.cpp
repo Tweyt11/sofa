@@ -57,15 +57,24 @@ int SurfaceMeshGenerationFromScalarFieldClass =
 
 
 SurfaceMeshGenerationFromScalarField::SurfaceMeshGenerationFromScalarField()
-    : l_field(initLink("field", "The scalar field to generate a mesh from.")),
-      mStep(initData(&mStep,0.1,"step","Step")),
+    : mStep(initData(&mStep,0.1,"step","Step")),
       mIsoValue(initData(&mIsoValue,0.0,"isoValue","Iso Value")),
       mGridMin(initData(&mGridMin, Vec3d(-1,-1,-1),"min","Grid Min")),
       mGridMax(initData(&mGridMax, Vec3d(1,1,1),"max","Grid Max"))
-      , d_out_points(initData(&d_out_points, "outputPoints", "position of the tiangles vertex"))
-      , d_out_triangles(initData(&d_out_triangles, "outputTriangles", "list of triangles"))
-      , d_visuCavity(initData(&d_visuCavity,true, "visuCavity","Allows to display the cavity surface"))
+    , d_evalFunction(initData(&d_evalFunction, ScalarFieldR3(), "evalFunction", "evaluate the distance field"))
+    , d_out_points(initData(&d_out_points, "outputPoints", "position of the tiangles vertex"))
+    , d_out_triangles(initData(&d_out_triangles, "outputTriangles", "list of triangles"))
+    , d_visuCavity(initData(&d_visuCavity,true, "visuCavity","Allows to display the cavity surface"))
 {
+    addUpdateCallback("evalFunction", {&d_evalFunction, &mGridMax, &mGridMax, &mIsoValue, &mStep},
+                      [this](){
+        if(!d_evalFunction.isSet())
+            return ComponentState::Invalid;
+
+        generateSurfaceMesh();
+        return ComponentState::Valid;
+    }, {&d_out_points, &d_out_triangles});
+
 }
 
 SurfaceMeshGenerationFromScalarField::~SurfaceMeshGenerationFromScalarField()
@@ -74,37 +83,21 @@ SurfaceMeshGenerationFromScalarField::~SurfaceMeshGenerationFromScalarField()
 
 void SurfaceMeshGenerationFromScalarField::init()
 {
-    addUpdateCallback("source", {}, {&l_field},
-                      [this](sofa::core::DataTrackerEngine * d){
-        d->updateAllInputsIfDirty();
-
-        this->generateSurfaceMesh() ;
-        d->cleanDirty();
-    }, {&m_componentstate});
     generateSurfaceMesh() ;
 }
 
-void SurfaceMeshGenerationFromScalarField::reinit()
-{
-}
-static bool inited = false ;
 
 void SurfaceMeshGenerationFromScalarField::draw(const VisualParams* vparams)
 {
     if( m_componentstate == ComponentState::Invalid )
         return ;
 
-    if(!inited){
-        //if( l_field.get() != 0 ){
-            generateSurfaceMesh();
-        //}
-    }
-
     if(!d_visuCavity.getValue())
     {
         return;
     }
 
+    vparams->drawTool()->saveLastState();
     vparams->drawTool()->drawBoundingBox(mGridMin.getValue(), mGridMax.getValue()) ;
 
     sofa::helper::ReadAccessor< Data<VecCoord> > x = d_out_points;
@@ -130,21 +123,11 @@ void SurfaceMeshGenerationFromScalarField::draw(const VisualParams* vparams)
     }
 
     vparams->drawTool()->drawSpheres(d_out_points.getValue(), 0.01, Vec4f(1.0,1.0,0.0,0.2)) ;
+    vparams->drawTool()->restoreLastState();
 }
 
 void SurfaceMeshGenerationFromScalarField::generateSurfaceMesh()
 {
-    std::cout << "HELLO WORDL " << std::endl;
-    if( l_field.get() == 0 )
-        return ;
-
-    if( !l_field.get()->isComponentStateValid() )
-    {
-        std::cout << "INVALID COMPONENT" << std::endl;
-        return ;
-    }
-    inited=true;
-
     /// Copy the surface as a Sofa topology
     sofa::helper::WriteOnlyAccessor< Data<VecCoord> >      points = d_out_points;
     sofa::helper::WriteOnlyAccessor< Data<SeqTriangles> >  triangles = d_out_triangles;
@@ -152,6 +135,7 @@ void SurfaceMeshGenerationFromScalarField::generateSurfaceMesh()
     points.clear();
     triangles.clear();
 
+    ScalarFieldR3 field = d_evalFunction.getValue();
     double isoval = mIsoValue.getValue();
     double mstep = mStep.getValue();
     double invStep = 1.0/mStep.getValue();
@@ -187,7 +171,7 @@ void SurfaceMeshGenerationFromScalarField::generateSurfaceMesh()
             cx = gridmin.x() + mstep * x ;
 
             Vec3d pos { cx, cy, cz }  ;
-            double res =  l_field.get()->getValue(pos) ;
+            double res =  field.function(cx,cy,cz) ;
             (P1+i)->data = res ;
         }
     }
@@ -208,7 +192,7 @@ void SurfaceMeshGenerationFromScalarField::generateSurfaceMesh()
                 cx = gridmin.x() + mstep * x ;
 
                 Vec3d pos { cx, cy, cz }  ;
-                double res =  l_field.get()->getValue(pos) ;
+                double res =  field.function(cx,cy,cz) ;
                 (P1+i)->data = res ;
             }
         }

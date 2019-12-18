@@ -64,8 +64,8 @@ Vec3d ScalarField::getGradient(const Vec3d& pos, int& i)
 
 void ScalarField::getValueAndGradient(const Vec3d& pos, double &value, Vec3d& grad, int &domain)
 {
-  value = getValue(pos,domain);
-  grad = getGradient(pos,domain);
+    value = getValue(pos,domain);
+    grad = getGradient(pos,domain);
 }
 
 
@@ -243,3 +243,22 @@ bool ScalarField::projectPointOutOfSurface(Vec3d& point, int i, Vec3d& dir, doub
 } /// namespace component
 
 } /// namespace sofa
+
+/////////////////////////////////////////////
+namespace sofa::core::objectmodel
+{
+
+/// Specialization for reading strings
+template<>
+bool TData<sofa::component::geometry::ScalarFieldR3>::read( const std::string& str ){
+    return false;
+};
+
+template<>
+void TData<sofa::component::geometry::ScalarFieldR3>::printValue( std::ostream& out) const {};
+
+template<> std::string TData<sofa::component::geometry::ScalarFieldR3>::getValueString() const
+{
+    return "Lambda function";
+};
+} ///

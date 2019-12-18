@@ -136,12 +136,22 @@ namespace component
 namespace geometry
 {
 
+using sofa::defaulttype::Vec3d ;
+typedef std::function<double(double, double, double)> ScalarFieldFunctionR3R;
+typedef std::function<Vec3d(double, double, double)>  GradientFieldFunctionR3R;
+
+class ScalarFieldR3
+{
+public:
+    ScalarFieldFunctionR3R   function {[](double,double,double)->double{return 0.0;}};
+    GradientFieldFunctionR3R gradient {[](double,double,double)->Vec3d{return Vec3d();}};
+};
+
 namespace _scalarfield_
 {
 
 using sofa::core::objectmodel::TrackedComponent ;
 using sofa::core::objectmodel::BaseObject ;
-using sofa::defaulttype::Vec3d ;
 
 ////////////////// ///////////////
 class SOFA_SOFAIMPLICITFIELD_API ScalarField : public BaseObject, public TrackedComponent
@@ -234,6 +244,19 @@ using _scalarfield_::ScalarField ;
 } /// namespace component
 
 } /// namespace sofa
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+namespace sofa::core::objectmodel
+{
+/// Specialization for reading strings
+template<>
+bool TData<sofa::component::geometry::ScalarFieldR3>::read( const std::string& str );
+template<>
+void TData<sofa::component::geometry::ScalarFieldR3>::printValue( std::ostream& out) const;
+template<>
+std::string TData<sofa::component::geometry::ScalarFieldR3>::getValueString() const ;
+}
+
 
 #endif
 

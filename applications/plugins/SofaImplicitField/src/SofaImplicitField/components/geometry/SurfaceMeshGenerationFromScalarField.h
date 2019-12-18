@@ -54,7 +54,6 @@ public:
     SOFA_CLASS(SurfaceMeshGenerationFromScalarField, BaseObject);
 
     virtual void init() override ;
-    virtual void reinit() override ;
     virtual void draw(const VisualParams*params) override ;
 
     double getStep() const { return mStep.getValue(); }
@@ -72,8 +71,7 @@ public:
     void setGridMax(double x, double y, double z) { mGridMax.setValue( Vec3d(x,y,z)); }
 
 protected:
-    SingleLink<SurfaceMeshGenerationFromScalarField, ScalarField,
-               BaseLink::FLAG_STOREPATH|BaseLink::FLAG_STRONGLINK> l_field ;
+    Data< ScalarFieldR3 > d_evalFunction;
 
     Data <double > mStep;
     Data <double > mIsoValue;
