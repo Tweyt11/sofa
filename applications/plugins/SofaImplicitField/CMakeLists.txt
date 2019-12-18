@@ -6,6 +6,10 @@ set(SOFA_HAVE_SOFAIMPLICITFIELD 1)
 
 find_package(SofaDistanceGrid REQUIRED)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(HEADER_FILES
     src/SofaImplicitField/config.h
     src/SofaImplicitField/initSofaImplicitField.h
