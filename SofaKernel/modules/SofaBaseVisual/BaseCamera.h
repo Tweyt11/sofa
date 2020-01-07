@@ -269,8 +269,10 @@ public:
         return 1.0;
     }
 
-    void draw(const core::visual::VisualParams*) override ;
 
+    void draw(const core::visual::VisualParams*) override ;
+    void computeClippingPlane(const core::visual::VisualParams* vp, double& zNear, double& zFar);
+    virtual void drawCamera(const core::visual::VisualParams*);
 protected:
     void updateOutputData();
 
