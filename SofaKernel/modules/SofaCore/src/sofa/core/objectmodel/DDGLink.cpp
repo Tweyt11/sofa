@@ -47,11 +47,7 @@ void BaseDDGLink::set(Base* linkedBase)
     if (m_linkedBase)
         m_linkedBase->removeDDGLinkOwner(m_owner);
     m_linkedBase = linkedBase;
-    if (m_linkedBase)
-    {
-        linkedBase->addDDGLinkOwner(m_owner);
-        addInput(&m_linkedBase->d_componentstate);
-    }
+    addInput(&m_linkedBase->d_componentstate);
     ++m_counters[size_t(currentAspect())];
     setDirtyOutputs();
 }
