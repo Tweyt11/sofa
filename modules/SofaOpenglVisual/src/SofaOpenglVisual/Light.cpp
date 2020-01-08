@@ -750,12 +750,15 @@ void SpotLight::drawSource(const core::visual::VisualParams* vparams)
     Vector3 tip = this->getPosition() + direction*zNear;
     std::vector<Vector3> centers;
     centers.push_back(this->getPosition());
+    glEnable(GL_MULTISAMPLE_ARB);
+    glLineWidth(1.0);
     vparams->drawTool()->setPolygonMode(0, true);
     vparams->drawTool()->setLightingEnabled(false);
-    vparams->drawTool()->drawSpheres(centers, zNear*0.1,d_color.getValue());
-    vparams->drawTool()->drawCone(base, tip, baseLength, tipLength, d_color.getValue());
+    vparams->drawTool()->drawSpheres(centers, zNear*0.1,defaulttype::Vec4(0,0,0,1));
+    vparams->drawTool()->drawCone(base, tip, baseLength, tipLength, defaulttype::Vec4(0,0,0,1));
     vparams->drawTool()->setLightingEnabled(true);
     vparams->drawTool()->setPolygonMode(0, false);
+    glDisable(GL_MULTISAMPLE_ARB);
 }
 
 
