@@ -79,9 +79,9 @@ public:
 public:
     Data< bool > useRestPosition; ///< Use the rest position of the input and output models to initialize the mapping    
 
-    SingleLink<BarycentricMapping<In,Out>,Mapper,BaseLink::FLAG_STRONGLINK> d_mapper;
-    SingleLink<BarycentricMapping<In,Out>,BaseMeshTopology,BaseLink::FLAG_STRONGLINK> d_input_topology;
-    SingleLink<BarycentricMapping<In,Out>,BaseMeshTopology,BaseLink::FLAG_STRONGLINK> d_output_topology;
+    sofa::core::objectmodel::DDGLink<Mapper> d_mapper;
+    sofa::core::objectmodel::DDGLink<BaseMeshTopology> d_input_topology;
+    sofa::core::objectmodel::DDGLink<BaseMeshTopology> d_output_topology;
 
     void init() override;
     void reinit() override;

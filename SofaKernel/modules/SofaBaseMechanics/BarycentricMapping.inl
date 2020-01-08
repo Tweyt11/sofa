@@ -98,9 +98,9 @@ static bool is_a(const V * topology) {
 template <class TIn, class TOut>
 BarycentricMapping<TIn, TOut>::BarycentricMapping(core::State<In>* from, core::State<Out>* to, typename Mapper::SPtr mapper)
     : Inherit1 ( from, to )
-    , d_mapper(initLink("mapper","Internal mapper created depending on the type of topology"), mapper)
-    , d_input_topology(initLink("input_topology", "Input topology container (usually the surrounding domain)."))
-    , d_output_topology(initLink("output_topology", "Output topology container (usually the immersed domain)."))
+    , d_mapper(initDDGLink(this, "mapper","Internal mapper created depending on the type of topology", mapper))
+    , d_input_topology(initDDGLink(this, "input_topology", "Input topology container (usually the surrounding domain)."))
+    , d_output_topology(initDDGLink(this, "output_topology", "Output topology container (usually the immersed domain)."))
 
 
 {
@@ -111,9 +111,9 @@ BarycentricMapping<TIn, TOut>::BarycentricMapping(core::State<In>* from, core::S
 template <class TIn, class TOut>
 BarycentricMapping<TIn, TOut>::BarycentricMapping (core::State<In>* from, core::State<Out>* to, BaseMeshTopology * input_topology )
     : Inherit1 ( from, to )
-    , d_mapper (initLink("mapper","Internal mapper created depending on the type of topology"))
-    , d_input_topology(initLink("input_topology", "Input topology container (usually the surrounding domain)."))
-    , d_output_topology(initLink("output_topology", "Output topology container (usually the immersed domain)."))
+    , d_mapper (initDDGLink(this, "mapper","Internal mapper created depending on the type of topology"))
+    , d_input_topology(initDDGLink(this, "input_topology", "Input topology container (usually the surrounding domain)."))
+    , d_output_topology(initDDGLink(this, "output_topology", "Output topology container (usually the immersed domain)."))
 {
     if (input_topology) {
         d_input_topology.set(input_topology);
@@ -244,7 +244,7 @@ void BarycentricMapping<TIn, TOut>::createMapperFromTopology ()
     d_mapper = sofa::core::objectmodel::New<MeshMapper>(input_topology_container, output_topology_container);
 
 end:
-    if (d_mapper) {
+    if (d_mapper.get()) {
         this->addSlave(d_mapper.get());
         d_mapper->maskFrom = this->maskFrom;
         d_mapper->maskTo = this->maskTo;
@@ -260,15 +260,15 @@ void BarycentricMapping<TIn, TOut>::init()
 
     populateTopologies();
 
-    if ( d_mapper == nullptr ) // try to create a mapper according to the topology of the In model
+    if ( d_mapper.get() == nullptr ) // try to create a mapper according to the topology of the In model
     {
         createMapperFromTopology ( );
     }
 
-    if ( d_mapper == nullptr)
+    if ( d_mapper.get() == nullptr)
     {
         if (d_input_topology.get()) {
-            msg_error() << "No compatible input topology found. Make sure the input topology ('" << d_input_topology.getPath()
+            msg_error() << "No compatible input topology found. Make sure the input topology ('" << d_input_topology.get()->getPathName()
                         << "') is a class derived from BaseMeshTopology.";
         }
 
@@ -289,7 +289,7 @@ void BarycentricMapping<TIn, TOut>::init()
 template <class TIn, class TOut>
 void BarycentricMapping<TIn, TOut>::reinit()
 {
-    if ( d_mapper != nullptr )
+    if ( d_mapper.get() != nullptr )
     {
         d_mapper->clear();
         d_mapper->init (((const core::State<Out> *)this->toModel)->read(core::ConstVecCoordId::position())->getValue(), ((const core::State<In> *)this->fromModel)->read(core::ConstVecCoordId::position())->getValue() );
@@ -302,7 +302,7 @@ void BarycentricMapping<TIn, TOut>::apply(const core::MechanicalParams * mparams
 {
     SOFA_UNUSED(mparams);
 
-    if (d_mapper != nullptr)
+    if (d_mapper.get() != nullptr)
     {
         d_mapper->resize( this->toModel );
         d_mapper->apply(*out.beginWriteOnly(), in.getValue());
@@ -316,7 +316,7 @@ void BarycentricMapping<TIn, TOut>::applyJ (const core::MechanicalParams * mpara
     SOFA_UNUSED(mparams);
 
     typename Out::VecDeriv* out = _out.beginEdit();
-    if (d_mapper != nullptr)
+    if (d_mapper.get() != nullptr)
     {
         d_mapper->applyJ(*out, in.getValue());
     }
@@ -329,7 +329,7 @@ void BarycentricMapping<TIn, TOut>::applyJT (const core::MechanicalParams * mpar
 {
     SOFA_UNUSED(mparams);
 
-    if (d_mapper != nullptr)
+    if (d_mapper.get() != nullptr)
     {
         d_mapper->applyJT(*out.beginEdit(), in.getValue());
         out.endEdit();
@@ -340,7 +340,7 @@ void BarycentricMapping<TIn, TOut>::applyJT (const core::MechanicalParams * mpar
 template <class TIn, class TOut>
 const sofa::defaulttype::BaseMatrix* BarycentricMapping<TIn, TOut>::getJ()
 {
-    if (d_mapper!=nullptr )
+    if (d_mapper.get() !=nullptr )
     {
         const size_t outStateSize = this->toModel->getSize();
         const size_t inStateSize = this->fromModel->getSize();
@@ -371,7 +371,7 @@ void BarycentricMapping<TIn, TOut>::draw(const core::visual::VisualParams* vpara
 
     // Draw mapping line between models
     const InVecCoord& in = this->fromModel->read(core::ConstVecCoordId::position())->getValue();
-    if ( d_mapper!=nullptr )
+    if ( d_mapper.get() !=nullptr )
         d_mapper->draw(vparams,out,in);
 
 }
@@ -382,7 +382,7 @@ void BarycentricMapping<TIn, TOut>::applyJT(const core::ConstraintParams * cpara
 {
     SOFA_UNUSED(cparams);
 
-    if (d_mapper!=nullptr )
+    if (d_mapper.get() !=nullptr )
     {
         d_mapper->applyJT(*out.beginEdit(), in.getValue());
         out.endEdit();
@@ -500,7 +500,7 @@ const helper::vector< defaulttype::BaseMatrix*>* BarycentricMapping<TIn, TOut>::
 template <class TIn, class TOut>
 void BarycentricMapping<TIn, TOut>::updateForceMask()
 {
-    if( d_mapper )
+    if( d_mapper.get() )
         d_mapper->updateForceMask();
 }
 
