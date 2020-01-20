@@ -6,15 +6,12 @@ set(CGALPLUGIN_MINOR_VERSION 1)
 set(CGALPLUGIN_VERSION ${CGALPLUGIN_MAJOR_VERSION}.${CGALPLUGIN_MINOR_VERSION})
 
 set(HEADER_FILES
-    config.h.in
     DecimateMesh.h
     DecimateMesh.inl
     MeshGenerationFromPolyhedron.h
     MeshGenerationFromPolyhedron.inl
     TriangularConvexHull3D.h
     TriangularConvexHull3D.inl
-    CylinderMesh.h
-    CylinderMesh.inl
 )
 
 set(SOURCE_FILES
@@ -22,27 +19,62 @@ set(SOURCE_FILES
     MeshGenerationFromPolyhedron.cpp
     TriangularConvexHull3D.cpp
     initCGALPlugin.cpp
-    CylinderMesh.cpp
 )
 
-set(README_FILES CGALPlugin.txt)
-
-
-### Dependencies
-
+set(README_FILES README.md
+                 examples/MeshGenerationFromImage.scn
+                 examples/MeshGenerationFromImageWithFeatures.scn
+                 examples/Refine2DMesh.scn
+                 )
 
 find_package(SofaFramework REQUIRED)
-find_package(CImgPlugin QUIET)
+find_package(CGAL REQUIRED)
 
-if(CImgPlugin_FOUND)
+################################### DEPENDENCY TO image ############################################
+## The following lines adds additional source file and header if the SofaImplicitFIeld is activated
+## There is also the added linking option...see further in the source .
+find_package(image QUIET)
+if(image_FOUND)
     list(APPEND HEADER_FILES MeshGenerationFromImage.h)
     list(APPEND HEADER_FILES MeshGenerationFromImage.inl)
     list(APPEND SOURCE_FILES MeshGenerationFromImage.cpp)
     find_package(CGAL REQUIRED COMPONENTS ImageIO)
-else ()
-    message (STATUS "CImgPlugin not found, won't build MeshGenerationFromImage")
+else()
+    message(STATUS "CGALPlugin: could not find image, won't build MeshGenerationFromImage")
     find_package(CGAL REQUIRED)
 endif()
+
+
+
+####################### DEPENDENCY TO SOFAIMPLICITFIELD ############################################
+## The following lines adds additional source file and header if the SofaImplicitFIeld is activated
+## There is also the added linking option...see further in the source .
+find_package(SofaImplicitField QUIET)
+if(SofaImplicitField_FOUND)
+    list(APPEND HEADER_FILES
+        components/engine/MeshGenerationFromImplicit.h
+        components/engine/SurfaceMeshGenerationFromImplicit.h
+        )
+
+    list(APPEND SOURCE_FILES
+        components/engine/MeshGenerationFromImplicit.cpp
+        components/engine/SurfaceMeshGenerationFromImplicit.cpp
+        )
+
+    list(APPEND README_FILES
+                     examples/MeshGenerationFromImplicit.scn
+                     examples/SurfaceMeshGenerationFromImplicit.scn
+                     examples/customfield2.py
+                     examples/dfgeom.pyx
+                     examples/minipsl.py
+                     )
+
+    add_definitions("-DDO_SOFAIMPLICITFIELD_FEATURES=1")
+else()
+    message(STATUS "CGALPlugin: could not find SofaImplicitField, won't build the component(s): <MeshGenerationFromImplicit>.")
+    add_definitions("-DDO_SOFAIMPLICITFIELD_FEATURES=0")
+endif()
+
 
 
 ## CGAL dependencies
@@ -51,28 +83,21 @@ find_package(MPFR REQUIRED)
 find_package(GMP REQUIRED)
 find_package(Boost QUIET REQUIRED COMPONENTS system thread)
 
-message(STATUS "CGAL VERSION ${CGAL_MAJOR_VERSION}.${CGAL_MINOR_VERSION}")
-set(CGAL_VERSION ${CGAL_MAJOR_VERSION}.${CGAL_MINOR_VERSION})
-if (CGAL_VERSION VERSION_GREATER 4.9) # if CGAL >= 4.10
-    add_definitions(-DCGAL_MESH_3_VERBOSE=0)
-endif()
 
+## CGALPlugin/config.h
+configure_file(config.h.in "${CMAKE_BINARY_DIR}/include/CGALPlugin/config.h")
+install(FILES "${CMAKE_BINARY_DIR}/include/CGALPlugin/config.h" DESTINATION "include/CGALPlugin")
 
 if(WIN32)
     #add library dir as it is not added automatically on Windows (?)
     link_directories(${CGAL_LIBRARIES_DIR})
-	
-	if(NOT EXISTS ${CGAL_INSTALL_PREFIX})
-		set(CGAL_INSTALL_PREFIX CACHE PATH "Set path to CGAL Install dir root.")
-	endif()
+    # # Copy CGAL dlls
+    # file(GLOB sharedObjects "${CGAL_INSTALL_PREFIX}/bin/*.dll")
+    # foreach(sharedObject ${sharedObjects})
+    #     file(COPY ${sharedObject} DESTINATION "${SOFA_BIN_DIR}")
+    # endforeach()
 
-    # Gather all CGAL dlls into var CGAL_DLLS
     file(GLOB CGAL_DLLS "${CGAL_INSTALL_PREFIX}/bin/*.dll")
-	
-	if ("${CGAL_DLLS}" STREQUAL "")
-		MESSAGE(FATAL_ERROR "No CGAL_DLLS found at location: {CGAL_INSTALL_PREFIX}/bin/ equal to: ${CGAL_INSTALL_PREFIX}/bin/" )
-	endif()
-	
     # We suppose that the auxiliary DLLS for CGAL are always used from the CGAL package
     file(GLOB CGAL_AUX_DLLS "${GMP_INCLUDE_DIR}/../lib/*.dll")
     ## Copy DLLs to the build tree
@@ -104,15 +129,21 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}"
 target_link_libraries(${PROJECT_NAME} SofaCore SofaSimulationCommon ${Boost_LIBRARIES} ${GMP_LIBRARIES} ${MPFR_LIBRARIES} ${CGAL_LIBRARY})
 
 
-if(CImgPlugin_FOUND)
-    target_link_libraries(${PROJECT_NAME} ${CGAL_ImageIO_LIBRARY} CImgPlugin)
-else()
-    target_link_libraries(${PROJECT_NAME} ${CGAL_ImageIO_LIBRARY})
+####################### ADD DEPENDENCY TO IMAGE ####################################################
+if(image_FOUND)
+    target_link_libraries(${PROJECT_NAME} ${CGAL_ImageIO_LIBRARY} image)
 endif()
 
+
+################### ADD DEPENDENCY TO SOFAIMPLICITFIELD ############################################
+if(SofaImplicitField_FOUND)
+    target_link_libraries(${PROJECT_NAME} SofaImplicitField)
+endif()
+
+
 if(SOFA_BUILD_TESTS)
-    find_package(SofaTest QUIET)
-    add_subdirectory(CGALPlugin_test)
+   find_package(SofaTest QUIET)
+   add_subdirectory(CGALPlugin_test)
 endif()
 
 ## Install rules for the library and the headers; CMake package configurations files

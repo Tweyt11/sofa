@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -67,14 +67,14 @@ void CylinderMesh<DataTypes>::reinit()
 }
 
 template <class DataTypes>
-void CylinderMesh<DataTypes>::doUpdate()
+void CylinderMesh<DataTypes>::update()
 {
     d = m_diameter.getValue();
     l = m_length.getValue();
     n = m_number.getValue();
     if(d <=0 || l <=0 || n<=0)
     {
-        msg_error() << "Illegal parameters of the cylinder";
+        std::cout << "ERROR: illegal parameters of the cylinder" << std::endl;
         return;
     }
     m_interval = d / n;
@@ -83,14 +83,14 @@ void CylinderMesh<DataTypes>::doUpdate()
     t = m_interval / 2;
     a = ceil((d/2) / (sqrt(2)*t)); //parameters for cutting the corner
 
-    msg_info() << "diameter = " << d;
-    msg_info() << "length = " << l;
-    msg_info() << "interval = " << m_interval;
+    std::cout << "diameter = " << d << std::endl;
+    std::cout << "length = " << l << std::endl;
+    std::cout << "interval = " << m_interval << std::endl;
 
-    msg_info() << "n = " << n;
-    msg_info() << "m = " << m;
-    msg_info() << "t = " << t;
-    msg_info() << "a = " << a;
+    std::cout << "n = " << n << std::endl;
+    std::cout << "m = " << m << std::endl;
+    std::cout << "t = " << t << std::endl;
+    std::cout << "a = " << a << std::endl;
 
     helper::WriteAccessor< Data< VecCoord > > points = m_points;
     helper::WriteAccessor< Data< SeqTetrahedra > > tetras = m_tetras;
@@ -99,7 +99,7 @@ void CylinderMesh<DataTypes>::doUpdate()
     m_ptID.clear();
 
     //generate the points
-    msg_info() << "generate points...";
+    std::cout << "generate points..." << std::endl;
     int count = 0;
     int b1, b2;
     //hexa vertices
@@ -114,12 +114,13 @@ void CylinderMesh<DataTypes>::doUpdate()
                 points.push_back(p);
                 Index g(i,j,k);
                 m_ptID.insert(std::make_pair(g,count));
+                //std::cout << "p[" << i/2 << ","<< j/2 << ","<< k/2 << "," << "] = " << p << std::endl;
                 ++count;
             }
         }
     }
     m_nbVertices = count;
-    msg_info()  << "num of vertices = " << m_nbVertices;
+    std::cout << "num of vertices = " << m_nbVertices << std::endl;
 
     //hexa centers
     for(int k = -m+1; k < m; k+=2)
@@ -133,12 +134,13 @@ void CylinderMesh<DataTypes>::doUpdate()
                 points.push_back(p);
                 Index g(i,j,k);
                 m_ptID.insert(std::make_pair(g,count));
+                //std::cout << "p[" << i/2 << ","<< j/2 << ","<< k/2 << "," << "] = " << p << std::endl;
                 ++count;
             }
         }
     }
     m_nbCenters = count - m_nbVertices;
-    msg_info()  << "num of centers = " << m_nbCenters;
+    std::cout << "num of centers = " << m_nbCenters << std::endl;
 
     //boundary centers
     //i = -n
@@ -146,11 +148,13 @@ void CylinderMesh<DataTypes>::doUpdate()
     for(int k = -m+1; k < m; k+=2)
     {
         for(int j = b1; j < b2; j+=2)
+            //for(int j = -n+1; j < n; j+=2)
         {
             Point p(-n*t, j*t, k*t);
             points.push_back(p);
             Index g(-n,j,k);
             m_ptID.insert(std::make_pair(g,count));
+            //std::cout << "p[" << i/2 << ","<< j/2 << ","<< k/2 << "," << "] = " << p << std::endl;
             ++count;
         }
     }
@@ -158,11 +162,13 @@ void CylinderMesh<DataTypes>::doUpdate()
     for(int k = -m+1; k < m; k+=2)
     {
         for(int j = b1; j < b2; j+=2)
+            //for(int j = -n+1; j < n; j+=2)
         {
             Point p(n*t, j*t, k*t);
             points.push_back(p);
             Index g(n,j,k);
             m_ptID.insert(std::make_pair(g,count));
+            //std::cout << "p[" << i/2 << ","<< j/2 << ","<< k/2 << "," << "] = " << p << std::endl;
             ++count;
         }
     }
@@ -170,11 +176,13 @@ void CylinderMesh<DataTypes>::doUpdate()
     for(int k = -m+1; k < m; k+=2)
     {
         for(int i = b1; i < b2; i+=2)
+            //for(int i = -n+1; i < n; i+=2)
         {
             Point p(i*t, -n*t, k*t);
             points.push_back(p);
             Index g(i,-n,k);
             m_ptID.insert(std::make_pair(g,count));
+            //std::cout << "p[" << i/2 << ","<< j/2 << ","<< k/2 << "," << "] = " << p << std::endl;
             ++count;
         }
     }
@@ -182,11 +190,13 @@ void CylinderMesh<DataTypes>::doUpdate()
     for(int k = -m+1; k < m; k+=2)
     {
         for(int i = b1; i < b2; i+=2)
+            //for(int i = -n+1; i < n; i+=2)
         {
             Point p(i*t, n*t, k*t);
             points.push_back(p);
             Index g(i,n,k);
             m_ptID.insert(std::make_pair(g,count));
+            //std::cout << "p[" << i/2 << ","<< j/2 << ","<< k/2 << "," << "] = " << p << std::endl;
             ++count;
         }
     }
@@ -195,11 +205,13 @@ void CylinderMesh<DataTypes>::doUpdate()
     {
         b1 = MAX(-n+1, MAX(-2*a-j, -2*a+j)), b2 = MIN(n, MIN(2*a-j, 2*a+j));
         for(int i = b1; i <= b2; i+=2)
+            //for(int i = -n+1; i < n; i+=2)
         {
             Point p(i*t, j*t, -m*t);
             points.push_back(p);
             Index g(i,j,-m);
             m_ptID.insert(std::make_pair(g,count));
+            //std::cout << "p[" << i/2 << ","<< j/2 << ","<< k/2 << "," << "] = " << p << std::endl;
             ++count;
         }
     }
@@ -208,18 +220,20 @@ void CylinderMesh<DataTypes>::doUpdate()
     {
         b1 = MAX(-n+1, MAX(-2*a-j, -2*a+j)), b2 = MIN(n, MIN(2*a-j, 2*a+j));
         for(int i = b1; i <= b2; i+=2)
+            //for(int i = -n+1; i < n; i+=2)
         {
             Point p(i*t, j*t, m*t);
             points.push_back(p);
             Index g(i,j,m);
             m_ptID.insert(std::make_pair(g,count));
+            //std::cout << "p[" << i/2 << ","<< j/2 << ","<< k/2 << "," << "] = " << p << std::endl;
             ++count;
         }
     }
     m_nbBDCenters = count - m_nbVertices - m_nbCenters;
-    msg_info() << "num of boundary centers = " << m_nbBDCenters;
+    std::cout << "num of boundary centers = " << m_nbBDCenters << std::endl;
 
-    msg_info() << "generate tetras...";
+    std::cout << "generate tetras..." << std::endl;
     //generate tetrahedra between c(i,j,k) and c(i+2,j,k) ((i+n), (j+n), (k+m) are odd numbers))
     for(int k = -m+1; k <= m-1; k+=2)
     {
@@ -231,12 +245,12 @@ void CylinderMesh<DataTypes>::doUpdate()
             {
                 Index c1(i,j,k), c2(i+2,j,k);
                 if(m_ptID.find(c1) == m_ptID.end() || m_ptID.find(c2) == m_ptID.end())
-                    msg_error() << "Tetrahedron is out of boundary. c ";
+                    std::cout << "ERROR: tetrahedron is out of boundary. c "<< std::endl;
                 Index p[4] = {Index(i+1,j-1,k-1), Index(i+1,j+1,k-1), Index(i+1,j+1,k+1), Index(i+1,j-1,k+1)};
                 for(int s = 0; s < 4; ++s)
                 {
                     if(m_ptID.find(p[s]) == m_ptID.end() || m_ptID.find(p[(s+1)%4]) == m_ptID.end())
-                        msg_error() << "Tetrahedron is out of boundary. p ";
+                        std::cout << "ERROR: tetrahedron is out of boundary. p "<< std::endl;
                     Tetra t(m_ptID[c1], m_ptID[c2], m_ptID[p[s]], m_ptID[p[(s+1)%4]]);
                     tetras.push_back(t);
                 }
@@ -254,12 +268,12 @@ void CylinderMesh<DataTypes>::doUpdate()
             {
                 Index c1(i,j,k), c2(i,j+2,k);
                 if(m_ptID.find(c1) == m_ptID.end() || m_ptID.find(c2) == m_ptID.end())
-                    msg_info() << "Tetrahedron is out of boundary. c";
+                    std::cout << "ERROR: tetrahedron is out of boundary. c"<< std::endl;
                 Index p[4] = {Index(i-1,j+1,k-1), Index(i+1,j+1,k-1), Index(i+1,j+1,k+1), Index(i-1,j+1,k+1)};
                 for(int s = 0; s < 4; ++s)
                 {
                     if(m_ptID.find(p[s]) == m_ptID.end() || m_ptID.find(p[(s+1)%4]) == m_ptID.end())
-                        msg_info() << "Tetrahedron is out of boundary. p";
+                        std::cout << "ERROR: tetrahedron is out of boundary. p"<< std::endl;
                     Tetra t(m_ptID[c1], m_ptID[c2], m_ptID[p[s]], m_ptID[p[(s+1)%4]]);
                     tetras.push_back(t);
                 }
@@ -278,7 +292,7 @@ void CylinderMesh<DataTypes>::doUpdate()
                 Index c1(i,j,k), c2(i,j,k+2);
                 Index p[4] = {Index(i-1,j-1,k+1), Index(i+1,j-1,k+1), Index(i+1,j+1,k+1), Index(i-1,j+1,k+1)};
                 if(m_ptID.find(c1) == m_ptID.end() || m_ptID.find(c2) == m_ptID.end())
-                    msg_error() << "Tetrahedron is out of boundary. c";
+                    std::cout << "ERROR: tetrahedron is out of boundary. c"<< std::endl;
                 bool flag[4] = {true, true, true, true};
                 for(int s = 0; s < 4; ++s)
                     if(m_ptID.find(p[s]) == m_ptID.end())
@@ -303,12 +317,12 @@ void CylinderMesh<DataTypes>::doUpdate()
         {
             Index c1(-n+1,j,k), c2(-n,j,k);
             if(m_ptID.find(c1) == m_ptID.end() || m_ptID.find(c2) == m_ptID.end())
-                msg_error() << "Tetrahedron is out of boundary.";
+                std::cout << "ERROR: tetrahedron is out of boundary."<< std::endl;
             Index p[4] = {Index(-n,j-1,k-1), Index(-n,j+1,k-1), Index(-n,j+1,k+1), Index(-n,j-1,k+1)};
             for(int s = 0; s < 4; ++s)
             {
                 if(m_ptID.find(p[s]) == m_ptID.end() || m_ptID.find(p[(s+1)%4]) == m_ptID.end())
-                    msg_error() << "Tetrahedron is out of boundary.";
+                    std::cout << "ERROR: tetrahedron is out of boundary."<< std::endl;
                 Tetra t(m_ptID[c1], m_ptID[c2], m_ptID[p[s]], m_ptID[p[(s+1)%4]]);
                 tetras.push_back(t);
             }
@@ -322,12 +336,12 @@ void CylinderMesh<DataTypes>::doUpdate()
         {
             Index c1(n-1,j,k), c2(n,j,k);
             if(m_ptID.find(c1) == m_ptID.end() || m_ptID.find(c2) == m_ptID.end())
-                msg_error() << "Tetrahedron is out of boundary.";
+                std::cout << "ERROR: tetrahedron is out of boundary."<< std::endl;
             Index p[4] = {Index(n,j-1,k-1), Index(n,j+1,k-1), Index(n,j+1,k+1), Index(n,j-1,k+1)};
             for(int s = 0; s < 4; ++s)
             {
                 if(m_ptID.find(p[s]) == m_ptID.end() || m_ptID.find(p[(s+1)%4]) == m_ptID.end())
-                    msg_error() << "Tetrahedron is out of boundary.";
+                    std::cout << "ERROR: tetrahedron is out of boundary."<< std::endl;
                 Tetra t(m_ptID[c1], m_ptID[c2], m_ptID[p[s]], m_ptID[p[(s+1)%4]]);
                 tetras.push_back(t);
             }
@@ -342,12 +356,12 @@ void CylinderMesh<DataTypes>::doUpdate()
         {
             Index c1(i,-n+1,k), c2(i,-n,k);
             if(m_ptID.find(c1) == m_ptID.end() || m_ptID.find(c2) == m_ptID.end())
-                msg_error() << "Tetrahedron is out of boundary.";
+                std::cout << "ERROR: tetrahedron is out of boundary."<< std::endl;
             Index p[4] = {Index(i-1,-n,k-1), Index(i+1,-n,k-1), Index(i+1,-n,k+1), Index(i-1,-n,k+1)};
             for(int s = 0; s < 4; ++s)
             {
                 if(m_ptID.find(p[s]) == m_ptID.end() || m_ptID.find(p[(s+1)%4]) == m_ptID.end())
-                    msg_error() << "Tetrahedron is out of boundary.";
+                    std::cout << "ERROR: tetrahedron is out of boundary."<< std::endl;
                 Tetra t(m_ptID[c1], m_ptID[c2], m_ptID[p[s]], m_ptID[p[(s+1)%4]]);
                 tetras.push_back(t);
             }
@@ -360,12 +374,12 @@ void CylinderMesh<DataTypes>::doUpdate()
         {
             Index c1(i,n-1,k), c2(i,n,k);
             if(m_ptID.find(c1) == m_ptID.end() || m_ptID.find(c2) == m_ptID.end())
-                msg_error() << "Tetrahedron is out of boundary.";
+                std::cout << "ERROR: tetrahedron is out of boundary."<< std::endl;
             Index p[4] = {Index(i-1,n,k-1), Index(i+1,n,k-1), Index(i+1,n,k+1), Index(i-1,n,k+1)};
             for(int s = 0; s < 4; ++s)
             {
                 if(m_ptID.find(p[s]) == m_ptID.end() || m_ptID.find(p[(s+1)%4]) == m_ptID.end())
-                    msg_error() << "Tetrahedron is out of boundary.";
+                    std::cout << "ERROR: tetrahedron is out of boundary."<< std::endl;
                 Tetra t(m_ptID[c1], m_ptID[c2], m_ptID[p[s]], m_ptID[p[(s+1)%4]]);
                 tetras.push_back(t);
             }
@@ -380,13 +394,14 @@ void CylinderMesh<DataTypes>::doUpdate()
         {
             Index c1(i,j,-m+1), c2(i,j,-m);
             if(m_ptID.find(c1) == m_ptID.end() || m_ptID.find(c2) == m_ptID.end())
-                msg_error() << "Tetrahedron is out of boundary. c";
+                std::cout << "ERROR: tetrahedron is out of boundary. c"<< std::endl;
             Index p[4] = {Index(i-1,j-1,-m), Index(i+1,j-1,-m), Index(i+1,j+1,-m), Index(i-1,j+1,-m)};
             bool flag[4] = {true, true, true, true};
             for(int s = 0; s < 4; ++s)
                 if(m_ptID.find(p[s]) == m_ptID.end())
                 {
                     flag[s] = false; //p[s] does not exist.
+                    //std::cout << "false"<< std::endl;
                 }
             for(int s = 0; s < 4; ++s)
             {
@@ -406,13 +421,14 @@ void CylinderMesh<DataTypes>::doUpdate()
         {
             Index c1(i,j,m-1), c2(i,j,m);
             if(m_ptID.find(c1) == m_ptID.end() || m_ptID.find(c2) == m_ptID.end())
-                msg_error() << "Tetrahedron is out of boundary.";
+                std::cout << "ERROR: tetrahedron is out of boundary."<< std::endl;
             Index p[4] = {Index(i-1,j-1,m), Index(i+1,j-1,m), Index(i+1,j+1,m), Index(i-1,j+1,m)};
             bool flag[4] = {true, true, true, true};
             for(int s = 0; s < 4; ++s)
                 if(m_ptID.find(p[s]) == m_ptID.end())
                 {
                     flag[s] = false; //p[s] does not exist.
+                    //std::cout << "false"<< std::endl;
                 }
             for(int s = 0; s < 4; ++s)
             {
@@ -425,18 +441,18 @@ void CylinderMesh<DataTypes>::doUpdate()
         }
     }
     m_nbTetras = tetras.size();
-    msg_info() << "num of tetras = " << m_nbTetras;
+    std::cout << "num of tetras = " << m_nbTetras << std::endl;
 
     if(m_bScale.getValue())
     {
-        msg_info() << "scale...";
+        std::cout << "scale..." << std::endl;
         scale();
     }
 
-    msg_info() << "orientate...";
+    std::cout << "orientate..." << std::endl;
     orientate();
 
-    msg_info() << "finished!";
+    std::cout << "finished!" << std::endl;
 }
 
 template <class DataTypes>
@@ -453,24 +469,28 @@ void CylinderMesh<DataTypes>::scale()
         if(tg>-1.0/lim && tg<-lim)
         {
             double k = d/(4*t*(double)a) * fabs(1-tg) / sqrt(1+tg*tg);
+            //std::cout << "k = "  << k << std::endl;
             points[i][0] *= k, points[i][1] *= k;
             continue;
         }
         if(fabs(tg) <= lim)
         {
             double k = 1 / sqrt(1+tg*tg);
+            //std::cout << "k = "  << k << std::endl;
             points[i][0] *= k, points[i][1] *= k;
             continue;
         }
         if(tg>lim && tg<1.0/lim)
         {
             double k = d/(4*t*(double)a) * fabs(1+tg) / sqrt(1+tg*tg);
+            //std::cout << "k = "  << k << std::endl;
             points[i][0] *= k, points[i][1] *= k;
             continue;
         }
         if(fabs(tg)>=1.0/lim)
         {
             double k = 1 / sqrt(1+1.0/(tg*tg));
+            //std::cout << "k = "  << k << std::endl;
             points[i][0] *= k, points[i][1] *= k;
             continue;
         }
@@ -500,7 +520,7 @@ void CylinderMesh<DataTypes>::orientate()
 }
 
 template <class DataTypes>
-void CylinderMesh<DataTypes>::draw(const sofa::core::visual::VisualParams*)
+void CylinderMesh<DataTypes>::draw()
 {
     if (m_viewPoints.getValue())
     {

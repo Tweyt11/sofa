@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -64,12 +64,12 @@ public:
     TriangularConvexHull3D();
     virtual ~TriangularConvexHull3D() { };
 
-    void init() override;
-    void reinit() override;
+    void init();
+    void reinit();
 
-    void doUpdate() override;
+    void update();
 
-    virtual std::string getTemplateName() const override
+    virtual std::string getTemplateName() const
     {
         return templateName(this);
     }
@@ -87,9 +87,13 @@ public:
     sofa::core::objectmodel::Data<SeqTriangles> f_triangles; ///< List of triangles
 };
 
-#if  !defined(CGALPLUGIN_TRIANGULARCONVEXHULL3D_CPP)
-extern template class SOFA_CGALPLUGIN_API TriangularConvexHull3D<defaulttype::Vec3Types>;
- 
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(CGALPLUGIN_TRIANGULARCONVEXHULL3D_CPP)
+#ifndef SOFA_FLOAT
+extern template class SOFA_CGALPLUGIN_API TriangularConvexHull3D<defaulttype::Vec3dTypes>;
+#endif //SOFA_FLOAT
+#ifndef SOFA_DOUBLE
+extern template class SOFA_CGALPLUGIN_API TriangularConvexHull3D<defaulttype::Vec3fTypes>;
+#endif //SOFA_DOUBLE
 #endif
 
 } //cgal

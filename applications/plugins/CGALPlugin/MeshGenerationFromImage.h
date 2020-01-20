@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -21,6 +21,8 @@
 ******************************************************************************/
 #ifndef CGALPLUGIN_MESHGENERATIONFROMIMAGE_H
 #define CGALPLUGIN_MESHGENERATIONFROMIMAGE_H
+
+#define CGAL_MESH_3_VERBOSE
 
 #include <sofa/defaulttype/Vec.h>
 #include <sofa/core/DataEngine.h>
@@ -45,8 +47,7 @@
 #include <sofa/defaulttype/Mat.h>
 #include <sofa/defaulttype/Quat.h>
 #include <sofa/helper/rmath.h>
-
-#include <CImgPlugin/CImgData.h>
+#include <image/ImageTypes.h>
 
 //CGAL
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
@@ -118,14 +119,14 @@ public:
     MeshGenerationFromImage();
     virtual ~MeshGenerationFromImage() { }
 
-    void init() override;
-    void reinit() override;
+    void init();
+    void reinit();
 
-    void doUpdate() override;
+    void update();
 
-    void draw(const sofa::core::visual::VisualParams* vparams) override;
+    void draw(const sofa::core::visual::VisualParams* vparams);
 
-    virtual std::string getTemplateName() const override
+    virtual std::string getTemplateName() const
     {
         return templateName(this);
     }
@@ -175,9 +176,13 @@ public:
 
 };
 
-#if  !defined(CGALPLUGIN_MESHGENERATIONFROMIMAGE_CPP)
-extern template class SOFA_CGALPLUGIN_API MeshGenerationFromImage<sofa::defaulttype::Vec3Types, sofa::defaulttype::ImageUC>;
- 
+#if defined(SOFA_EXTERN_TEMPLATE) && !defined(CGALPLUGIN_MESHGENERATIONFROMIMAGE_CPP)
+#ifndef SOFA_FLOAT
+extern template class SOFA_CGALPLUGIN_API MeshGenerationFromImage<sofa::defaulttype::Vec3dTypes, sofa::defaulttype::ImageUC>;
+#endif //SOFA_FLOAT
+#ifndef SOFA_DOUBLE
+extern template class SOFA_CGALPLUGIN_API MeshGenerationFromImage<sofa::defaulttype::Vec3fTypes, sofa::defaulttype::ImageUC>;
+#endif //SOFA_DOUBLE
 #endif
 
 } //cgal
