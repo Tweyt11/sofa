@@ -178,10 +178,10 @@ public:
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(CGALPLUGIN_MESHGENERATIONFROMIMAGE_CPP)
 #ifndef SOFA_FLOAT
-extern template class SOFA_CGALPLUGIN_API MeshGenerationFromImage<sofa::defaulttype::Vec3dTypes, sofa::defaulttype::ImageUC>;
+extern template class SOFAMESHING_API MeshGenerationFromImage<sofa::defaulttype::Vec3dTypes, sofa::defaulttype::ImageUC>;
 #endif //SOFA_FLOAT
 #ifndef SOFA_DOUBLE
-extern template class SOFA_CGALPLUGIN_API MeshGenerationFromImage<sofa::defaulttype::Vec3fTypes, sofa::defaulttype::ImageUC>;
+extern template class SOFAMESHING_API MeshGenerationFromImage<sofa::defaulttype::Vec3fTypes, sofa::defaulttype::ImageUC>;
 #endif //SOFA_DOUBLE
 #endif
 
