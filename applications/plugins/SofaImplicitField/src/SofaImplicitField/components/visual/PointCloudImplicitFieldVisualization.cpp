@@ -56,8 +56,7 @@ int Class = RegisterObject("A cheap visualization of implicit field using colore
         .add< PointCloudImplicitFieldVisualization >() ;
 
 PointCloudImplicitFieldVisualization::PointCloudImplicitFieldVisualization() :
-    l_field(initLink("field", "The field to render."))
-  ,d_gridresolution(initData(&d_gridresolution, (unsigned int)128, "resolution", "The amount of samples per axis"))
+   d_gridresolution(initData(&d_gridresolution, (unsigned int)128, "resolution", "The amount of samples per axis"))
   ,m_asyncthread(&PointCloudImplicitFieldVisualization::asyncCompute, this)
   ,d_color(initData(&d_color, sofa::helper::types::RGBAColor::white(), "color", "..."))
   ,d_bbox(initData(&d_bbox, sofa::defaulttype::BoundingBox(0,1,0,1,0,1), "box", "min - max coordinate of the grid where to sample the function. "))
@@ -72,6 +71,7 @@ PointCloudImplicitFieldVisualization::PointCloudImplicitFieldVisualization() :
     addUpdateCallback("evalFunction", {&d_evalFunction,
                                        &d_color, &f_bbox, &d_gridresolution},[this]()
     {
+        std::cout << "EVALUATE FROM EVAL: " << m_componentstate.getCounter() << std::endl;
         m_points.clear();
         m_colors.clear();
         m_field.clear();
@@ -97,13 +97,6 @@ PointCloudImplicitFieldVisualization::~PointCloudImplicitFieldVisualization()
 
 void PointCloudImplicitFieldVisualization::init()
 {
-    if(l_field.getSize() == 0)
-    {
-        m_componentstate = ComponentState::Invalid;
-        msg_error() << "Missing the 'field' attribute. The component is disabled until properly set." ;
-        return ;
-    }
-
     m_componentstate = ComponentState::Valid ;
 
     m_colors.clear();
@@ -149,7 +142,6 @@ void PointCloudImplicitFieldVisualization::updateBufferFromComputeKernel()
     }
 }
 
-
 double locateZero(double cv, Vec3d& cpos, Vec3d& cgrad, Vec3d& npos, Vec3d& outP, Vec3d& outG, ScalarField* f)
 {
     double nv = f->getValue(npos) ;
@@ -165,6 +157,7 @@ double locateZero(double cv, Vec3d& cpos, Vec3d& cgrad, Vec3d& npos, Vec3d& outP
 
 void PointCloudImplicitFieldVisualization::asyncCompute()
 {
+
     while(true)
     {
         // Wait until main() sends data
@@ -245,7 +238,6 @@ endl:
 
 void PointCloudImplicitFieldVisualization::draw(const core::visual::VisualParams *params)
 {
-
     if( m_componentstate == ComponentState::Invalid )
         return ;
 

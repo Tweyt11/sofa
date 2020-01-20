@@ -34,6 +34,12 @@ namespace geometry
 namespace _scalarfield_
 {
 
+ScalarField::ScalarField() :
+    d_fieldFunction(initData(&d_fieldFunction, ScalarFieldR3(), "evalFunction", "A function taking a point in R^3 and returning a scalar value."))
+{
+
+}
+
 Vec3d ScalarField::getGradientByFinitDifference(const Vec3d& pos, int& i)
 {
     Vec3d p=pos;

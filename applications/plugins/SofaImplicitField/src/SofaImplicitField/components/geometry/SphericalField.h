@@ -49,7 +49,6 @@ public:
 
     /// Inherited from BaseObject
     virtual void init() override ;
-    virtual void reinit() override ;
 
     /// Inherited from ScalarField.
     virtual double getValue(const Vec3d& Pos, int &domain) override ;

@@ -33,8 +33,9 @@
 #include <queue>
 #include <condition_variable>
 
-#include <sofa/helper/types/RGBAColor.h>
 
+#include <sofa/helper/types/RGBAColor.h>
+#include <sofa/helper/tsqueue.h>
 
 namespace sofa
 {
@@ -55,69 +56,11 @@ using sofa::core::DataTracker ;
 
 using sofa::defaulttype::Vec3d ;
 
-template <typename T>
-class Queue
-{
- public:
-
-  T pop()
-  {
-    std::unique_lock<std::mutex> mlock(mutex_);
-    while (queue_.empty())
-    {
-      cond_.wait(mlock);
-    }
-    auto item = queue_.front();
-    queue_.pop();
-    return item;
-  }
-
-  void pop(T& item)
-  {
-    std::unique_lock<std::mutex> mlock(mutex_);
-    while (queue_.empty())
-    {
-      cond_.wait(mlock);
-    }
-    item = queue_.front();
-    queue_.pop();
-  }
-
-  void push(const T& item)
-  {
-    std::unique_lock<std::mutex> mlock(mutex_);
-    queue_.push(item);
-    mlock.unlock();
-    cond_.notify_one();
-  }
-
-  void push(T&& item)
-  {
-    std::unique_lock<std::mutex> mlock(mutex_);
-    queue_.push(std::move(item));
-    mlock.unlock();
-    cond_.notify_one();
-  }
-
-  bool empty(){
-      std::scoped_lock<std::mutex> mlock(mutex_);
-      return queue_.empty();
-  }
-
- private:
-  std::queue<T> queue_;
-  std::mutex mutex_;
-  std::condition_variable cond_;
-};
-
 ////////////////// ///////////////
 class SOFA_SOFAIMPLICITFIELD_API PointCloudImplicitFieldVisualization : public BaseObject
 {
 public:
     SOFA_CLASS(PointCloudImplicitFieldVisualization, BaseObject);
-
-    SingleLink<PointCloudImplicitFieldVisualization, ScalarField,
-               BaseLink::FLAG_STOREPATH|BaseLink::FLAG_STRONGLINK> l_field ;
 
     Data<unsigned int> d_gridresolution ;
     Data< sofa::defaulttype::BoundingBox > d_bbox;
@@ -163,7 +106,7 @@ private:
         CMD_PROCESS,
         CMD_STOP,
     }  ;
-    Queue<Cmd> m_cmdqueue;
+    sofa::helper::TSQueue<Cmd> m_cmdqueue;
 
     DataTracker m_datatracker ;
 
