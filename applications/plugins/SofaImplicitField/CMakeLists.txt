@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.1)
 project(SofaImplicitField VERSION 1.0)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(SOFA_HAVE_SOFAIMPLICITFIELD 1)
 
 find_package(SofaDistanceGrid REQUIRED)
@@ -17,6 +21,7 @@ set(HEADER_FILES
     components/geometry/DiscreteGridField.h
     components/geometry/SphericalField.h
     components/geometry/ScalarField.h
+    components/geometry/ScalarDistanceField.h
     components/mapping/ImplicitSurfaceMapping.h
     components/mapping/ImplicitSurfaceMapping.inl
 )
@@ -29,6 +34,7 @@ set(SOURCE_FILES
     deprecated/InterpolatedImplicitSurface.cpp
 
     components/geometry/ScalarField.cpp
+    components/geometry/ScalarDistanceField.cpp
     components/geometry/DiscreteGridField.cpp
     components/geometry/SphericalField.cpp
     components/mapping/ImplicitSurfaceMapping.cpp
