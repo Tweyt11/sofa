@@ -287,6 +287,24 @@ public:
 };
 
 
+template<class D>
+sofa::helper::ReadAccessor<D> getReadAccessor(D& c)
+{
+    return sofa::helper::ReadAccessor<D>{ c };
+}
+
+template<class D>
+sofa::helper::WriteOnlyAccessor<D> getWriteOnlyAccessor(D& c)
+{
+    return sofa::helper::WriteOnlyAccessor<D>{ c };
+}
+
+template<class D>
+sofa::helper::WriteAccessor<D> getWriteAccessor(D& c)
+{
+    return sofa::helper::WriteAccessor<D>{ c };
+}
+
 
 } // namespace helper
 
