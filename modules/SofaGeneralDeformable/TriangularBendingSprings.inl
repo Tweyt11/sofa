@@ -372,14 +372,12 @@ void TriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPointDes
                 if (edgeInf[ind_j].m1 == (int) last)
                 {
                     edgeInf[ind_j].m1=(int) tab[i];
-                    //sout << "INFO_print : OK m1 for ind_j =" << ind_j << sendl;;
                 }
                 else
                 {
                     if (edgeInf[ind_j].m2 == (int) last)
                     {
                         edgeInf[ind_j].m2=(int) tab[i];
-                        //sout << "INFO_print : OK m2 for ind_j =" << ind_j << sendl;
                     }
                 }
             }
@@ -395,7 +393,6 @@ void TriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPointDes
                     {
                         edgeInf[j_loc].m1 =(int) tab[i];
                         //is_forgotten=true;
-                        //sout << "INFO_print : TriangularBendingSprings - MISS m1 for j_loc =" << j_loc << sendl;
 
                     }
                     else
@@ -404,7 +401,6 @@ void TriangularBendingSprings<DataTypes>::TriangularBSEdgeHandler::applyPointDes
                         {
                             edgeInf[j_loc].m2 =(int) tab[i];
                             //is_forgotten=true;
-                            //sout << "INFO_print : TriangularBendingSprings - MISS m2 for j_loc =" << j_loc << sendl;
 
                         }
 
@@ -485,7 +481,7 @@ void TriangularBendingSprings<DataTypes>::init()
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     m_topology = l_topology.get();

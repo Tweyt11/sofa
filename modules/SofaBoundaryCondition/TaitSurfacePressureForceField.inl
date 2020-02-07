@@ -111,7 +111,7 @@ void TaitSurfacePressureForceField<DataTypes>::init()
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     m_topology = l_topology.get();
@@ -333,7 +333,7 @@ void TaitSurfacePressureForceField<DataTypes>::addKToMatrix(const core::Mechanic
 template<class DataTypes>
 SReal TaitSurfacePressureForceField<DataTypes>::getPotentialEnergy(const core::MechanicalParams* /*mparams*/, const DataVecCoord&  /* x */) const
 {
-    msg_error() << "Get potentialEnergy not implemented";
+    msg_warning() << "Method getPotentialEnergy not implemented yet.";
     return 0.0;
 }
 

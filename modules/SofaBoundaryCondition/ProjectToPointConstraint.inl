@@ -119,7 +119,7 @@ void ProjectToPointConstraint<DataTypes>::init()
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     sofa::core::topology::BaseMeshTopology* _topology = l_topology.get();
@@ -140,16 +140,18 @@ void ProjectToPointConstraint<DataTypes>::init()
 
     const SetIndexArray & indices = f_indices.getValue();
 
+    std::stringstream sstream;
     unsigned int maxIndex=this->mstate->getSize();
     for (unsigned int i=0; i<indices.size(); ++i)
     {
         const unsigned int index=indices[i];
         if (index >= maxIndex)
         {
-            serr << "Index " << index << " not valid!" << sendl;
+            sstream << "Index " << index << " not valid!\n";
             removeConstraint(index);
         }
     }
+    msg_error_when(!sstream.str().empty()) << sstream.str();
 
     reinit();
 }

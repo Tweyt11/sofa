@@ -288,7 +288,7 @@ template <class DataTypes> void TetrahedralTensorMassForceField<DataTypes>::init
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     m_topology = l_topology.get();
@@ -477,7 +477,6 @@ void TetrahedralTensorMassForceField<DataTypes>::updateLameCoefficients()
 {
     lambda= f_youngModulus.getValue()*f_poissonRatio.getValue()/((1-2*f_poissonRatio.getValue())*(1+f_poissonRatio.getValue()));
     mu = f_youngModulus.getValue()/(2*(1+f_poissonRatio.getValue()));
-//	serr << "initialized Lame coef : lambda=" <<lambda<< " mu="<<mu<<sendl;
 }
 
 

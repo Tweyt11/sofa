@@ -76,8 +76,8 @@ FixedConstraint<DataTypes>::FixedConstraint()
     , d_showObject(initData(&d_showObject,true,"showObject","draw or not the fixed constraints"))
     , d_drawSize( initData(&d_drawSize,(SReal)0.0,"drawSize","0 -> point based rendering, >0 -> radius of spheres") )
     , d_projectVelocity( initData(&d_projectVelocity,false,"activate_projectVelocity","activate project velocity to set velocity") )
-    , data(new FixedConstraintInternalData<DataTypes>())
     , l_topology(initLink("topology", "link to the topology container"))
+    , data(new FixedConstraintInternalData<DataTypes>())
     , m_pointHandler(nullptr)
 {
     // default to indice 0
@@ -134,7 +134,7 @@ void FixedConstraint<DataTypes>::init()
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     sofa::core::topology::BaseMeshTopology* _topology = l_topology.get();

@@ -129,10 +129,9 @@ template <class DataTypes> StandardTetrahedralFEMForceField<DataTypes>::Standard
     , f_parameterSet(initData(&f_parameterSet,"ParameterSet","The global parameters specifying the material"))
     , f_anisotropySet(initData(&f_anisotropySet,"AnisotropyDirections","The global directions of anisotropy of the material"))
     , f_parameterFileName(initData(&f_parameterFileName,std::string("myFile.param"),"ParameterFile","the name of the file describing the material parameters for all tetrahedra"))
+    , l_topology(initLink("topology", "link to the topology container"))
     , tetrahedronInfo(initData(&tetrahedronInfo, "tetrahedronInfo", "Internal tetrahedron data"))
     , edgeInfo(initData(&edgeInfo, "edgeInfo", "Internal edge data"))
-    , l_topology(initLink("topology", "link to the topology container"))
-
 {
     tetrahedronHandler = new GHTetrahedronHandler(this,&tetrahedronInfo);
 }
@@ -148,7 +147,7 @@ template <class DataTypes> void StandardTetrahedralFEMForceField<DataTypes>::ini
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     m_topology = l_topology.get();

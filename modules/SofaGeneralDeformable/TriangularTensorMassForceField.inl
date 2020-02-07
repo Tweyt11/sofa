@@ -284,13 +284,13 @@ template <class DataTypes> TriangularTensorMassForceField<DataTypes>::~Triangula
 
 template <class DataTypes> void TriangularTensorMassForceField<DataTypes>::init()
 {
-    sout << "initializing TriangularTensorMassForceField" << sendl;
+    msg_info() << "initializing TriangularTensorMassForceField";
     this->Inherited::init();
 
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     m_topology = l_topology.get();
@@ -421,7 +421,6 @@ void TriangularTensorMassForceField<DataTypes>::updateLameCoefficients()
 {
     lambda= f_youngModulus.getValue()*f_poissonRatio.getValue()/(1-f_poissonRatio.getValue()*f_poissonRatio.getValue());
     mu = f_youngModulus.getValue()*(1-f_poissonRatio.getValue())/(1-f_poissonRatio.getValue()*f_poissonRatio.getValue());
-    //	serr << "initialized Lame coef : lambda=" <<lambda<< " mu="<<mu<<sendl;
 }
 
 

@@ -77,7 +77,8 @@ bool TriangleInfo::validate(const unsigned int tri_index, const defaulttype::Vec
 
 
 TriangleLocalMinDistanceFilter::TriangleLocalMinDistanceFilter()
-    : m_pointInfo(initData(&m_pointInfo, "pointInfo", "point filter data"))
+    : l_topology(initLink("topology", "link to the topology container"))
+    , m_pointInfo(initData(&m_pointInfo, "pointInfo", "point filter data"))
     , m_lineInfo(initData(&m_lineInfo, "lineInfo", "line filter data"))
     , m_triangleInfo(initData(&m_triangleInfo, "triangleInfo", "triangle filter data"))
     , pointInfoHandler(nullptr)
@@ -96,8 +97,14 @@ TriangleLocalMinDistanceFilter::~TriangleLocalMinDistanceFilter()
 
 void TriangleLocalMinDistanceFilter::init()
 {
-    bmt = getContext()->getMeshTopology();
-    msg_info() << "Mesh Topology found :" << bmt->getName();
+    if (l_topology.empty())
+    {
+        msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
+        l_topology.set(this->getContext()->getMeshTopologyLink());
+    }
+
+    bmt = l_topology.get();
+    msg_info() << "Topology path used: '" << l_topology.getLinkedPath() << "'";
     component::container::MechanicalObject<sofa::defaulttype::Vec3Types>*  mstateVec3d= dynamic_cast<component::container::MechanicalObject<Vec3Types>*>(getContext()->getMechanicalState());
 
 

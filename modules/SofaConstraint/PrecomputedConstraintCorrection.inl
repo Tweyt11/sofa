@@ -302,9 +302,8 @@ void PrecomputedConstraintCorrection<DataTypes>::bwdInit()
         }
 
 
-        helper::WriteAccessor< Data< VecCoord > > posData = *this->mstate->write(core::VecCoordId::position());
-        VecCoord& pos = posData.wref();
-        const VecCoord prev_pos = pos;
+        helper::ReadAccessor< Data< VecCoord > > rposData = *this->mstate->read(core::ConstVecCoordId::position());
+        const VecCoord prev_pos = rposData.ref();
 
         helper::WriteAccessor< Data< VecDeriv > > velocityData = *this->mstate->write(core::VecDerivId::velocity());
         VecDeriv& velocity = velocityData.wref();
@@ -331,8 +330,6 @@ void PrecomputedConstraintCorrection<DataTypes>::bwdInit()
             sout << "Precomputing constraint correction : " << std::fixed << (float)f / (float)nbNodes * 100.0f << " %   " << '\xd';
             sout.precision(prevPrecision);
 
-            // Deriv unitary_force;
-
             for (unsigned int i = 0; i < dof_on_node; i++)
             {
                 unitary_force.clear();
@@ -343,6 +340,10 @@ void PrecomputedConstraintCorrection<DataTypes>::bwdInit()
                 // Reset positions and velocities
                 velocity.clear();
                 velocity.resize(nbNodes);
+
+                // Actualize ref to the position vector ; it seems it is changed at every eulerSolver->solve()
+                helper::WriteOnlyAccessor< Data< VecCoord > > wposData = *this->mstate->write(core::VecCoordId::position());
+                VecCoord& pos = wposData.wref();
 
                 for (unsigned int n = 0; n < nbNodes; n++)
                     pos[n] = prev_pos[n];
@@ -392,6 +393,9 @@ void PrecomputedConstraintCorrection<DataTypes>::bwdInit()
         // Retore velocity
         for (unsigned int i = 0; i < velocity.size(); i++)
             velocity[i] = prev_velocity[i];
+
+        helper::WriteOnlyAccessor< Data< VecCoord > > wposData = *this->mstate->write(core::VecCoordId::position());
+        VecCoord& pos = wposData.wref();
 
         // Restore position
         for (unsigned int i = 0; i < pos.size(); i++)
@@ -1057,8 +1061,7 @@ void PrecomputedConstraintCorrection<DataTypes>::resetForUnbuiltResolution(doubl
         if (cId >= id_to_localIndex.size())
             id_to_localIndex.resize(cId + 1, -1);
 
-        if (id_to_localIndex[cId] != -1)
-            serr << "duplicate entry in constraints for id " << cId << " : " << id_to_localIndex[cId] << " + " << cpt ;
+        msg_error_when(id_to_localIndex[cId] != -1) << "duplicate entry in constraints for id " << cId << " : " << id_to_localIndex[cId] << " + " << cpt;
 
         id_to_localIndex[cId] = cpt;
         localIndex_to_id.push_back(cId);
@@ -1073,7 +1076,7 @@ void PrecomputedConstraintCorrection<DataTypes>::resetForUnbuiltResolution(doubl
         {
             if(error_message_not_displayed)
             {
-                serr<<"Initial_guess not supported yet in unbuilt mode with NEW_METHOD_UNBUILT!=> PUT F to 0"<<sendl;
+                msg_error() << "Initial_guess not supported yet in unbuilt mode with NEW_METHOD_UNBUILT!=> PUT F to 0";
                 error_message_not_displayed = false;
             }
 

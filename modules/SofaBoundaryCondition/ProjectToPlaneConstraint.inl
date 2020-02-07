@@ -119,7 +119,7 @@ void ProjectToPlaneConstraint<DataTypes>::init()
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     sofa::core::topology::BaseMeshTopology* _topology = l_topology.get();
@@ -146,7 +146,7 @@ void ProjectToPlaneConstraint<DataTypes>::init()
         const unsigned int index=indices[i];
         if (index >= maxIndex)
         {
-            serr << "Index " << index << " not valid!" << sendl;
+            msg_error() << "Index " << index << " not valid!";
             removeConstraint(index);
         }
     }
@@ -230,7 +230,7 @@ void ProjectToPlaneConstraint<DataTypes>::projectResponse(const core::Mechanical
 template <class DataTypes>
 void ProjectToPlaneConstraint<DataTypes>::projectJacobianMatrix(const core::MechanicalParams* /*mparams*/ , DataMatrixDeriv& /*cData*/)
 {
-    serr<<"projectJacobianMatrix(const core::MechanicalParams*, DataMatrixDeriv& ) is not implemented" << sendl;
+    msg_error() << "projectJacobianMatrix(const core::MechanicalParams*, DataMatrixDeriv& ) is not implemented";
 }
 
 template <class DataTypes>
@@ -262,13 +262,13 @@ void ProjectToPlaneConstraint<DataTypes>::projectPosition(const core::Mechanical
 template <class DataTypes>
 void ProjectToPlaneConstraint<DataTypes>::applyConstraint(defaulttype::BaseMatrix * /*mat*/, unsigned int /*offset*/)
 {
-    serr << "applyConstraint is not implemented " << sendl;
+    msg_error() << "applyConstraint is not implemented ";
 }
 
 template <class DataTypes>
 void ProjectToPlaneConstraint<DataTypes>::applyConstraint(defaulttype::BaseVector * /*vect*/, unsigned int /*offset*/)
 {
-    serr<<"ProjectToPlaneConstraint<DataTypes>::applyConstraint(defaulttype::BaseVector *vect, unsigned int offset) is not implemented "<< sendl;
+    msg_error() << "ProjectToPlaneConstraint<DataTypes>::applyConstraint(defaulttype::BaseVector *vect, unsigned int offset) is not implemented ";
 }
 
 template <class DataTypes>

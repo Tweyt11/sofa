@@ -53,8 +53,8 @@ template <class DataTypes>  TrianglePressureForceField<DataTypes>::TrianglePress
         , dmax(initData(&dmax,(Real)0.0, "dmax", "Maximum distance from the origin along the normal direction"))
         , p_showForces(initData(&p_showForces, (bool)false, "showForces", "draw triangles which have a given pressure"))
 		, p_useConstantForce(initData(&p_useConstantForce, (bool)true, "useConstantForce", "applied force is computed as the the pressure vector times the area at rest"))
-        , trianglePressureMap(initData(&trianglePressureMap, "trianglePressureMap", "map between edge indices and their pressure"))
         , l_topology(initLink("topology", "link to the topology container"))
+        , trianglePressureMap(initData(&trianglePressureMap, "trianglePressureMap", "map between edge indices and their pressure"))
         , m_topology(nullptr)
     {
     }
@@ -67,7 +67,7 @@ template <class DataTypes> void TrianglePressureForceField<DataTypes>::init()
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     m_topology = l_topology.get();
@@ -152,8 +152,10 @@ void TrianglePressureForceField<DataTypes>::initTriangleInformation()
 {
    this->getContext()->get(triangleGeo);
 
-    if(!triangleGeo)
-        serr << "Missing component: Unable to get TriangleSetGeometryAlgorithms from the current context." << sendl;
+   if (!triangleGeo)
+   {
+       msg_error() << "Missing component: Unable to get TriangleSetGeometryAlgorithms from the current context.";
+   }
 
     // FIXME: a dirty way to avoid a crash
     if(!triangleGeo)
@@ -285,7 +287,7 @@ void TrianglePressureForceField<DataTypes>::draw(const core::visual::VisualParam
 template<class DataTypes>
 SReal TrianglePressureForceField<DataTypes>::getPotentialEnergy(const core::MechanicalParams* /*mparams*/, const DataVecCoord&  /* x */) const
 {
-    serr << "Get potentialEnergy not implemented" << sendl;
+    msg_warning() << "Method getPotentialEnergy not implemented yet.";
     return 0.0;
 }
 

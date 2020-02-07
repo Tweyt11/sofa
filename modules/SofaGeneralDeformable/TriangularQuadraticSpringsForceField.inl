@@ -93,11 +93,6 @@ void TriangularQuadraticSpringsForceField<DataTypes>::TRQSTriangleHandler::apply
         for(j=0; j<3; ++j)
         {
             cotangent[j]=(squareRestLength[(j+1)%3] +squareRestLength[(j+2)%3]-squareRestLength[j])/(4*area);
-            /*	if (cotangent[j]<0)
-            serr<<"negative cotangent["<<i<<"]["<<j<<"]"<<sendl;
-            else
-            serr<<"cotangent="<<cotangent[j]<<sendl;*/
-
         }
         for(j=0; j<3; ++j)
         {
@@ -163,13 +158,13 @@ template <class DataTypes> TriangularQuadraticSpringsForceField<DataTypes>::~Tri
 
 template <class DataTypes> void TriangularQuadraticSpringsForceField<DataTypes>::init()
 {
-    sout<< "initializing TriangularQuadraticSpringsForceField" << sendl;
+    msg_info() << "initializing TriangularQuadraticSpringsForceField";
     this->Inherited::init();
 
     if (l_topology.empty())
     {
         msg_info() << "link to Topology container should be set to ensure right behavior. First Topology found in current context will be used.";
-        l_topology.set(this->getContext()->getMeshTopology());
+        l_topology.set(this->getContext()->getMeshTopologyLink());
     }
 
     m_topology = l_topology.get();
@@ -190,7 +185,7 @@ template <class DataTypes> void TriangularQuadraticSpringsForceField<DataTypes>:
 
     if (m_topology->getNbTriangles()==0)
     {
-        serr << "ERROR(TriangularQuadraticSpringsForceField): object must have a Triangular Set Topology."<<sendl;
+        msg_error() << "ERROR(TriangularQuadraticSpringsForceField): object must have a Triangular Set Topology.";
         return;
     }
     updateLameCoefficients();
@@ -266,7 +261,6 @@ void TriangularQuadraticSpringsForceField<DataTypes>::addForce(const core::Mecha
         val=einfo->stiffness*(einfo->dl)/L;
         f[v1]+=dp*val;
         f[v0]-=dp*val;
-        //	serr << "einfo->stiffness= "<<einfo->stiffness<<sendl;
     }
     if (f_useAngularSprings.getValue()==true)
     {
@@ -289,14 +283,12 @@ void TriangularQuadraticSpringsForceField<DataTypes>::addForce(const core::Mecha
                 f[ta[k]]-=force;
             }
         }
-        //	serr << "tinfo->gamma[0] "<<tinfo->gamma[0]<<sendl;
 
     }
     edgeInfo.endEdit();
     triangleInfo.endEdit();
     updateMatrix=true;
     d_f.endEdit();
-    //serr << "end addForce" << sendl;
 }
 
 
@@ -315,8 +307,6 @@ void TriangularQuadraticSpringsForceField<DataTypes>::addDForce(const core::Mech
     TriangleRestInformation *tinfo;
 
     helper::vector<typename TriangularQuadraticSpringsForceField<DataTypes>::TriangleRestInformation>& triangleInf = *(triangleInfo.beginEdit());
-
-    //	serr << "start addDForce" << sendl;
     helper::vector<typename TriangularQuadraticSpringsForceField<DataTypes>::EdgeRestInformation>& edgeInf = *(edgeInfo.beginEdit());
 
     assert(this->mstate);
@@ -331,7 +321,6 @@ void TriangularQuadraticSpringsForceField<DataTypes>::addDForce(const core::Mech
         Real val1,val2,vali,valj,valk;
         Coord dpj,dpk,dpi;
 
-        //	serr <<"updating matrix"<<sendl;
         updateMatrix=false;
         for(int l=0; l<nbTriangles; l++ )
         {
@@ -433,7 +422,6 @@ void TriangularQuadraticSpringsForceField<DataTypes>::updateLameCoefficients()
 {
     lambda= f_youngModulus.getValue()*f_poissonRatio.getValue()/(1-f_poissonRatio.getValue()*f_poissonRatio.getValue());
     mu = f_youngModulus.getValue()*(1-f_poissonRatio.getValue())/(1-f_poissonRatio.getValue()*f_poissonRatio.getValue());
-    //	serr << "initialized Lame coef : lambda=" <<lambda<< " mu="<<mu<<sendl;
 }
 
 
