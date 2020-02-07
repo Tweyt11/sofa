@@ -75,18 +75,6 @@ double OpenCLScalarField::getValue(const Vec3d& pos)
     return 1.0;
 }
 
-template<class D>
-sofa::helper::ReadAccessor<D> getReadAccessor(D& c)
-{
-    return sofa::helper::ReadAccessor<D>{ c };
-}
-
-template<class D>
-sofa::helper::WriteOnlyAccessor<D> getWriteOnlyAccessor(D& c)
-{
-    return sofa::helper::WriteOnlyAccessor<D>{ c };
-}
-
 // auto generated from ./clext.py
 #ifndef __CL_EXT__
 #define __CL_EXT__

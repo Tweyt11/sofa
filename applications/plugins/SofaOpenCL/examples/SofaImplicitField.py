@@ -1,6 +1,7 @@
 """type: SofaContent"""
 
 import Sofa.Core
+import classprefab
 
 class UController(Sofa.Core.Controller):
         def __init__(self, target, *args, **kwargs):
@@ -21,7 +22,8 @@ def Settings(name="Settings"):
         setting.add("RequiredPlugin", name="NodePhysics")
         setting.add("RequiredPlugin", name="SofaImplicitField")
         setting.add("RequiredPlugin", name="SofaImplicitField3")
-        setting.add("RequiredPlugin", name="SofaOpenCL")        
+        setting.add("RequiredPlugin", name="SofaOpenCL")
+        setting.init()
         return setting
 
 def Shape(name="Shape"):
@@ -30,6 +32,8 @@ def Shape(name="Shape"):
         shape = Sofa.Core.Node(name)
         c=shape.add("CustomField", name="field")
         c.pyEvalFunction.value = fieldFunction 
+
+        shape.init()
         return shape
 
 def OpenCL(field, name="OpenCL"):
@@ -38,9 +42,12 @@ def OpenCL(field, name="OpenCL"):
         l = self.add("NodePhysics.TextLoader", filename=fs.filename)
         self.add("OpenCLScalarField", name="afield", kernelCode=l.content, points=[[0.0,0.0,0.0]]*10)
         self.add(UController, target=field)
+
+        self.init()
         return self
 
 def createScene(root):
         root.add(Settings)
         root.add(Shape)
         root.add(OpenCL, field=root.Shape.field)
+        root.add(classprefab.Sphere)
