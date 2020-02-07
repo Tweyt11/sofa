@@ -40,14 +40,17 @@ namespace geometry
 {
 
 using sofa::defaulttype::Vec3d ;
+typedef std::function<void(const std::vector<Vec3d>&
+                           input, std::vector<SReal>& out)> ScalarArrayFieldFunctionR3R;
 typedef std::function<double(double, double, double)> ScalarFieldFunctionR3R;
 typedef std::function<Vec3d(double, double, double)>  GradientFieldFunctionR3R;
 
 class ScalarFieldR3
 {
 public:
-    ScalarFieldFunctionR3R   function {[](double,double,double)->double{return 0.0;}};
+    ScalarFieldFunctionR3R   function {[](double,double,double)->double{return 1.0;}};
     GradientFieldFunctionR3R gradient {[](double,double,double)->Vec3d{return Vec3d();}};
+    ScalarArrayFieldFunctionR3R arrayFunction; /// Left empty so we can detect if an invalid targed it there.
 };
 
 namespace _scalarfield_

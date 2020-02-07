@@ -71,7 +71,6 @@ PointCloudImplicitFieldVisualization::PointCloudImplicitFieldVisualization() :
     addUpdateCallback("evalFunction", {&d_evalFunction,
                                        &d_color, &f_bbox, &d_gridresolution},[this]()
     {
-        std::cout << "EVALUATE FROM EVAL: " << m_componentstate.getCounter() << std::endl;
         m_points.clear();
         m_colors.clear();
         m_field.clear();
@@ -83,16 +82,18 @@ PointCloudImplicitFieldVisualization::PointCloudImplicitFieldVisualization() :
 
 void PointCloudImplicitFieldVisualization::computeBBox(const core::ExecParams *, bool t)
 {
-    f_bbox = d_bbox.getValue() ;
+    if((f_bbox.getValue().minBBox() != d_bbox.getValue().minBBox())
+        || (f_bbox.getValue().maxBBox() != d_bbox.getValue().maxBBox()))
+        f_bbox = d_bbox.getValue() ;
 }
 
 
 PointCloudImplicitFieldVisualization::~PointCloudImplicitFieldVisualization()
 {
-    msg_info() << "Requesting async job to terminated..." ;
-    m_cmdqueue.push(CMD_STOP);
-    msg_info() << "Waiting job to terminated..." ;
-    m_asyncthread.join() ;
+    //msg_info() << "Requesting async job to terminated..." ;
+    //m_cmdqueue.push(CMD_STOP);
+    //msg_info() << "Waiting job to terminated..." ;
+    //m_asyncthread.join() ;
 }
 
 void PointCloudImplicitFieldVisualization::init()
@@ -155,93 +156,101 @@ double locateZero(double cv, Vec3d& cpos, Vec3d& cgrad, Vec3d& npos, Vec3d& outP
     return locateZero(nv, npos, ngrad, nnpos, outP, outG, f);
 }
 
+
 void PointCloudImplicitFieldVisualization::asyncCompute()
 {
-
-    while(true)
-    {
-        // Wait until main() sends data
-        msg_info() << "THREAD IS WAITING TO START" ;
-        Cmd cmd = m_cmdqueue.pop();
-        msg_info() << "THREAD STARTED.. with command: " << cmd;
-
-        if(cmd == CMD_STOP)
-            return;
-
-        auto bbox = d_bbox.getValue();
-        unsigned int res = d_gridresolution.getValue() ;
-        ScalarFieldR3 field = d_evalFunction.getValue();
-
-        m_componentstate = ComponentState::Loading ;
-        uint32_t rndval = 1;
-        uint16_t ix,iy;
-        double x=0,y=0,z=0;
-
-        const Vec3d& minbox = bbox.minBBox() ;
-        Vec3d scalebox = (bbox.maxBBox() - minbox) / res ;
-        do
-        {
-            iy =  rndval & 0x000FF;        /* Y = low 8 bits */
-            ix = (rndval & 0x1FF00) >> 8;  /* X = High 9 bits */
-            unsigned lsb = rndval & 1;    /* Get the output bit. */
-            rndval >>= 1;                 /* Shift register */
-            if (lsb) {                    /* If the output is 0, the xor can be skipped. */
-                rndval ^= 0x00012000;
-            }
-            if( ix < res && iy < res ){
-                x = minbox.x()+(scalebox.x()*ix) ;
-                y = minbox.y()+(scalebox.y()*iy) ;
-
-                z=0;
-                for(unsigned int k=0;k<res;k++)
-                {
-                    if(!m_cmdqueue.empty())
-                    {
-                        Cmd cmd = m_cmdqueue.pop();
-                        if(cmd==CMD_STOP)
-                            return;
-                        if(cmd==CMD_START){
-                            m_cpoints.clear();
-                            m_cfield.clear();
-                            m_cnormals.clear();
-
-                            msg_info() << "Stopping async command for a new one..." ;
-                            m_cmdqueue.push(cmd);
-                            goto endl;
-                        }
-                    }
-                    z = minbox.z()+scalebox.z()*k;
-                    Vec3d pos { x, y, z }  ;
-
-                    double dd = field.function(x,y,z) ;
-                    double d = fabs(dd) ;
-                    if( dd < 0.001 )
-                    {
-                        std::lock_guard<std::mutex> guard(m_datamutex) ;
-                        m_cpoints.push_back(pos);
-                        m_cfield.push_back(dd) ;
-                        m_cnormals.push_back(field.gradient(x,y,z).normalized());
-                    }
-
-                    if(m_minv > d)
-                        m_minv = d;
-                    if(m_maxv < d)
-                        m_maxv = d;
-                }
-            }
-        } while (rndval != 1);
-endl:
-        msg_info() << "THREAD DONE" ;
-        m_componentstate = ComponentState::Valid ;
-    }
 }
+//void PointCloudImplicitFieldVisualization::asyncCompute()
+//{
+//    while(true)
+//    {
+//        // Wait until main() sends data
+//        msg_info() << "THREAD IS WAITING TO START" ;
+//        Cmd cmd = m_cmdqueue.pop();
+//        msg_info() << "THREAD STARTED.. with command: " << cmd;
+
+//        if(cmd == CMD_STOP)
+//            return;
+
+//        auto bbox = d_bbox.getValue();
+//        unsigned int res = d_gridresolution.getValue() ;
+//        const ScalarFieldR3& field = d_evalFunction.getValue();
+
+//        m_componentstate = ComponentState::Loading ;
+//        uint32_t rndval = 1;
+//        uint16_t ix,iy;
+//        double x=0,y=0,z=0;
+
+//        const Vec3d& minbox = bbox.minBBox() ;
+//        Vec3d scalebox = (bbox.maxBBox() - minbox) / res ;
+//        do
+//        {
+//            iy =  rndval & 0x000FF;        /* Y = low 8 bits */
+//            ix = (rndval & 0x1FF00) >> 8;  /* X = High 9 bits */
+//            unsigned lsb = rndval & 1;    /* Get the output bit. */
+//            rndval >>= 1;                 /* Shift register */
+//            if (lsb) {                    /* If the output is 0, the xor can be skipped. */
+//                rndval ^= 0x00012000;
+//            }
+//            if( ix < res && iy < res ){
+//                x = minbox.x()+(scalebox.x()*ix) ;
+//                y = minbox.y()+(scalebox.y()*iy) ;
+
+//                z=0;
+//                for(unsigned int k=0;k<res;k++)
+//                {
+//                    if(!m_cmdqueue.empty())
+//                    {
+//                        Cmd cmd = m_cmdqueue.pop();
+//                        if(cmd==CMD_STOP)
+//                            return;
+//                        if(cmd==CMD_START){
+//                            m_cpoints.clear();
+//                            m_cfield.clear();
+//                            m_cnormals.clear();
+
+//                            msg_info() << "Stopping async command for a new one..." ;
+//                            m_cmdqueue.push(cmd);
+//                            goto endl;
+//                        }
+//                    }
+//                    z = minbox.z()+scalebox.z()*k;
+//                    Vec3d pos { x, y, z }  ;
+
+//                    double dd = field.function(x,y,z) ;
+//                    double d = fabs(dd) ;
+//                    if( dd < 0.001 )
+//                    {
+//                        std::lock_guard<std::mutex> guard(m_datamutex) ;
+//                        m_cpoints.push_back(pos);
+//                        m_cfield.push_back(dd) ;
+//                        m_cnormals.push_back(field.gradient(x,y,z).normalized());
+//                    }
+
+//                    if(m_minv > d)
+//                        m_minv = d;
+//                    if(m_maxv < d)
+//                        m_maxv = d;
+//                }
+//            }
+//        } while (rndval != 1);
+//endl:
+//        msg_info() << "THREAD DONE" ;
+//        m_componentstate = ComponentState::Valid ;
+//    }
+//}
 
 void PointCloudImplicitFieldVisualization::draw(const core::visual::VisualParams *params)
 {
+    std::cout << "COUCOU" << std::endl;
     if( m_componentstate == ComponentState::Invalid )
         return ;
 
+    std::cout << "COUCOU 1" << std::endl;
+
     updateBufferFromComputeKernel();
+
+    std::cout << "COUCOU 2" << std::endl;
 
     auto& box = f_bbox.getValue();
     params->drawTool()->drawBoundingBox(box.minBBox(), box.maxBBox()) ;
