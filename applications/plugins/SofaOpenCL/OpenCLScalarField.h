@@ -19,62 +19,62 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include "config.h"
+#pragma once
 
-namespace sofa
+#include <SofaImplicitField/components/geometry/ScalarField.h>
+#include <sofa/core/DataEngine.h>
+#include <sofa/helper/vector.h>
+
+/// Enable OpenCL API exception.
+#define CL_HPP_ENABLE_EXCEPTIONS
+#define CL_HPP_MINIMUM_OPENCL_VERSION 120
+#define CL_HPP_TARGET_OPENCL_VERSION 120
+#include <CL/cl2.hpp>
+
+namespace sofaopencl
 {
 
-namespace component
+using sofa::defaulttype::Vec3d;
+using sofa::core::objectmodel::Data;
+using sofa::component::geometry::ScalarFieldR3;
+
+class OpenCLScalarField : public sofa::core::DataEngine
 {
+public:
+    SOFA_CLASS(OpenCLScalarField, DataEngine);
 
-extern "C" {
-SOFAOPENCL_API void initExternalModule();
-SOFAOPENCL_API const char* getModuleName();
-SOFAOPENCL_API const char* getModuleVersion();
-SOFAOPENCL_API const char* getModuleLicense();
-SOFAOPENCL_API const char* getModuleDescription();
-SOFAOPENCL_API const char* getModuleComponentList();
-}
+    OpenCLScalarField();
+    double getValue(const Vec3d& pos);
 
-
-void initExternalModule()
-{
-    static bool first = true;
-    if (first)
-    {
-        first = false;
-    }
-}
-
-const char* getModuleName()
-{
-    return "SofaOpenCL";
-}
-
-const char* getModuleVersion()
-{
-    return "?";
-}
-
-const char* getModuleLicense()
-{
-    return "LGPL";
-}
+    void doUpdateGPU();
+    void doUpdate() override;
+    void initGPU();
+    void compileShaderCode(const std::string& kernelcode);
 
 
-const char* getModuleDescription()
-{
-    return "?";
-}
+    /// C++ version of the field.
+    Data<std::string>   d_inputShaderCode;
+    Data<ScalarFieldR3> d_inputFieldFunction;
 
-const char* getModuleComponentList()
-{
-    /// string containing the names of the classes provided by the plugin
-    return "";
-}
+    Data<sofa::helper::vector<Vec3d>> d_inputPoints;
+    Data<sofa::helper::vector<SReal>> d_outputValues;
+    Data<sofa::helper::vector<Vec3d>> d_outputGradients;
 
+private:
+    cl::Buffer buffer_A;
+    cl::Buffer buffer_B;
+    cl::Buffer buffer_C;
 
+    cl::KernelFunctor<cl::Buffer, cl::Buffer>* m_kernelfunction;
 
-}
+    bool m_isInited {false};
+    cl::Program m_oclprogram;
+    cl::Context m_oclcontext;
+    cl::Kernel m_oclkernel;
+    cl::Device m_ocldevice;
+    cl::CommandQueue m_oclqueue;
+    size_t m_bufferSize {0};
+};
 
-}
+} // namespace sofaopencl
+
