@@ -81,14 +81,12 @@ MeshObjLoader::MeshObjLoader()
     /// name filename => component state update + change of all data field...but not visible ?
     addUpdateCallback("filename", {&m_filename}, [this]()
     {
-        m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
         if(load()){
             clearLoggedMessages();
-            m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
             return sofa::core::objectmodel::ComponentState::Valid;
         }
         return sofa::core::objectmodel::ComponentState::Invalid;
-    }, {&m_componentstate});
+    }, {&d_positions, &d_faceList, &d_triangles, &d_normalsList, &d_positionsList});
 }
 
 MeshObjLoader::~MeshObjLoader()
