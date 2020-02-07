@@ -54,10 +54,9 @@ MeshSTLLoader::MeshSTLLoader() : MeshLoader()
     /// name filename => component state update + change of all data field...but not visible ?
     addUpdateCallback("filename", {&m_filename}, [this]()
     {
-        m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
-        if(load()){
+        if(load())
+        {
             clearLoggedMessages();
-            m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
             return sofa::core::objectmodel::ComponentState::Valid;
         }
         return sofa::core::objectmodel::ComponentState::Invalid;
@@ -68,6 +67,12 @@ MeshSTLLoader::MeshSTLLoader() : MeshLoader()
 
 bool MeshSTLLoader::load()
 {
+    // Clear all previous buffers
+    sofa::helper::getWriteAccessor(d_positions).clear();
+    sofa::helper::getWriteAccessor(d_edges).clear();
+    sofa::helper::getWriteAccessor(d_triangles).clear();
+    sofa::helper::getWriteAccessor(d_normals).clear();
+
     const char* filename = m_filename.getFullPath().c_str();
     std::string sfilename(filename);
     if (!sofa::helper::system::DataRepository.findFile(sfilename))
@@ -107,9 +112,9 @@ bool MeshSTLLoader::readBinarySTL(const char *filename)
 
     std::ifstream dataFile (filename, std::ios::in | std::ios::binary);
 
-    helper::vector<sofa::defaulttype::Vector3>& my_positions = *(this->d_positions.beginWriteOnly());
-    helper::vector<sofa::defaulttype::Vector3>& my_normals = *(this->d_normals.beginWriteOnly());
-    helper::vector<Triangle >& my_triangles = *(this->d_triangles.beginWriteOnly());
+    auto my_positions = sofa::helper::getWriteOnlyAccessor(d_positions);
+    auto my_normals = sofa::helper::getWriteOnlyAccessor(d_normals);
+    auto my_triangles = sofa::helper::getWriteOnlyAccessor(this->d_triangles);
 
     std::map< sofa::defaulttype::Vec3f, core::topology::Topology::index_type > my_map;
     core::topology::Topology::index_type positionCounter = 0;
@@ -209,10 +214,6 @@ bool MeshSTLLoader::readBinarySTL(const char *filename)
 //            break;
     }
 
-    this->d_positions.endEdit();
-    this->d_triangles.endEdit();
-    this->d_normals.endEdit();
-
     dmsg_info() << "done!" ;
 
     return true;
@@ -224,10 +225,9 @@ bool MeshSTLLoader::readSTL(std::ifstream& dataFile)
     Vec3f result;
     std::string line;
 
-    helper::vector<sofa::defaulttype::Vector3>& my_positions = *(d_positions.beginEdit());
-    helper::vector<sofa::defaulttype::Vector3>& my_normals = *(d_normals.beginEdit());
-    helper::vector<Triangle >& my_triangles = *(d_triangles.beginEdit());
-
+    auto my_positions = sofa::helper::getWriteOnlyAccessor(d_positions);
+    auto my_normals = sofa::helper::getWriteOnlyAccessor(d_normals);
+    auto my_triangles = sofa::helper::getWriteOnlyAccessor(d_triangles);
 
     std::map< sofa::defaulttype::Vec3f, core::topology::Topology::index_type > my_map;
     core::topology::Topology::index_type positionCounter = 0, vertexCounter = 0;
@@ -298,10 +298,6 @@ bool MeshSTLLoader::readSTL(std::ifstream& dataFile)
             break;
         }
     }
-
-    d_positions.endEdit();
-    d_triangles.endEdit();
-    d_normals.endEdit();
 
     dataFile.close();
 

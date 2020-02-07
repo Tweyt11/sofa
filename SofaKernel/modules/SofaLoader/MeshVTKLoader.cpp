@@ -95,7 +95,7 @@ MeshVTKLoader::MeshVTKLoader() : MeshLoader()
             return sofa::core::objectmodel::ComponentState::Valid;
         }
         return sofa::core::objectmodel::ComponentState::Invalid;
-    }, {});
+    }, {&d_polylines, &d_edges, &d_triangles, &d_quads, &d_tetrahedra, &d_hexahedra, &d_normals, &d_positions, &d_highOrderEdgePositions});
 }
 
 MeshVTKLoader::VTKFileType MeshVTKLoader::detectFileType(const char* filename)
@@ -141,6 +141,16 @@ bool MeshVTKLoader::load()
 {
     msg_info() << "Loading VTK file: " << m_filename ;
 
+    sofa::helper::getWriteOnlyAccessor(d_polylines).clear();
+    sofa::helper::getWriteOnlyAccessor(d_edges).clear();
+    sofa::helper::getWriteOnlyAccessor(d_triangles).clear();
+    sofa::helper::getWriteOnlyAccessor(d_quads).clear();
+    sofa::helper::getWriteOnlyAccessor(d_tetrahedra).clear();
+    sofa::helper::getWriteOnlyAccessor(d_hexahedra).clear();
+    sofa::helper::getWriteOnlyAccessor(d_normals).clear();
+    sofa::helper::getWriteOnlyAccessor(d_positions).clear();
+    sofa::helper::getWriteOnlyAccessor(d_highOrderEdgePositions).clear();
+
     bool fileRead = false;
 
     // -- Loading file
@@ -156,7 +166,6 @@ bool MeshVTKLoader::load()
     case LEGACY:
         reader = new LegacyVTKReader();
         break;
-    case NONE:
     default:
         msg_error() << "Header not recognized" ;
         reader = nullptr;
@@ -185,7 +194,7 @@ bool MeshVTKLoader::load()
 
 bool MeshVTKLoader::setInputsMesh()
 {
-    vector<Vector3>& my_positions = *(d_positions.beginEdit());
+    auto my_positions = sofa::helper::getWriteOnlyAccessor(d_positions);
     if (reader->inputPoints)
     {
         BaseVTKReader::VTKDataIO<double>* vtkpd =  dynamic_cast<BaseVTKReader::VTKDataIO<double>* > (reader->inputPoints);
@@ -196,7 +205,7 @@ bool MeshVTKLoader::setInputsMesh()
             if (inPoints)
                 for (int i = 0; i < vtkpd->dataSize; i += 3)
                 {
-                    my_positions.push_back(Vector3 ((double)inPoints[i + 0], (double)inPoints[i + 1], (double)inPoints[i + 2]));
+                    my_positions.push_back(Vec3d (double(inPoints[i + 0]), double(inPoints[i + 1]), double(inPoints[i + 2])));
                 }
             else
             {
@@ -209,7 +218,7 @@ bool MeshVTKLoader::setInputsMesh()
             if (inPoints)
                 for (int i = 0; i < vtkpf->dataSize; i += 3)
                 {
-                    my_positions.push_back(Vector3 ((float)inPoints[i + 0], (float)inPoints[i + 1], (float)inPoints[i + 2]));
+                    my_positions.push_back(Vec3f (inPoints[i + 0], inPoints[i + 1], inPoints[i + 2]));
                 }
             else
             {
@@ -229,7 +238,7 @@ bool MeshVTKLoader::setInputsMesh()
 
     d_positions.endEdit();
 
-    vector<Vector3>& my_normals = *(d_normals.beginEdit());
+    auto my_normals = sofa::helper::getWriteOnlyAccessor(d_normals);
     if(reader->inputNormals)
     {
         BaseVTKReader::VTKDataIO<double>* vtkpd =  dynamic_cast<BaseVTKReader::VTKDataIO<double>* > (reader->inputNormals);
@@ -241,7 +250,7 @@ bool MeshVTKLoader::setInputsMesh()
             if (inNormals)
                 for (int i = 0; i < vtkpd->dataSize; i += 3)
                 {
-                    my_normals.push_back(Vector3 ((double)inNormals[i + 0], (double)inNormals[i + 1], (double)inNormals[i + 2]));
+                    my_normals.push_back(Vector3 (double(inNormals[i + 0]), double(inNormals[i + 1]), double(inNormals[i + 2])));
                 }
             else
             {
@@ -254,7 +263,7 @@ bool MeshVTKLoader::setInputsMesh()
             if (inNormals)
                 for (int i = 0; i < vtkpf->dataSize; i += 3)
                 {
-                    my_normals.push_back(Vector3 ((float)inNormals[i + 0], (float)inNormals[i + 1], (float)inNormals[i + 2]));
+                    my_normals.push_back(Vec3f (inNormals[i + 0], inNormals[i + 1], inNormals[i + 2]));
                 }
             else
             {
@@ -268,17 +277,15 @@ bool MeshVTKLoader::setInputsMesh()
         }
     }
 
-    d_normals.endEdit();
 
+    auto my_polylines = sofa::helper::getWriteOnlyAccessor(d_polylines);
+    auto my_edges = sofa::helper::getWriteOnlyAccessor(d_edges);
+    auto my_triangles = sofa::helper::getWriteOnlyAccessor(d_triangles);
+    auto my_quads = sofa::helper::getWriteOnlyAccessor(d_quads);
+    auto my_tetrahedra = sofa::helper::getWriteOnlyAccessor(d_tetrahedra);
+    auto my_hexahedra = sofa::helper::getWriteOnlyAccessor(d_hexahedra);
 
-    helper::vector<Polyline >& my_polylines = *(d_polylines.beginEdit());
-    helper::vector<Edge >& my_edges = *(d_edges.beginEdit());
-    helper::vector<Triangle >& my_triangles = *(d_triangles.beginEdit());
-    helper::vector<Quad >& my_quads = *(d_quads.beginEdit());
-    helper::vector<Tetrahedron >& my_tetrahedra = *(d_tetrahedra.beginEdit());
-    helper::vector<Hexahedron >& my_hexahedra = *(d_hexahedra.beginEdit());
-
-    helper::vector<HighOrderEdgePosition >& my_highOrderEdgePositions = *(d_highOrderEdgePositions.beginEdit());
+    auto my_highOrderEdgePositions = sofa::helper::getWriteOnlyAccessor(d_highOrderEdgePositions);
 
     int errorcount = 0;
     if (reader->inputPolygons)
@@ -294,7 +301,7 @@ bool MeshVTKLoader::setInputsMesh()
             {
                 for (int j = 0; j < nv; ++j)
                 {
-                    if ((unsigned)inFP[i + j] >= (unsigned)(reader->inputPoints->dataSize / 3))
+                    if (unsigned(inFP[i + j]) >= unsigned(reader->inputPoints->dataSize / 3))
                     {
                         /// More user friendly error message to avoid flooding him
                         /// in case of severely broken file.
@@ -317,7 +324,7 @@ bool MeshVTKLoader::setInputsMesh()
             {
                 if (nv == 4)
                 {
-                    addQuad(&my_quads, inFP[i + 0], inFP[i + 1], inFP[i + 2], inFP[i + 3]);
+                    addQuad(&my_quads.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]), unsigned(inFP[i + 2]), unsigned(inFP[i + 3]));
                 }
                 else if (nv >= 3)
                 {
@@ -327,7 +334,7 @@ bool MeshVTKLoader::setInputsMesh()
                     for (int j = 2; j < nv; j++)
                     {
                         f[2] = inFP[i + j];
-                        addTriangle(&my_triangles, f[0], f[1], f[2]);
+                        addTriangle(&my_triangles.wref(), unsigned(f[0]), unsigned(f[1]), unsigned(f[2]));
                         f[1] = f[2];
                     }
                 }
@@ -376,7 +383,7 @@ bool MeshVTKLoader::setInputsMesh()
             case 2: // POLY_VERTEX
                 break;
             case 3: // LINE
-                addEdge(&my_edges, inFP[i + 0], inFP[i + 1]);
+                addEdge(&my_edges.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]));
                 break;
             case 4: // POLY_LINE
             {
@@ -384,61 +391,61 @@ bool MeshVTKLoader::setInputsMesh()
                 std::vector<PointID> points;
                 for (int v = 0; v < nv; ++v)
                 {
-                    points.push_back(inFP[i + v]);
+                    points.push_back(unsigned(inFP[i + v]));
                 }
-                addPolyline(&my_polylines, points);
+                addPolyline(&my_polylines.wref(), points);
             }
                 break;
             case 5: // TRIANGLE
-                addTriangle(&my_triangles, inFP[i + 0], inFP[i + 1], inFP[i + 2]);
+                addTriangle(&my_triangles.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]), unsigned(inFP[i + 2]));
                 break;
             case 6: // TRIANGLE_STRIP
                 for (int j = 0; j < nv - 2; j++)
                     if (j & 1)
                     {
-                        addTriangle(&my_triangles, inFP[i + j + 0], inFP[i + j + 1], inFP[i + j + 2]);
+                        addTriangle(&my_triangles.wref(), unsigned(inFP[i + j + 0]), unsigned(inFP[i + j + 1]), unsigned(inFP[i + j + 2]));
                     }
                     else
                     {
-                        addTriangle(&my_triangles, inFP[i + j + 0], inFP[i + j + 2], inFP[i + j + 1]);
+                        addTriangle(&my_triangles.wref(), unsigned(inFP[i + j + 0]), unsigned(inFP[i + j + 2]), unsigned(inFP[i + j + 1]));
                     }
                 break;
             case 7: // POLYGON
                 for (int j = 2; j < nv; j++)
                 {
-                    addTriangle(&my_triangles, inFP[i + 0], inFP[i + j - 1], inFP[i + j]);
+                    addTriangle(&my_triangles.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + j - 1]), unsigned(inFP[i + j]));
                 }
                 break;
             case 8: // PIXEL
-                addQuad(&my_quads, inFP[i + 0], inFP[i + 1], inFP[i + 3], inFP[i + 2]);
+                addQuad(&my_quads.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]), unsigned(inFP[i + 3]), unsigned(inFP[i + 2]));
                 break;
             case 9: // QUAD
-                addQuad(&my_quads, inFP[i + 0], inFP[i + 1], inFP[i + 2], inFP[i + 3]);
+                addQuad(&my_quads.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]), unsigned(inFP[i + 2]), unsigned(inFP[i + 3]));
                 break;
             case 10: // TETRA
-                addTetrahedron(&my_tetrahedra, inFP[i + 0], inFP[i + 1], inFP[i + 2], inFP[i + 3]);
+                addTetrahedron(&my_tetrahedra.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]), unsigned(inFP[i + 2]), unsigned(inFP[i + 3]));
                 break;
             case 11: // VOXEL
-                addHexahedron(&my_hexahedra, inFP[i + 0], inFP[i + 1], inFP[i + 3], inFP[i + 2],
-                        inFP[i + 4], inFP[i + 5], inFP[i + 7], inFP[i + 6]);
+                addHexahedron(&my_hexahedra.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]), unsigned(inFP[i + 3]), unsigned(inFP[i + 2]),
+                        unsigned(inFP[i + 4]), unsigned(inFP[i + 5]), unsigned(inFP[i + 7]), unsigned(inFP[i + 6]));
                 break;
             case 12: // HEXAHEDRON
-                addHexahedron(&my_hexahedra, inFP[i + 0], inFP[i + 1], inFP[i + 2], inFP[i + 3],
-                        inFP[i + 4], inFP[i + 5], inFP[i + 6], inFP[i + 7]);
+                addHexahedron(&my_hexahedra.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]), unsigned(inFP[i + 2]), unsigned(inFP[i + 3]),
+                        unsigned(inFP[i + 4]), unsigned(inFP[i + 5]), unsigned(inFP[i + 6]), unsigned(inFP[i + 7]));
                 break;
             case 21: // QUADRATIC Edge
-                addEdge(&my_edges, inFP[i + 0], inFP[i + 1]);
+                addEdge(&my_edges.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]));
             {
                 HighOrderEdgePosition hoep;
-                hoep[0] = inFP[i + 2];
-                hoep[1] = my_edges.size() - 1;
+                hoep[0] = unsigned(inFP[i + 2]);
+                hoep[1] = unsigned(my_edges.size() - 1);
                 hoep[2] = 1;
                 hoep[3] = 1;
                 my_highOrderEdgePositions.push_back(hoep);
             }
                 break;
             case 22: // QUADRATIC Triangle
-                addTriangle(&my_triangles, inFP[i + 0], inFP[i + 1], inFP[i + 2]);
+                addTriangle(&my_triangles.wref(), unsigned(inFP[i + 0]), unsigned(inFP[i + 1]), unsigned(inFP[i + 2]));
             {
                 HighOrderEdgePosition hoep;
                 for(j = 0; j < 3; ++j)
@@ -451,7 +458,7 @@ bool MeshVTKLoader::setInputsMesh()
                     if (edgeSet.find(e) == edgeSet.end())
                     {
                         edgeSet.insert(e);
-                        addEdge(&my_edges, v0, v1);
+                        addEdge(&my_edges.wref(), v0, v1);
                         hoep[0] = inFP[i + j + 3];
                         hoep[1] = my_edges.size() - 1;
                         hoep[2] = 1;
@@ -462,7 +469,7 @@ bool MeshVTKLoader::setInputsMesh()
             }
                 break;
             case 24: // QUADRATIC Tetrahedron
-                addTetrahedron(&my_tetrahedra, inFP[i + 0], inFP[i + 1], inFP[i + 2], inFP[i + 3]);
+                addTetrahedron(&my_tetrahedra.wref(), inFP[i + 0], inFP[i + 1], inFP[i + 2], inFP[i + 3]);
             {
                 HighOrderEdgePosition hoep;
                 for(j = 0; j < 6; ++j)
@@ -475,7 +482,7 @@ bool MeshVTKLoader::setInputsMesh()
                     if (edgeSet.find(e) == edgeSet.end())
                     {
                         edgeSet.insert(e);
-                        addEdge(&my_edges, v0, v1);
+                        addEdge(&my_edges.wref(), v0, v1);
                         hoep[0] = inFP[i + j + 4];
                         hoep[1] = my_edges.size() - 1;
                         hoep[2] = 1;
@@ -541,14 +548,6 @@ bool MeshVTKLoader::setInputsMesh()
         delete reader->inputCellTypes;
     }
 
-    d_polylines.endEdit();
-    d_edges.endEdit();
-    d_triangles.endEdit();
-    d_quads.endEdit();
-    d_tetrahedra.endEdit();
-    d_hexahedra.endEdit();
-    d_highOrderEdgePositions.endEdit();
-
     return true;
 }
 
@@ -561,6 +560,8 @@ bool MeshVTKLoader::setInputsData()
 
         BaseData* basedata = reader->inputPointDataVector[i]->createSofaData();
         this->addData(basedata, dataname);
+        m_internalEngine["filename"].addOutput(basedata);
+
     }
 
     ///Cell Data
@@ -569,6 +570,7 @@ bool MeshVTKLoader::setInputsData()
         const char* dataname = reader->inputCellDataVector[i]->name.c_str();
         BaseData* basedata = reader->inputCellDataVector[i]->createSofaData();
         this->addData(basedata, dataname);
+        m_internalEngine["filename"].addOutput(basedata);
     }
 
     return true;
