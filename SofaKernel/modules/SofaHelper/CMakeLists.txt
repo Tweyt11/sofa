@@ -130,6 +130,7 @@ set(HEADER_FILES
     ${SRC_ROOT}/system/thread/thread_specific_ptr.h
     ${SRC_ROOT}/system/FileMonitor.h
     ${SRC_ROOT}/system/FileRepository.h
+    ${SRC_ROOT}/tsqueue.h
     ${SRC_ROOT}/vector.h
     ${SRC_ROOT}/vectorData.h
     ${SRC_ROOT}/vectorLinks.h

@@ -89,7 +89,6 @@ MeshObjLoader::MeshObjLoader()
         }
         return sofa::core::objectmodel::ComponentState::Invalid;
     }, {&m_componentstate});
-
 }
 
 MeshObjLoader::~MeshObjLoader()

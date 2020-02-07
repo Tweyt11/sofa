@@ -180,7 +180,6 @@ public:
                            std::function<sofa::core::objectmodel::ComponentState(void)> function,
                            std::initializer_list<DDGNode*> outputs);
 
-
     /// Accessor to the object name
     const std::string& getName() const
     {

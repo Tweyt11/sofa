@@ -250,6 +250,12 @@ void Node::notifyBeginAddChild(Node::SPtr parent, Node::SPtr child) const
     Node* root = down_cast<Node>(this->getContext()->getRootContext()->toBaseNode());
     for (auto& listener : root->listener)
         listener->onBeginAddChild(parent.get(), child.get());
+
+    if(root != parent.get())
+    {
+        for (auto& listener : parent->listener)
+            listener->onBeginAddChild(parent.get(), child.get());
+    }
 }
 
 void Node::notifyEndAddChild(Node::SPtr parent, Node::SPtr child) const
@@ -257,6 +263,12 @@ void Node::notifyEndAddChild(Node::SPtr parent, Node::SPtr child) const
     Node* root = down_cast<Node>(this->getContext()->getRootContext()->toBaseNode());
     for (auto& listener : root->listener)
         listener->onEndAddChild(parent.get(), child.get());
+
+    if(root != parent.get())
+    {
+        for (auto& listener : parent->listener)
+            listener->onEndAddChild(parent.get(), child.get());
+    }
 }
 
 void Node::notifyBeginRemoveChild(Node::SPtr parent, Node::SPtr child) const
@@ -264,6 +276,12 @@ void Node::notifyBeginRemoveChild(Node::SPtr parent, Node::SPtr child) const
     Node* root = down_cast<Node>(this->getContext()->getRootContext()->toBaseNode());
     for (auto& listener : root->listener)
         listener->onBeginRemoveChild(parent.get(), child.get());
+
+    if(root != parent.get())
+    {
+        for (auto& listener : parent->listener)
+            listener->onBeginRemoveChild(parent.get(), child.get());
+    }
 }
 
 void Node::notifyEndRemoveChild(Node::SPtr parent, Node::SPtr child) const
@@ -271,6 +289,12 @@ void Node::notifyEndRemoveChild(Node::SPtr parent, Node::SPtr child) const
     Node* root = down_cast<Node>(this->getContext()->getRootContext()->toBaseNode());
     for (auto& listener : root->listener)
         listener->onEndRemoveChild(parent.get(), child.get());
+
+    if(root != parent.get())
+    {
+        for (auto& listener : parent->listener)
+            listener->onEndRemoveChild(parent.get(), child.get());
+    }
 }
 
 void Node::notifyBeginAddObject(Node::SPtr parent, core::objectmodel::BaseObject::SPtr obj) const

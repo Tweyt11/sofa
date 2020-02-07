@@ -74,6 +74,7 @@ Base::Base()
     sendl.setParent(this);
 
     /// name change => component state update
+
     addUpdateCallback("name", {&name}, [this](){
         /// Increment the state counter but without changing the state.
         return m_componentstate.getValue();
@@ -103,12 +104,27 @@ void Base::addUpdateCallback(const std::string& name,
                              std::function<sofa::core::objectmodel::ComponentState(void)> func,
                              std::initializer_list<DDGNode*> outputs)
 {
-    m_internalEngine[name].setName(name);
-    m_internalEngine[name].setOwner(this);
-    m_internalEngine[name].addInputs(inputs);
-    m_internalEngine[name].addCallback(func);
-    m_internalEngine[name].addOutputs(outputs);
-    m_internalEngine[name].addOutput(&d_componentstate);
+    auto& engine = m_internalEngine[name];
+    engine.setName(name);
+    engine.setOwner(this);
+    engine.addInputs(inputs);
+    engine.addCallback(
+                [func, &engine, name](){
+//                std::cout << "THE OUPUTS ARE : " << std::endl;
+//                for( auto& i : engine.getOutputs() )
+//                {
+//                    if(i->getOwner())
+//                        std::cout << "   OUT: " << i->getOwner()->getName() << "." << i->getName() << " " << i->isDirty() << ", "  << std::endl;
+//                    else std::cout << "   NOW OWNER: " << i->getName() << "." << i->getName() << " " << i->isDirty() << ", "  << std::endl;
+//                 }
+                return func();
+    });
+    engine.addOutputs(outputs);
+
+    for(auto& i : engine.getInputs())
+        if( i == &d_componentstate )
+            return;
+    engine.addOutput(&d_componentstate);
 }
 
 /// Helper method used by initData()

@@ -40,6 +40,8 @@ namespace gpu
 namespace opencl
 {
 
+
+
 class OpenCLProgram
 {
     cl_program _program;

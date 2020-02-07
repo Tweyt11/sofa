@@ -95,6 +95,21 @@ OglModel::OglModel()
     primitiveTypeOptions->setNames(4, "DEFAULT", "LINES_ADJACENCY", "PATCHES", "POINTS");
     primitiveTypeOptions->setSelectedItem(0);
     primitiveType.endEdit();
+
+//    addUpdateCallback("translation", {&m_positions},
+//                      {},
+//                      [this](sofa::core::DataTrackerEngine* t)
+//    {
+//        t->updateAllInputsIfDirty();
+//        m_componentstate = sofa::core::objectmodel::ComponentState::Loading;
+//        clearLoggedMessages();
+//        init();
+//        m_isDirty=true;
+//        //initDone=false;
+//        t->cleanDirty();
+//        m_componentstate = sofa::core::objectmodel::ComponentState::Valid;
+
+//    }, {&m_componentstate});
 }
 
 OglModel::~OglModel()
@@ -360,6 +375,16 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
     if (!vparams->displayFlags().getShowVisualModels())
         return;
 
+//    if(m_isDirty)
+//    {
+//        m_isDirty=false;
+//        initDone=false;
+//        reinit();
+//        initVisual();
+//        //updateBuffers();
+//    }
+
+
     if(!isEnabled.getValue())
         return;
 
@@ -370,13 +395,15 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
     if (vparams->displayFlags().getShowWireFrame())
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+
+
+
     const VecCoord& vertices = this->getVertices();
     const VecDeriv& vnormals = this->getVnormals();
     const VecTexCoord& vtexcoords= this->getVtexcoords();
     const VecCoord& vtangents= this->getVtangents();
     const VecCoord& vbitangents= this->getVbitangents();
     bool hasTangents = vtangents.size() && vbitangents.size();
-
 
     glEnable(GL_LIGHTING);
 
@@ -596,6 +623,8 @@ void OglModel::internalDraw(const core::visual::VisualParams* vparams, bool tran
             glPopMatrix();
         }
     }
+
+
 }
 
 bool OglModel::hasTransparent()

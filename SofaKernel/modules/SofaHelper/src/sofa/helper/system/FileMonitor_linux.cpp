@@ -242,9 +242,9 @@ int FileMonitor::updates(int timeout)
         vector<string> changedfiles ;
         while (buffer_i < length) {
             struct inotify_event* pevent = (struct inotify_event *)&buffer[buffer_i] ;
-            //cout << "Event received ...from " << string(fd2fn[pevent->wd])
-            //      << ":" << pevent->name
-            //      << "->" << eventmaskToString(pevent->mask) << endl;
+//            cout << "Event received ...from " << string(fd2fn[pevent->wd])
+//                  << ":" << pevent->name
+//                  << "->" << eventmaskToString(pevent->mask) << endl;
             if(pevent->mask & ( IN_CLOSE_WRITE  | IN_MOVED_TO )) {
                 if(dir2files.find(fd2fn[pevent->wd])!=dir2files.end()) {
                     ListOfFiles& dl=dir2files[fd2fn[pevent->wd]] ;

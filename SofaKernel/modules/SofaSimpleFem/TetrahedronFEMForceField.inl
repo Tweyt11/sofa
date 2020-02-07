@@ -1450,9 +1450,8 @@ void TetrahedronFEMForceField<DataTypes>::init()
        _indexedElements = tetrahedra;
     }
 
-    m_componentstate = ComponentState::Valid ;
-
     reinit(); // compute per-element stiffness matrices and other precomputed values
+    m_componentstate = ComponentState::Valid ;
 
     msg_info() << "Init done with "<<_indexedElements->size()<<" tetras.";
 }
@@ -1471,9 +1470,6 @@ void TetrahedronFEMForceField<DataTypes>::reset()
 template <class DataTypes>
 inline void TetrahedronFEMForceField<DataTypes>::reinit()
 {
-    if(m_componentstate==ComponentState::Invalid)
-        return ;
-
     if (!this->mstate || !m_topology){
         // Need to affect a vector to the pointer even if it is empty.
         if (_indexedElements == nullptr)
@@ -1746,7 +1742,6 @@ void TetrahedronFEMForceField<DataTypes>::draw(const core::visual::VisualParams*
 
     if (!vparams->displayFlags().getShowForceFields()) return;
     if (!this->mstate) return;
-
     if(needUpdateTopology)
     {
         reinit();
@@ -1941,7 +1936,6 @@ void TetrahedronFEMForceField<DataTypes>::draw(const core::visual::VisualParams*
             vparams->drawTool()->drawTriangles(points[2], defaulttype::Vec<4,float>(0.0,1.0,1.0,1.0));
             vparams->drawTool()->drawTriangles(points[3], defaulttype::Vec<4,float>(0.5,1.0,1.0,1.0));
         }
-
     }
 
     ////////////// AFFICHAGE DES ROTATIONS ////////////////////////
