@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -114,13 +114,9 @@ public:
 
 };
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(CGALPLUGIN_CUBOIDMESH_CPP)
-#ifndef SOFA_FLOAT
-extern template class SOFA_CGALPLUGIN_API CuboidMesh<defaulttype::Vec3dTypes>;
-#endif //SOFA_FLOAT
-#ifndef SOFA_DOUBLE
-extern template class SOFA_CGALPLUGIN_API CuboidMesh<defaulttype::Vec3fTypes>;
-#endif //SOFA_DOUBLE
+#if  !defined(CGALPLUGIN_CUBOIDMESH_CPP)
+extern template class SOFA_CGALPLUGIN_API CuboidMesh<defaulttype::Vec3Types>;
+ 
 #endif
 
 } //cgal

@@ -1,6 +1,6 @@
 /******************************************************************************
 *       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2018 INRIA, USTL, UJF, CNRS, MGH                    *
+*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -89,15 +89,15 @@ public:
     DecimateMesh();
     virtual ~DecimateMesh();
 
-    void init();
-    void reinit();
+    void init() override;
+    void reinit() override;
 
-    void update();
+    void doUpdate() override;
     void draw();
     void writeObj();
     void computeNormals();
 
-    virtual std::string getTemplateName() const
+    virtual std::string getTemplateName() const override
     {
         return templateName(this);
     }
@@ -107,7 +107,7 @@ public:
         return DataTypes::Name();
     }
 
-    virtual void handleEvent(sofa::core::objectmodel::Event *event);
+    virtual void handleEvent(sofa::core::objectmodel::Event *event) override;
 
 
     void geometry_to_surface(Surface &s);
@@ -193,13 +193,9 @@ public:
 };
 
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(CGALPLUGIN_SIMPLIFICATIONMESH_CPP)
-#ifndef SOFA_FLOAT
-extern template class SOFA_CGALPLUGIN_API DecimateMesh<defaulttype::Vec3dTypes>;
-#endif //SOFA_FLOAT
-#ifndef SOFA_DOUBLE
-extern template class SOFA_CGALPLUGIN_API DecimateMesh<defaulttype::Vec3fTypes>;
-#endif //SOFA_DOUBLE
+#if  !defined(CGALPLUGIN_SIMPLIFICATIONMESH_CPP)
+extern template class SOFA_CGALPLUGIN_API DecimateMesh<defaulttype::Vec3Types>;
+ 
 #endif
 
 } //cgal
