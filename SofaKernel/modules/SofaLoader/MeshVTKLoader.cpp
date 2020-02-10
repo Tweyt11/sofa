@@ -40,13 +40,7 @@ using sofa::component::loader::BaseVTKReader ;
 #define checkErrorPtr(A) if (!A) { return nullptr; }
 #define checkErrorMsg(A, B) if (!A) { msg_error("MeshVTKLoader") << B << "\n" ; return false; }
 
-namespace sofa
-{
-
-namespace component
-{
-
-namespace loader
+namespace sofa::component::loader
 {
 
 using namespace sofa::defaulttype;
@@ -141,15 +135,15 @@ bool MeshVTKLoader::load()
 {
     msg_info() << "Loading VTK file: " << m_filename ;
 
-    sofa::helper::getWriteOnlyAccessor(d_polylines).clear();
-    sofa::helper::getWriteOnlyAccessor(d_edges).clear();
-    sofa::helper::getWriteOnlyAccessor(d_triangles).clear();
-    sofa::helper::getWriteOnlyAccessor(d_quads).clear();
-    sofa::helper::getWriteOnlyAccessor(d_tetrahedra).clear();
-    sofa::helper::getWriteOnlyAccessor(d_hexahedra).clear();
-    sofa::helper::getWriteOnlyAccessor(d_normals).clear();
-    sofa::helper::getWriteOnlyAccessor(d_positions).clear();
-    sofa::helper::getWriteOnlyAccessor(d_highOrderEdgePositions).clear();
+    getWriteOnlyAccessor(d_polylines).clear();
+    getWriteOnlyAccessor(d_edges).clear();
+    getWriteOnlyAccessor(d_triangles).clear();
+    getWriteOnlyAccessor(d_quads).clear();
+    getWriteOnlyAccessor(d_tetrahedra).clear();
+    getWriteOnlyAccessor(d_hexahedra).clear();
+    getWriteOnlyAccessor(d_normals).clear();
+    getWriteOnlyAccessor(d_positions).clear();
+    getWriteOnlyAccessor(d_highOrderEdgePositions).clear();
 
     bool fileRead = false;
 
@@ -194,7 +188,7 @@ bool MeshVTKLoader::load()
 
 bool MeshVTKLoader::setInputsMesh()
 {
-    auto my_positions = sofa::helper::getWriteOnlyAccessor(d_positions);
+    auto my_positions = getWriteOnlyAccessor(d_positions);
     if (reader->inputPoints)
     {
         BaseVTKReader::VTKDataIO<double>* vtkpd =  dynamic_cast<BaseVTKReader::VTKDataIO<double>* > (reader->inputPoints);
@@ -238,7 +232,7 @@ bool MeshVTKLoader::setInputsMesh()
 
     d_positions.endEdit();
 
-    auto my_normals = sofa::helper::getWriteOnlyAccessor(d_normals);
+    auto my_normals = getWriteOnlyAccessor(d_normals);
     if(reader->inputNormals)
     {
         BaseVTKReader::VTKDataIO<double>* vtkpd =  dynamic_cast<BaseVTKReader::VTKDataIO<double>* > (reader->inputNormals);
@@ -278,14 +272,14 @@ bool MeshVTKLoader::setInputsMesh()
     }
 
 
-    auto my_polylines = sofa::helper::getWriteOnlyAccessor(d_polylines);
-    auto my_edges = sofa::helper::getWriteOnlyAccessor(d_edges);
-    auto my_triangles = sofa::helper::getWriteOnlyAccessor(d_triangles);
-    auto my_quads = sofa::helper::getWriteOnlyAccessor(d_quads);
-    auto my_tetrahedra = sofa::helper::getWriteOnlyAccessor(d_tetrahedra);
-    auto my_hexahedra = sofa::helper::getWriteOnlyAccessor(d_hexahedra);
+    auto my_polylines = getWriteOnlyAccessor(d_polylines);
+    auto my_edges = getWriteOnlyAccessor(d_edges);
+    auto my_triangles = getWriteOnlyAccessor(d_triangles);
+    auto my_quads = getWriteOnlyAccessor(d_quads);
+    auto my_tetrahedra = getWriteOnlyAccessor(d_tetrahedra);
+    auto my_hexahedra = getWriteOnlyAccessor(d_hexahedra);
 
-    auto my_highOrderEdgePositions = sofa::helper::getWriteOnlyAccessor(d_highOrderEdgePositions);
+    auto my_highOrderEdgePositions = getWriteOnlyAccessor(d_highOrderEdgePositions);
 
     int errorcount = 0;
     if (reader->inputPolygons)
@@ -1279,16 +1273,9 @@ bool XMLVTKReader::loadImageData(TiXmlHandle datasetFormatHandle)
 //////////////////////////////////////////// REGISTERING TO FACTORY /////////////////////////////////////////
 /// Registering the component
 /// see: https://www.sofa-framework.org/community/doc/programming-with-sofa/components-api/the-objectfactory/
-/// 1-SOFA_DECL_CLASS(componentName) : Set the class name of the component
 /// 2-RegisterObject("description") + .add<> : Register the component
-int MeshVTKLoaderClass = core::RegisterObject("Mesh loader for the VTK/VTU file format.")
-        .add< MeshVTKLoader >()
-        ;
+static int MeshVTKLoaderClass = core::RegisterObject("Mesh loader for the VTK/VTU file format.")
+        .add< MeshVTKLoader >();
 
-
-} // namespace loader
-
-} // namespace component
-
-} // namespace sofa
+} /// namespace sofa::component::loader
 
