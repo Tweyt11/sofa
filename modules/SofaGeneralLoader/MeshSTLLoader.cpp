@@ -30,20 +30,15 @@
 #include <sstream>
 #include <string>
 
-namespace sofa
+namespace sofa::component::loader
 {
 
-namespace component
-{
-
-namespace loader
-{
+using sofa::helper::getWriteOnlyAccessor;
 
 using namespace sofa::defaulttype;
 
-int MeshSTLLoaderClass = core::RegisterObject("Specific mesh loader for STL file format.")
-        .add< MeshSTLLoader >()
-        ;
+static int MeshSTLLoaderClass = core::RegisterObject("Loader for the STL file format. STL can be used to represent the surface of object using with a triangulation.")
+        .add< MeshSTLLoader >();
 
 //Base VTK Loader
 MeshSTLLoader::MeshSTLLoader() : MeshLoader()
@@ -64,14 +59,13 @@ MeshSTLLoader::MeshSTLLoader() : MeshLoader()
 }
 
 
-
 bool MeshSTLLoader::load()
 {
     // Clear all previous buffers
-    sofa::helper::getWriteAccessor(d_positions).clear();
-    sofa::helper::getWriteAccessor(d_edges).clear();
-    sofa::helper::getWriteAccessor(d_triangles).clear();
-    sofa::helper::getWriteAccessor(d_normals).clear();
+    getWriteOnlyAccessor(d_positions).clear();
+    getWriteOnlyAccessor(d_edges).clear();
+    getWriteOnlyAccessor(d_triangles).clear();
+    getWriteOnlyAccessor(d_normals).clear();
 
     const char* filename = m_filename.getFullPath().c_str();
     std::string sfilename(filename);
@@ -102,7 +96,6 @@ bool MeshSTLLoader::load()
         file.close(); // no longer need for an ascii-open file
         return this->readBinarySTL(filename); // -- Reading binary file
     }
-
 }
 
 bool isBinarySTLValid(const char* filename, const MeshSTLLoader* _this)
@@ -138,14 +131,13 @@ bool MeshSTLLoader::readBinarySTL(const char *filename)
     if (!isBinarySTLValid(filename, this))
         return false;
 
-    auto my_positions = sofa::helper::getWriteOnlyAccessor(d_positions);
-    auto my_normals = sofa::helper::getWriteOnlyAccessor(d_normals);
-    auto my_triangles = sofa::helper::getWriteOnlyAccessor(this->d_triangles);
+    auto my_positions = getWriteOnlyAccessor(d_positions);
+    auto my_normals = getWriteOnlyAccessor(d_normals);
+    auto my_triangles = getWriteOnlyAccessor(this->d_triangles);
 
     std::map< sofa::defaulttype::Vec3f, core::topology::Topology::index_type > my_map;
     core::topology::Topology::index_type positionCounter = 0;
     bool useMap = d_mergePositionUsingMap.getValue();
-
 
     std::ifstream dataFile(filename, std::ios::in | std::ifstream::binary);
 
@@ -228,21 +220,14 @@ bool MeshSTLLoader::readBinarySTL(const char *filename)
                     the_tri[j] = my_positions.size()-1;
                 }
             }
-
         }
 
         // Attribute byte count
         uint16_t count;
         dataFile.read((char*)&count, 2);
-
-        // Security: // checked once before reading in debug mode
-//        position = dataFile.tellg();
-//        if (position == length)
-//            break;
     }
 
     dmsg_info() << "done!" ;
-
     return true;
 }
 
@@ -252,9 +237,9 @@ bool MeshSTLLoader::readSTL(std::ifstream& dataFile)
     Vec3f result;
     std::string line;
 
-    auto my_positions = sofa::helper::getWriteOnlyAccessor(d_positions);
-    auto my_normals = sofa::helper::getWriteOnlyAccessor(d_normals);
-    auto my_triangles = sofa::helper::getWriteOnlyAccessor(d_triangles);
+    auto my_positions = getWriteOnlyAccessor(d_positions);
+    auto my_normals = getWriteOnlyAccessor(d_normals);
+    auto my_triangles = getWriteOnlyAccessor(d_triangles);
 
     std::map< sofa::defaulttype::Vec3f, core::topology::Topology::index_type > my_map;
     core::topology::Topology::index_type positionCounter = 0, vertexCounter = 0;
@@ -333,13 +318,6 @@ bool MeshSTLLoader::readSTL(std::ifstream& dataFile)
     return true;
 }
 
-
-
-
-} // namespace loader
-
-} // namespace component
-
-} // namespace sofa
+} /// namespace sofa::component::loader
 
 
