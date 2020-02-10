@@ -105,12 +105,38 @@ bool MeshSTLLoader::load()
 
 }
 
+bool isBinarySTLValid(const char* filename, const MeshSTLLoader* _this)
+{
+    // Binary STL files have 80-bytes headers. The following 4-bytes is the number of triangular facets in the file
+    // Each facet is described with a 50-bytes field, so a valid binary STL file verifies the following condition:
+    // nFacets * 50 + 84-bytes header == filename
+
+    long filesize;
+    std::ifstream f(filename, std::ifstream::ate | std::ifstream::binary);
+    filesize = f.tellg();
+    if (filesize < 84)
+    {
+        msg_error(_this) << "Can't read binary STL file: " << filename;
+        return false;
+    }
+    f.seekg(0);
+    char buffer[80];
+    f.read(buffer, 80);
+    uint32_t ntriangles;
+    f.read(reinterpret_cast<char*>(&ntriangles), 4);
+    if (filesize != ntriangles * 50 + 84)
+    {
+        msg_error(_this) << filename << " isn't  binary STL file";
+        return false;
+    }
+    return true;
+}
 
 bool MeshSTLLoader::readBinarySTL(const char *filename)
 {
     dmsg_info() << "Reading binary STL file..." ;
-
-    std::ifstream dataFile (filename, std::ios::in | std::ios::binary);
+    if (!isBinarySTLValid(filename, this))
+        return false;
 
     auto my_positions = sofa::helper::getWriteOnlyAccessor(d_positions);
     auto my_normals = sofa::helper::getWriteOnlyAccessor(d_normals);
@@ -121,13 +147,14 @@ bool MeshSTLLoader::readBinarySTL(const char *filename)
     bool useMap = d_mergePositionUsingMap.getValue();
 
 
+    std::ifstream dataFile(filename, std::ios::in | std::ifstream::binary);
 
     // Skipping header file
     char buffer[256];
     dataFile.read(buffer, _headerSize.getValue());
 
     uint32_t nbrFacet;
-    dataFile.read((char*)&nbrFacet, 4);
+    dataFile.read(reinterpret_cast<char*>(&nbrFacet), 4);
 
     my_triangles.resize( nbrFacet ); // exact size
     my_normals.resize( nbrFacet ); // exact size
