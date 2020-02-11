@@ -24,6 +24,7 @@
 
 #include <sofa/core/objectmodel/Data.h>
 #include <sofa/helper/SVector.h>
+#include <sofa/helper/system/FileRepository.h>
 
 namespace sofa
 {
@@ -47,12 +48,14 @@ public:
         : Inherit(helpMsg, isDisplayed, isReadOnly),
           m_isDir(false)
     {
+        addInput(sofa::helper::system::DataRepository.getDDGNode());
     }
 
     DataFileName( const std::string& value, const std::string& helpMsg="", bool isDisplayed=true, bool isReadOnly=false )
         : Inherit(value, helpMsg, isDisplayed, isReadOnly),
         m_isDir(false)
     {
+        addInput(sofa::helper::system::DataRepository.getDDGNode());
         updatePath();
     }
 
@@ -63,6 +66,7 @@ public:
         : Inherit(init),
           m_isDir(false)
     {
+        addInput(sofa::helper::system::DataRepository.getDDGNode());
     }
 
     /** Constructor
@@ -72,6 +76,7 @@ public:
         : Inherit(init),
           m_isDir(false)
     {
+        addInput(sofa::helper::system::DataRepository.getDDGNode());
         updatePath();
     }
 

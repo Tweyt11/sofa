@@ -166,6 +166,7 @@ void FileRepository::addFirstPath(const std::string& p)
         p0 = p1+1;
     }
     vpath.insert(vpath.begin(), entries.begin(), entries.end());
+    m_fileRepositoryDDGNode.setDirtyOutputs();
 }
 
 void FileRepository::addLastPath(const std::string& p)
@@ -186,6 +187,7 @@ void FileRepository::addLastPath(const std::string& p)
         p0 = p1+1;
     }
     vpath.insert(vpath.end(), entries.begin(), entries.end());
+    m_fileRepositoryDDGNode.setDirtyOutputs();
 }
 
 void FileRepository::removePath(const std::string& path)
@@ -208,11 +210,13 @@ void FileRepository::removePath(const std::string& path)
     {
         vpath.erase( find(vpath.begin(), vpath.end(), *it) );
     }
+    m_fileRepositoryDDGNode.setDirtyOutputs();
 }
 
 void FileRepository::clear()
 {
     vpath.clear();
+    m_fileRepositoryDDGNode.setDirtyOutputs();
 }
 
 std::string FileRepository::getFirstPath()

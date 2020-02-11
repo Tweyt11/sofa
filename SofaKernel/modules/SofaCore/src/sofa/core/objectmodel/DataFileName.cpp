@@ -72,8 +72,9 @@ void DataFileName::updatePath()
         {
             if( m_fullpath.find(path) == 0 )
             {
-                m_relativepath=DataRepository.relativeToPath(m_fullpath, path,
-                                                             false /*option for backward compatibility*/);
+                if (path != m_fullpath)
+                    m_relativepath=DataRepository.relativeToPath(m_fullpath, path,
+                                                                 false /*option for backward compatibility*/);
                 break;
             }
         }

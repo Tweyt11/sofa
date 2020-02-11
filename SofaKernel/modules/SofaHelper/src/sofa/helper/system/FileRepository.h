@@ -23,6 +23,7 @@
 #define SOFA_HELPER_SYSTEM_FILEREPOSITORY_H
 
 #include <sofa/helper/helper.h>
+#include <sofa/core/objectmodel/DDGNode.h>
 
 #include <string>
 #include <vector>
@@ -143,6 +144,8 @@ public:
 
     void displayPaths() {std::cout<<(*this)<<std::endl;}
 
+    sofa::core::objectmodel::DDGNode* getDDGNode() { return &m_fileRepositoryDDGNode; }
+
 protected:
 
     /// A protocol like http: or file: which will bypass the file search if found in the filename of the findFile* functions that directly returns the path as if the function succeeded
@@ -155,6 +158,19 @@ protected:
 
     /// Search file in a given path.
     static bool findFileIn(std::string& filename, const std::string& path);
+
+    class FileDirectoryDDGNode : public sofa::core::objectmodel::DDGNode
+    {
+    public:
+        void update() override {}
+        sofa::core::objectmodel::BaseData* getData() const override {return nullptr;}
+        sofa::core::objectmodel::Base* getOwner() const override {return nullptr;}
+        const std::string& getName() const override  { return name; }
+    private:
+        const std::string name {"FileRepositoryDDGNode"};
+    };
+
+    FileDirectoryDDGNode m_fileRepositoryDDGNode;
 };
 
 extern SOFA_HELPER_API FileRepository DataRepository; ///< Default repository
