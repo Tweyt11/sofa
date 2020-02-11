@@ -936,10 +936,10 @@ void BaseCamera::drawCamera(const core::visual::VisualParams* vparams)
 
     Vec3 camPos = getPosition();
     sofa::defaulttype::Vector3 p1, p2, p3, p4;
-    p1 = viewportToWorldPoint(Vec3(0,0,0.9999));
-    p2 = viewportToWorldPoint(Vec3(1,0,0.9999));
-    p3 = viewportToWorldPoint(Vec3(1,1,0.9999));
-    p4 = viewportToWorldPoint(Vec3(0,1,0.9999));
+    p1 = viewportToWorldPoint(Vec3(0,0,0.994));
+    p2 = viewportToWorldPoint(Vec3(1,0,0.994));
+    p3 = viewportToWorldPoint(Vec3(1,1,0.994));
+    p4 = viewportToWorldPoint(Vec3(0,1,0.994));
 
     dt->drawLine(camPos, p1, Vec4(0,0,0,1));
     dt->drawLine(camPos, p2, Vec4(0,0,0,1));
