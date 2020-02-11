@@ -64,6 +64,7 @@ void DataFileName::updatePath()
     {
         // Update the fullpath.
         m_fullpath = m_values[size_t(currentAspect())].getValue();
+        m_relativepath = m_fullpath;
         if (!m_fullpath.empty())
             DataRepository.findFile(m_fullpath,"",(this->m_owner ? &(this->m_owner->serr.ostringstream()) : &std::cerr));
 
