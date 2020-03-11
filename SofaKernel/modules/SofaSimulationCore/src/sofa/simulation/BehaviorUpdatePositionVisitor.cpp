@@ -40,9 +40,15 @@ Visitor::Result BehaviorUpdatePositionVisitor::processNodeTopDown(simulation::No
     return RESULT_CONTINUE;
 }
 
+void CopyAspectVisitor::processObject(sofa::core::objectmodel::BaseObject*)
+{
+} 
 
+CopyAspectVisitor::Result CopyAspectVisitor::processNodeTopDown(Node*)
+{
+    return RESULT_PRUNE;
+}
 
-} // namespace simulation
-
+// namespace simulation
 } // namespace sofa
 

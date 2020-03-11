@@ -168,7 +168,7 @@ public:
     bool isDirty() const { return dirtyFlags.dirtyValue; }
 
     /// Indicate the value needs to be updated
-        [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
+    [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
 
     virtual void setDirtyValue(const core::ExecParams*) final { return setDirtyValue(); }
     virtual void setDirtyValue();
@@ -181,7 +181,6 @@ public:
 
     /// Set dirty flag to false
         [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
-
     void cleanDirty(const core::ExecParams*){ cleanDirty(); }
     void cleanDirty();
 
@@ -193,7 +192,6 @@ public:
 
     /// Utility method to call update if necessary. This method should be called before reading of writing the value of this node.
         [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
-
     void updateIfDirty(const core::ExecParams*) const { updateIfDirty(); }
     void updateIfDirty() const
     {
