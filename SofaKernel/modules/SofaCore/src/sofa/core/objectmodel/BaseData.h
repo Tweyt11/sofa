@@ -64,14 +64,6 @@ public:
     /// Default value used for flags.
     enum { FLAG_DEFAULT = FLAG_DISPLAYED | FLAG_PERSISTENT | FLAG_AUTOLINK };
 
-    /// @name Class reflection system
-    /// @{
-    typedef TClass<BaseData,DDGNode> MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    const BaseClass* getClass() const override
-    { return GetClass(); }
-    /// @}
-
     /// This internal class is used by the initData() methods to store initialization parameters of a Data
     class BaseInitData
     {

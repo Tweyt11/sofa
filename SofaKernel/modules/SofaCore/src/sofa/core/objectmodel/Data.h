@@ -42,20 +42,6 @@ class TData : public BaseData
 public:
     typedef T value_type;
 
-    /// @name Class reflection system
-    /// @{
-    typedef TClass<TData<T>,BaseData> MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    const BaseClass* getClass() const override
-    { return GetClass(); }
-
-    static std::string templateName(const TData<T>* = nullptr)
-    {
-        T* ptr = nullptr;
-        return BaseData::typeName(ptr);
-    }
-    /// @}
-
     explicit TData(const BaseInitData& init)
         : BaseData(init), parentData(initLink("parentSameType", "Linked Data in case it stores exactly the same type of Data, and efficient copies can be made (by value or by sharing pointers with Copy-on-Write)"))
     {
