@@ -31,6 +31,26 @@ namespace sofa {
 
 using namespace core::objectmodel;
 
+class Data_test : public BaseTest
+{
+public:
+    Data<int> dataInt;
+    Data<float> dataFloat;
+    Data<bool> dataBool;
+    Data<sofa::defaulttype::Vec3> dataVec3;
+    Data<sofa::helper::vector<sofa::defaulttype::Vec3>> dataVectorVec3;
+};
+
+TEST_F(Data_test , getValueTypeString )
+{
+    EXPECT_EQ(dataInt.getValueTypeString(), "int");
+    EXPECT_EQ(dataFloat.getValueTypeString(), "float");
+    EXPECT_EQ(dataBool.getValueTypeString(), "bool");
+    EXPECT_EQ(dataVec3.getValueTypeString(), "Vec3d");
+    EXPECT_EQ(dataVectorVec3.getValueTypeString(), "vector<Vec3d>");
+}
+
+
 /**  Test suite for data link.
 Create two datas and a link between them.
 Set the value of data1 and check if the boolean is dirty of data2 is true and that the value of data2 is right.
