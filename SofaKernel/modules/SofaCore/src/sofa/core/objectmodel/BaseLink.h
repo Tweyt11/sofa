@@ -117,9 +117,6 @@ public:
     /// Alias to match BaseData API
     bool isReadOnly() const   { return !storePath(); }
 
-    virtual const BaseClass* getDestClass() const = 0;
-    virtual const BaseClass* getOwnerClass() const = 0;
-
     /// Return the number of changes since creation
     /// This can be used to efficiently detect changes
     int getCounter() const { return m_counter; }
@@ -149,9 +146,6 @@ public:
 
     /// Print the value of the associated variable
     virtual std::string getValueString() const;
-
-    /// Print the value type of the associated variable
-    virtual std::string getValueTypeString() const;
 
     /// @}
 

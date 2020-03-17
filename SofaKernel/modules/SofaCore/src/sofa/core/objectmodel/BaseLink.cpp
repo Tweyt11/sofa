@@ -78,21 +78,6 @@ std::string BaseLink::getValueString() const
     return o.str();
 }
 
-/// Print the value type of the associated variable
-std::string BaseLink::getValueTypeString() const
-{
-    const BaseClass* c = getDestClass();
-    if (!c) return "void";
-    std::string t = c->className;
-    if (!c->templateName.empty())
-    {
-        t += '<';
-        t += c->templateName;
-        t += '>';
-    }
-    return t;
-}
-
 bool BaseLink::ParseString(const std::string& text, std::string* path, std::string* data, Base* owner)
 {
     if (text.empty())
