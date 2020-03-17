@@ -185,13 +185,19 @@ std::string Base::getTypeName() const
 /// Get the class name of this object
 std::string Base::getClassName() const
 {
-    return BaseClass::decodeClassName(typeid(*this));
+    return NameDecoder::decodeClassName(typeid(*this));
 }
 
 /// Get the template type names (if any) used to instantiate this object
 std::string Base::getTemplateName() const
 {
-    return BaseClass::decodeTemplateName(typeid(*this));
+    return NameDecoder::decodeTemplateName(typeid(*this));
+}
+
+/// Get the template type names (if any) used to instantiate this object
+std::string Base::getNameSpaceName() const
+{
+    return NameDecoder::decodeNamespaceName(typeid(*this));
 }
 
 void Base::setName(const std::string& na)

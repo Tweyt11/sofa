@@ -19,7 +19,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-
+#include "sofa/helper/NameDecoder.h"
 #include "ComponentLibrary.h"
 #include "CategoryLibrary.h"
 
@@ -28,6 +28,8 @@ namespace sofa
 
 namespace core
 {
+
+using sofa::helper::NameDecoder;
 
 std::string caseInsensitive(const std::string &text)
 {
@@ -64,8 +66,7 @@ ComponentLibrary::ComponentLibrary( const std::string &componentN, const std::st
             possiblePaths.push_back(exampleFiles[i]);
     }
 
-    std::string nameSpace = sofa::core::objectmodel::BaseClass::decodeNamespaceName(entry->creatorMap.begin()->second->type());
-
+    std::string nameSpace = NameDecoder::decodeNamespaceName(entry->creatorMap.begin()->second->type());
 
     description += std::string("</H2>");
 

@@ -52,7 +52,7 @@ const sofa::defaulttype::BaseMatrix* BarycentricMapper<In,Out>::getJ(int outSize
 {
     SOFA_UNUSED(outSize);
     SOFA_UNUSED(inSize);
-    dmsg_error() << " getJ() NOT IMPLEMENTED BY " << sofa::core::objectmodel::BaseClass::decodeClassName(typeid(*this)) ;
+    dmsg_error() << " getJ() NOT IMPLEMENTED BY " ;
     return nullptr;
 }
 
