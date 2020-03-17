@@ -410,9 +410,9 @@ public:
     /// \code  T* ptr = nullptr; std::string type = T::typeName(ptr); \endcode
     /// This way derived classes can redefine the typeName method
     template<class T>
-    static std::string typeName(const T* ptr= nullptr)
+    static std::string typeName(const T* = nullptr)
     {
-        return NameDecoder::getTypeName(ptr);
+        return NameDecoder::getTypeName<T>();
     }
 
     /// Helper method to get the class name of a type derived from this class
@@ -421,9 +421,9 @@ public:
     /// \code  T* ptr = nullptr; std::string type = T::className(ptr); \endcode
     /// This way derived classes can redefine the className method
     template<class T>
-    static std::string className(const T* ptr= nullptr)
+    static std::string className(const T* = nullptr)
     {
-        return NameDecoder::getClassName(ptr);
+        return NameDecoder::getClassName<T>();
     }
 
     /// Helper method to get the namespace name of a type derived from this class
@@ -432,9 +432,9 @@ public:
     /// \code  T* ptr = nullptr; std::string type = T::namespaceName(ptr); \endcode
     /// This way derived classes can redefine the namespaceName method
     template<class T>
-    static std::string namespaceName(const T* ptr= nullptr)
+    static std::string namespaceName(const T* = nullptr)
     {
-        return NameDecoder::getNamespaceName(ptr);
+        return NameDecoder::getNamespaceName<T>();
     }
 
     /// Helper method to get the template name of a type derived from this class
@@ -443,9 +443,9 @@ public:
     /// \code  T* ptr = nullptr; std::string type = T::templateName(ptr); \endcode
     /// This way derived classes can redefine the templateName method
     template<class T>
-    static std::string templateName(const T* ptr= nullptr)
+    static std::string templateName(const T* = nullptr)
     {
-        return NameDecoder::getTemplateName(ptr);
+        return NameDecoder::getTemplateName<T>();
     }
 
     /// Helper method to get the shortname of a type derived from this class.

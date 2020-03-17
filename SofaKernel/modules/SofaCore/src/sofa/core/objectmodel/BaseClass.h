@@ -109,8 +109,8 @@ public:
         shortName = "DeprecatedBaseClass::shortname";
     }
 
-    void* dynamicCast(Base* obj) const override { return nullptr; }
-    bool isInstance(Base* obj) const override { return false; }
+    void* dynamicCast(Base*) const override { return nullptr; }
+    bool isInstance(Base*) const override { return false; }
 
     static BaseClass* GetSingleton();
 };

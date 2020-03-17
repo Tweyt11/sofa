@@ -30,44 +30,36 @@ class NameDecoder
 public:
     /// Helper method to get the type name
     template<class T>
-    static std::string getTypeName(const T* t = nullptr)
+    static std::string getTypeName()
     {
-        if(t)
-            return t->getTypeName();
         return decodeTypeName(typeid(T));
     }
 
     /// Helper method to get the class name
     template<class T>
-    static std::string getClassName(const T* t= nullptr)
+    static std::string getClassName()
     {
-        if(t)
-            return t->getClassName();
         return decodeClassName(typeid(T));
     }
 
     /// Helper method to get the namespace name
     template<class T>
-    static std::string getNamespaceName(const T* t = nullptr)
+    static std::string getNamespaceName()
     {
-        if(t)
-            return t->getNameSpaceName();
         return decodeNamespaceName(typeid(T));
     }
 
     /// Helper method to get the template name
     template<class T>
-    static std::string getTemplateName(const T* t = nullptr)
+    static std::string getTemplateName()
     {
-        if(t)
-            return t->getTemplateName();
         return decodeTemplateName(typeid(T));
     }
 
     template< class T>
-    static std::string shortName( const T* ptr = nullptr )
+    static std::string shortName( const T* = nullptr )
     {
-        std::string shortname = getClassName(ptr);
+        std::string shortname = getClassName<T>();
         if( !shortname.empty() )
         {
             *shortname.begin() = char(::tolower(*shortname.begin()));

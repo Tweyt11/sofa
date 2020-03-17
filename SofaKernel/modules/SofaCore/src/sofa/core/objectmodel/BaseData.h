@@ -343,7 +343,7 @@ protected:
 
     /// Helper method to decode the type name to a more readable form if possible
     [[deprecated("Decode typename have been removed, please contact sofa-framework")]]
-    static std::string decodeTypeName(const std::type_info& t);
+    static std::string decodeTypeName(const std::type_info&){ return "deprecated function"; }
 
 public:
 
@@ -355,7 +355,7 @@ public:
         if (defaulttype::DataTypeInfo<T>::ValidInfo)
             return defaulttype::DataTypeName<T>::name();
         else
-            return decodeTypeName(typeid(T));
+            return "deprecated function";
     }
 };
 
