@@ -48,16 +48,6 @@ DDGNode::~DDGNode()
         (*it)->doDelInput(this);
 }
 
-template<>
-TClass<DDGNode,void>::TClass()
-{
-    DDGNode* ptr = nullptr;
-    namespaceName = Base::namespaceName(ptr);
-    className = Base::className(ptr);
-    templateName = Base::templateName(ptr);
-    shortName = Base::shortName(ptr);
-}
-
 void DDGNode::setDirtyValue()
 {
     bool& dirtyValue = dirtyFlags.dirtyValue;
