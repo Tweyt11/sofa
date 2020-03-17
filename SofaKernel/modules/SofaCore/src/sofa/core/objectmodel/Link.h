@@ -469,16 +469,6 @@ public:
         return false;
     }
 
-    const BaseClass* getDestClass() const override
-    {
-        return DestType::GetClass();
-    }
-
-    const BaseClass* getOwnerClass() const override
-    {
-        return OwnerType::GetClass();
-    }
-
     size_t getSize() const override
     {
         return size();
