@@ -322,10 +322,6 @@ void BaseData::addLink(BaseLink* l)
     m_vecLink.push_back(l);
 }
 
-std::string BaseData::decodeTypeName(const std::type_info& t)
-{
-    return "deprecated function";
-}
 
 } // namespace objectmodel
 
