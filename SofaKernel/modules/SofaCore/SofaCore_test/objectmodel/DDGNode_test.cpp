@@ -89,6 +89,9 @@ TEST_F(DDGNode_test, dellInput)
     EXPECT_EQ(m_ddgnode2.getOutputs().size(), 0);
     EXPECT_EQ(m_ddgnode3.getOutputs().size(), 0);
 
+    m_ddgnode1.addInput(&m_ddgnode2);
+    m_ddgnode1.addInput(&m_ddgnode3);
+
     m_ddgnode1.delInput(&m_ddgnode2);
     m_ddgnode1.delInput(&m_ddgnode3);
 

@@ -42,10 +42,13 @@ DDGNode::DDGNode()
 
 DDGNode::~DDGNode()
 {
-    for(DDGLinkIterator it=inputs.begin(); it!=inputs.end(); ++it)
-        (*it)->doDelOutput(this);
-    for(DDGLinkIterator it=outputs.begin(); it!=outputs.end(); ++it)
-        (*it)->doDelInput(this);
+    /// We disconnect this nodes from the output of its predecessors
+    for(auto& it : inputs)
+        it->doDelOutput(this);
+
+    /// We disconnect this nodes from the input of its successors
+    for(auto& it : outputs)
+        it->doDelInput(this);
 }
 
 void DDGNode::setDirtyValue()
