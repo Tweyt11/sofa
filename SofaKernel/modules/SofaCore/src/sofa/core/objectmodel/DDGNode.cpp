@@ -37,8 +37,6 @@ namespace objectmodel
 
 /// Constructor
 DDGNode::DDGNode()
-    : inputs(initLink("inputs", "Links to inputs Data"))
-    , outputs(initLink("outputs", "Links to outputs Data"))
 {
 }
 
@@ -133,12 +131,12 @@ void DDGNode::delOutput(DDGNode* n)
 
 const DDGNode::DDGLinkContainer& DDGNode::getInputs()
 {
-    return inputs.getValue();
+    return inputs;
 }
 
 const DDGNode::DDGLinkContainer& DDGNode::getOutputs()
 {
-    return outputs.getValue();
+    return outputs;
 }
 
 sofa::core::objectmodel::Base* LinkTraitsPtrCasts<DDGNode>::getBase(sofa::core::objectmodel::DDGNode* n)

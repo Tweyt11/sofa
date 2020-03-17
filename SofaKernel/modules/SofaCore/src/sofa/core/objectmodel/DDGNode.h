@@ -25,6 +25,7 @@
 #include <sofa/core/core.h>
 #include <sofa/core/objectmodel/Link.h>
 #include <sofa/core/objectmodel/BaseClass.h>
+#include <sofa/helper/NameDecoder.h>
 #include <list>
 
 namespace sofa
@@ -35,6 +36,8 @@ namespace core
 
 namespace objectmodel
 {
+
+using sofa::helper::NameDecoder;
 
 class Base;
 class BaseData;
@@ -57,90 +60,16 @@ class SOFA_CORE_API DDGNode
 {
 public:
 
-    typedef MultiLink<DDGNode, DDGNode, BaseLink::FLAG_DOUBLELINK|BaseLink::FLAG_DATALINK> DDGLink;
-    typedef DDGLink::Container DDGLinkContainer;
-    typedef DDGLink::const_iterator DDGLinkIterator;
+    //typedef MultiLink<DDGNode, DDGNode, BaseLink::FLAG_DOUBLELINK|BaseLink::FLAG_DATALINK> DDGLink;
+    //typedef DDGLink::Container DDGLinkContainer;
+    typedef std::vector<DDGNode*> DDGLinkContainer;
+    typedef DDGLinkContainer::const_iterator DDGLinkIterator;
 
     /// Constructor
     DDGNode();
 
     /// Destructor. Automatically remove remaining links
     virtual ~DDGNode();
-
-    /// @name Class reflection system
-    /// @{
-    typedef TClass<DDGNode> MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    virtual const BaseClass* getClass() const
-    { return GetClass(); }
-
-    template<class T>
-    static void dynamicCast(T*& ptr, Base* /*b*/)
-    {
-        ptr = nullptr; // DDGNode does not derive from Base
-    }
-
-    /// Helper method to get the type name of a type derived from this class
-    ///
-    /// This method should be used as follow :
-    /// \code  T* ptr = nullptr; std::string type = T::typeName(ptr); \endcode
-    /// This way derived classes can redefine the typeName method
-    template<class T>
-    static std::string typeName(const T* ptr= nullptr)
-    {
-        return BaseClass::defaultTypeName(ptr);
-    }
-
-    /// Helper method to get the class name of a type derived from this class
-    ///
-    /// This method should be used as follow :
-    /// \code  T* ptr = nullptr; std::string type = T::className(ptr); \endcode
-    /// This way derived classes can redefine the className method
-    template<class T>
-    static std::string className(const T* ptr= nullptr)
-    {
-        return BaseClass::defaultClassName(ptr);
-    }
-
-    /// Helper method to get the namespace name of a type derived from this class
-    ///
-    /// This method should be used as follow :
-    /// \code  T* ptr = nullptr; std::string type = T::namespaceName(ptr); \endcode
-    /// This way derived classes can redefine the namespaceName method
-    template<class T>
-    static std::string namespaceName(const T* ptr= nullptr)
-    {
-        return BaseClass::defaultNamespaceName(ptr);
-    }
-
-    /// Helper method to get the template name of a type derived from this class
-    ///
-    /// This method should be used as follow :
-    /// \code  T* ptr = nullptr; std::string type = T::templateName(ptr); \endcode
-    /// This way derived classes can redefine the templateName method
-    template<class T>
-    static std::string templateName(const T* ptr= nullptr)
-    {
-        return BaseClass::defaultTemplateName(ptr);
-    }
-
-    /// Helper method to get the shortname of a type derived from this class.
-    /// The default implementation return the class name.
-    ///
-    /// This method should be used as follow :
-    /// \code  T* ptr = nullptr; std::string type = T::shortName(ptr); \endcode
-    /// This way derived classes can redefine the shortName method
-    template< class T>
-    static std::string shortName( const T* ptr = nullptr, BaseObjectDescription* = nullptr )
-    {
-        std::string shortname = T::className(ptr);
-        if( !shortname.empty() )
-        {
-            *shortname.begin() = char(::tolower(*shortname.begin()));
-        }
-        return shortname;
-    }
-    /// @}
 
     /// Add a new input to this node
     void addInput(DDGNode* n);
@@ -210,33 +139,27 @@ public:
 
 protected:
 
-    BaseLink::InitLink<DDGNode>
-    initLink(const char* name, const char* help)
-    {
-        return BaseLink::InitLink<DDGNode>(this, name, help);
-    }
-
-    DDGLink inputs;
-    DDGLink outputs;
+    DDGLinkContainer inputs;
+    DDGLinkContainer outputs;
 
     virtual void doAddInput(DDGNode* n)
     {
-        inputs.add(n);
+        inputs.push_back(n);
     }
 
     virtual void doDelInput(DDGNode* n)
     {
-        inputs.remove(n);
+        inputs.erase(std::remove(inputs.begin(), inputs.end(), n));
     }
 
     virtual void doAddOutput(DDGNode* n)
     {
-        outputs.add(n);
+        outputs.push_back(n);
     }
 
     virtual void doDelOutput(DDGNode* n)
     {
-        outputs.remove(n);
+        outputs.erase(std::remove(inputs.begin(), inputs.end(), n));
     }
 
     /// the dirtyOutputs flags of all the inputs will be set to false
