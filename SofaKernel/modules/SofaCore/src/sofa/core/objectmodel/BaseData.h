@@ -343,12 +343,14 @@ protected:
     SingleLink<BaseData,BaseData,BaseLink::FLAG_STOREPATH|BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> parentBaseData;
 
     /// Helper method to decode the type name to a more readable form if possible
+    [[deprecated("Decode typename have been removed, please contact sofa-framework")]]
     static std::string decodeTypeName(const std::type_info& t);
 
 public:
 
     /// Helper method to get the type name of type T
     template<class T>
+    [[deprecated("Decode typename have been removed, please contact sofa-framework")]]
     static std::string typeName(const T* = nullptr)
     {
         if (defaulttype::DataTypeInfo<T>::ValidInfo)

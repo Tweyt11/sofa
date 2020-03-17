@@ -44,6 +44,7 @@
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/helper/Factory.inl>
 #include <sofa/helper/cast.h>
+#include <sofa/helper/NameDecoder.h>
 #include <iostream>
 
 #include <boost/graph/adjacency_list.hpp>
@@ -58,6 +59,7 @@ namespace sofa
 
 namespace simulation
 {
+using sofa::helper::NameDecoder;
 using core::objectmodel::BaseNode;
 using core::objectmodel::BaseObject;
 
@@ -872,7 +874,7 @@ void Node::executeVisitor(Visitor* action, bool precomputedOrder)
         std::stringstream tmp;
         for (int i=0; i<level; ++i)
             tmp << ' ';
-        tmp << ">" << sofa::core::objectmodel::BaseClass::decodeClassName(typeid(*action)) << " on " << this->getPathName();
+        tmp << ">" << NameDecoder::decodeClassName(typeid(*action)) << " on " << this->getPathName();
         if (!action->getInfos().empty())
             tmp << "  : " << action->getInfos();
         dmsg_info () << tmp.str() ;
@@ -887,7 +889,7 @@ void Node::executeVisitor(Visitor* action, bool precomputedOrder)
         std::stringstream tmp;
         for (int i=0; i<level; ++i)
             tmp << ' ';
-        tmp  << "<" << sofa::core::objectmodel::BaseClass::decodeClassName(typeid(*action)) << " on " << this->getPathName();
+        tmp  << "<" << NameDecoder::decodeClassName(typeid(*action)) << " on " << this->getPathName();
         dmsg_info() << tmp.str() ;
     }
 }

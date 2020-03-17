@@ -182,6 +182,7 @@ public:
     /// Set the name of this object, adding an integer counter
     void setName(const std::string& n, int counter);
 
+
     /// Get the type name of this object (i.e. class and template types)
     virtual std::string getTypeName() const;
 
@@ -190,6 +191,9 @@ public:
 
     /// Get the template type names (if any) used to instantiate this object
     virtual std::string getTemplateName() const;
+
+    /// Get the template type names (if any) used to instantiate this object
+    virtual std::string getNameSpaceName() const;
 
     /// Set the source filename (where the component is implemented)
     void setDefinitionSourceFileName(const std::string& sourceFileName);
@@ -408,7 +412,7 @@ public:
     template<class T>
     static std::string typeName(const T* ptr= nullptr)
     {
-        return BaseClass::defaultTypeName(ptr);
+        return NameDecoder::getTypeName(ptr);
     }
 
     /// Helper method to get the class name of a type derived from this class
@@ -419,7 +423,7 @@ public:
     template<class T>
     static std::string className(const T* ptr= nullptr)
     {
-        return BaseClass::defaultClassName(ptr);
+        return NameDecoder::getClassName(ptr);
     }
 
     /// Helper method to get the namespace name of a type derived from this class
@@ -430,7 +434,7 @@ public:
     template<class T>
     static std::string namespaceName(const T* ptr= nullptr)
     {
-        return BaseClass::defaultNamespaceName(ptr);
+        return NameDecoder::getNamespaceName(ptr);
     }
 
     /// Helper method to get the template name of a type derived from this class
@@ -441,7 +445,7 @@ public:
     template<class T>
     static std::string templateName(const T* ptr= nullptr)
     {
-        return BaseClass::defaultTemplateName(ptr);
+        return NameDecoder::getTemplateName(ptr);
     }
 
     /// Helper method to get the shortname of a type derived from this class.
@@ -453,12 +457,7 @@ public:
     template< class T>
     static std::string shortName( const T* ptr = nullptr, BaseObjectDescription* = nullptr )
     {
-        std::string shortname = T::className(ptr);
-        if( !shortname.empty() )
-        {
-            *shortname.begin() = char(::tolower(*shortname.begin()));
-        }
-        return shortname;
+        return NameDecoder::shortName(ptr);
     }
 
     /// @name componentstate
