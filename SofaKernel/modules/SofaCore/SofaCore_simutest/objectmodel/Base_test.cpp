@@ -117,6 +117,8 @@ TEST_F(Base_test , testBaseClass)
     EXPECT_EQ(CustomBaseObjectT<Vec3Types>::GetClass()->shortName, "customBaseObjectT");
 }
 
+static bool beforeRefactoring = true;
+
 TEST_F(Base_test , testGetClassName)
 {
     CustomBaseObject o;
@@ -135,9 +137,10 @@ TEST_F(Base_test , testGetClassName)
     EXPECT_EQ(Base::namespaceName<CustomBaseObjectT<Rigid3Types>>(), "customns");
 }
 
-TEST_F(Base_test , testClassNameOverride)
+TEST_F(Base_test , testClassNameOverrideBeforeRefactoring)
 {
     CustomBaseObjectT<Vec3Types> o;
     EXPECT_EQ(o.getClassName(), "MyFakeClassName");
-    EXPECT_EQ(Base::className(&o), "MyFakeName");
+    EXPECT_EQ(Base::className<decltype(o)>(), "MyFakeName");
 }
+
