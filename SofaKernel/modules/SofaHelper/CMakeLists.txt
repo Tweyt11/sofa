@@ -53,6 +53,7 @@ set(HEADER_FILES
     ${SRC_ROOT}/MarchingCubeUtility.h
     ${SRC_ROOT}/MatEigen.h
     ${SRC_ROOT}/MemoryManager.h
+    ${SRC_ROOT}/NameDecoder.h
     ${SRC_ROOT}/OptionsGroup.h
     ${SRC_ROOT}/OwnershipSPtr.h
     ${SRC_ROOT}/StateMask.h
@@ -168,6 +169,7 @@ set(SOURCE_FILES
     ${SRC_ROOT}/GenerateRigid.cpp
     ${SRC_ROOT}/LCPcalc.cpp
     ${SRC_ROOT}/MarchingCubeUtility.cpp
+    ${SRC_ROOT}/NameDecoder.cpp
     ${SRC_ROOT}/OptionsGroup.cpp
     ${SRC_ROOT}/StateMask.cpp
     ${SRC_ROOT}/SVector.cpp
