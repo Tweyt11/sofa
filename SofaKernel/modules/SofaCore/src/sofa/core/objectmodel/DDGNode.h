@@ -159,7 +159,7 @@ protected:
 
     virtual void doDelOutput(DDGNode* n)
     {
-        outputs.erase(std::remove(inputs.begin(), inputs.end(), n));
+        outputs.erase(std::remove(outputs.begin(), outputs.end(), n));
     }
 
     /// the dirtyOutputs flags of all the inputs will be set to false
