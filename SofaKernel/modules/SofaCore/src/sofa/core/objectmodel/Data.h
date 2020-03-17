@@ -285,10 +285,12 @@ public:
 
     /// @name Class reflection system
     /// @{
-    typedef TClass<Data<T>, TData<T> > MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    virtual const BaseClass* getClass() const
-    { return GetClass(); }
+
+    [[deprecated("Data are not part of the class system anymore. ")]]
+    static const BaseClass* GetClass() { return DeprecatedBaseClass::GetSingleton(); }
+
+    [[deprecated("Data are not part of the class system anymore. ")]]
+    virtual const BaseClass* getClass() const { return DeprecatedBaseClass::GetSingleton(); }
 
     static std::string templateName(const Data<T>* = nullptr)
     {
