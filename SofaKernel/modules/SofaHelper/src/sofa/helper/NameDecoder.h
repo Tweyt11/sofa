@@ -56,16 +56,7 @@ public:
         return decodeTemplateName(typeid(T));
     }
 
-    template< class T>
-    static std::string shortName( const T* = nullptr )
-    {
-        std::string shortname = getClassName<T>();
-        if( !shortname.empty() )
-        {
-            *shortname.begin() = char(::tolower(*shortname.begin()));
-        }
-        return shortname;
-    }
+    static std::string shortName( const std::string& src );
 
     /// Helper method to decode the type name
     static std::string decodeFullName(const std::type_info& t);
