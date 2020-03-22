@@ -29,6 +29,16 @@
 namespace sofa::helper
 {
 
+std::string NameDecoder::shortName( const std::string& src )
+{
+    if( src.empty() )
+        return "";
+    std::string dst=src;
+    *dst.begin() = char(::tolower(*dst.begin()));
+    return  dst;
+}
+
+
 std::string NameDecoder::decodeFullName(const std::type_info& t)
 {
     std::string name;
