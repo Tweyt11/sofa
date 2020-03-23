@@ -42,6 +42,17 @@ namespace gui
 namespace qt
 {
 
+std::string getLinkedTypeString(BaseLink* link)
+{
+    if(!link)
+        return "";
+    if(Base* base = link->getLinkedBase())
+        return base->getClassName();
+    if(BaseData* data = link->getLinkedData())
+        return data->getValueTypeString();
+    return "";
+}
+
 QDisplayLinkWidget::QDisplayLinkWidget(QWidget* parent,
         BaseLink* link,
         const ModifyObjectFlags& flags)
@@ -89,7 +100,7 @@ QDisplayLinkWidget::QDisplayLinkWidget(QWidget* parent,
     linkwidget_->setContentsMargins(0, 10, 0, 0);
     linkwidget_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-    const std::string valuetype = link_->getValueTypeString();
+    const std::string valuetype = getLinkedTypeString(link_);
     if (!valuetype.empty())
         linkwidget_->setToolTip(QString::fromStdString(valuetype));
 
