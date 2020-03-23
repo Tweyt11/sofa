@@ -47,6 +47,22 @@ LinkWidget *LinkWidget::CreateLinkWidget(const LinkWidget::CreatorArgument &/*dw
 
 /*QDisplayLinkInfoWidget definitions */
 
+std::string getOwnerTypeString(BaseLink* link)
+{
+    Base* base = link->getOwnerBase();
+    if(base)
+    {
+        return base->getTypeName();
+    }
+
+    BaseData* data = link->getOwnerData();
+    if(data)
+    {
+        return data->getValueTypeString();
+    }
+    return "undefined";
+}
+
 QDisplayLinkInfoWidget::QDisplayLinkInfoWidget(QWidget* parent, const std::string& helper,
         core::objectmodel::BaseLink* l, bool /*modifiable*/)
     : QWidget(parent), link(l), numLines_(1)
@@ -58,28 +74,7 @@ QDisplayLinkInfoWidget::QDisplayLinkInfoWidget(QWidget* parent, const std::strin
     std::string final_str;
     formatHelperString(helper,final_str);
     
-	const core::objectmodel::BaseClass* ownerClass=link->getOwnerClass();
-    std::string ownerClassName;
-	if (ownerClass) ownerClassName = ownerClass->className;
-	
-	/*
-#ifndef SOFA_GUI_QT_NO_DATA_HELP
-    QLabel* helper_label = new QLabel(this);
-    helper_label->setText(QString(final_str.c_str()));
-    helper_label->setMinimumWidth(20);
-    layout->addWidget(helper_label);
-    if (!ownerClassName.empty()) QToolTip::add(helper_label, ("Link from "+ownerClassName).c_str());
-#else
-    numLines_ = 0;
-    if (!final_str.empty() || !ownerClassName.empty())
-    {
-        if (!final_str.empty()) final_str += '\n';
-        final_str += "Link from ";
-        final_str += ownerClassName;
-        QToolTip::add(parent, final_str.c_str());
-    }
-#endif
-	*/
+    std::string ownerClassName = getOwnerTypeString(link);
 }
 
 void QDisplayLinkInfoWidget::formatHelperString(const std::string& helper, std::string& final_text)
