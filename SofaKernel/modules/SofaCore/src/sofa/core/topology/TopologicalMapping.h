@@ -175,20 +175,20 @@ public:
 
         if (stin == nullptr)
         {
-            msg_error(context) << "Creation of " << className(obj) << " topology mapping failed as input topology model is missing or invalid.";
+            msg_error(context) << "Creation of " << Base::className<T>() << " topology mapping failed as input topology model is missing or invalid.";
             return false;
         }
 
         if (stout == nullptr)
         {
-            msg_error(context) << "Creation of " << className(obj) << " topology mapping failed as output topology model is missing or invalid.";
+            msg_error(context) << "Creation of " << Base::className<T>() << " topology mapping failed as output topology model is missing or invalid.";
             return false;
         }
 
         if (static_cast<BaseObject*>(stin) == static_cast<BaseObject*>(stout))
         {
             // we should refuse to create mappings with the same input and output model, which may happen if a State object is missing in the child node
-            msg_error(context) << "Creation of " << className(obj) << " topology mapping failed as the same object \"" << stin->getName() << "\" is linked as input and output.";
+            msg_error(context) << "Creation of " << Base::className<T>() << " topology mapping failed as the same object \"" << stin->getName() << "\" is linked as input and output.";
             return false;
         }
 
