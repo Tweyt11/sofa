@@ -45,6 +45,15 @@ BaseClass::~BaseClass()
 {
 }
 
+DeprecatedBaseClass::DeprecatedBaseClass()
+{
+    namespaceName= "DeprecatedBaseClass::namespace";
+    className = "DeprecatedBaseClass::classname";
+    templateName = "DeprecatedBaseClass::templatename";
+    shortName = "DeprecatedBaseClass::shortname";
+}
+
+
 } // namespace objectmodel
 
 } // namespace core

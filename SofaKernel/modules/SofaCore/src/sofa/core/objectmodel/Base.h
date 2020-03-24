@@ -128,8 +128,8 @@ public:
 
     using SPtr = sptr<Base>;
     
-    typedef TClass< Base, void > MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
+    using MyClass = TClass< Base, void >;
+    static const BaseClass* GetClass() { return MyClass::get(); }
     virtual const BaseClass* getClass() const { return GetClass(); }
 
     template<class T>
@@ -402,6 +402,8 @@ protected:
         res.value = value;
     }
 
+
+
 public:
 
     /// Helper method to get the type name of a type derived from this class
@@ -412,7 +414,7 @@ public:
     template<class T>
     static std::string typeName(const T* = nullptr)
     {
-        return NameDecoder::getTypeName<T>();
+        return T::GetClass()->typeName;
     }
 
     /// Helper method to get the class name of a type derived from this class
@@ -423,7 +425,7 @@ public:
     template<class T>
     static std::string className(const T* = nullptr)
     {
-        return NameDecoder::getClassName<T>();
+        return T::GetClass()->className;
     }
 
     /// Helper method to get the namespace name of a type derived from this class
@@ -434,7 +436,7 @@ public:
     template<class T>
     static std::string namespaceName(const T* = nullptr)
     {
-        return NameDecoder::getNamespaceName<T>();
+        return T::GetClass()->namespaceName;
     }
 
     /// Helper method to get the template name of a type derived from this class
@@ -445,7 +447,7 @@ public:
     template<class T>
     static std::string templateName(const T* = nullptr)
     {
-        return NameDecoder::getTemplateName<T>();
+        return T::GetClass()->templateName;
     }
 
     /// Helper method to get the shortname of a type derived from this class.
@@ -457,7 +459,8 @@ public:
     template< class T>
     static std::string shortName( const T* ptr = nullptr, BaseObjectDescription* = nullptr )
     {
-        return NameDecoder::shortName(ptr);
+        SOFA_UNUSED(ptr);
+        return T::GetClass()->shortName;
     }
 
     /// @name componentstate
@@ -563,6 +566,7 @@ public:
 
     /// @}
 };
+
 
 } // namespace objectmodel
 
