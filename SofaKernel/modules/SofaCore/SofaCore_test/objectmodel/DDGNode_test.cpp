@@ -39,10 +39,6 @@ public:
     {
         m_cptNotify++;
     }
-
-    const std::string& getName() const override  {}
-    sofa::core::objectmodel::Base* getOwner() const override  {}
-    sofa::core::objectmodel::BaseData* getData() const override  {}
 };
 
 class DDGNode_test: public BaseTest
