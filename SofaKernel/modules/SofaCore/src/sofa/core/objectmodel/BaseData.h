@@ -174,7 +174,7 @@ public:
     const std::string& getWidget() const { return widget; }
 
     /// Set widget
-    void setWidget(const char* val) { widget = val; }
+    void setWidget(const std::string& val) { widget = val; }
 
     /// True if the counter of modification gives valid information.
     virtual bool isCounterValid() const = 0;
@@ -341,6 +341,9 @@ protected:
     /// Helper method to decode the type name to a more readable form if possible
     [[deprecated("Decode typename have been removed, please contact sofa-framework")]]
     static std::string decodeTypeName(const std::type_info&){ return "deprecated function"; }
+
+private:
+    BaseData();
 
 public:
 
