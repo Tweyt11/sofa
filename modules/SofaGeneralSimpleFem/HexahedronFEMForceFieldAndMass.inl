@@ -185,9 +185,9 @@ typename HexahedronFEMForceFieldAndMass<DataTypes>::Real HexahedronFEMForceField
 
 
 template<class DataTypes>
-std::string HexahedronFEMForceFieldAndMass<DataTypes>::getTemplateName() const
+std::string HexahedronFEMForceFieldAndMass<DataTypes>::CustomTemplateName()
 {
-    return HexahedronFEMForceFieldT::getTemplateName();
+    return HexahedronFEMForceFieldT::CustomTemplateName();
 }
 
 

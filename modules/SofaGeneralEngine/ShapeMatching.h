@@ -61,7 +61,7 @@ public:
     typedef core::topology::BaseMeshTopology::PointID ID;
     typedef helper::vector<ID> VI;
     typedef helper::vector<VI> VVI;
-	typedef helper::vector<Real> VD;	
+    typedef helper::vector<Real> VD;
 
 public:
 
@@ -86,8 +86,8 @@ public:
     Data< VVI > cluster; ///< input2 (clusters)
     Data< VecCoord > targetPosition;       ///< result
 
-    virtual std::string getTemplateName() const    override { return templateName(this);    }
-    static std::string templateName(const ShapeMatching<DataTypes>* = nullptr)    {    return DataTypes::Name();    }
+    static std::string CustomTemplateName()
+    {    return DataTypes::Name();    }
 
 private:
     sofa::core::behavior::MechanicalState<DataTypes>* mstate;
@@ -109,7 +109,7 @@ private:
 #if  !defined(SOFA_COMPONENT_ENGINE_SHAPEMATCHING_CPP)
 extern template class SOFA_GENERAL_ENGINE_API ShapeMatching<defaulttype::Vec3Types>;
 extern template class SOFA_GENERAL_ENGINE_API ShapeMatching<defaulttype::Rigid3Types>;
- 
+
 #endif
 
 } // namespace engine

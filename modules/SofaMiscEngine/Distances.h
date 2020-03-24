@@ -188,11 +188,8 @@ public:
 
         return obj;
     }
-    std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-    static std::string templateName(const Distances<DataTypes>* = nullptr)
+
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

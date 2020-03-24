@@ -81,7 +81,7 @@ public:
  *
  */
 
-class SOFA_BASE_VISUAL_API VisualModelImpl : public core::visual::VisualModel, public Vec3State //, public RigidState
+class SOFA_BASE_VISUAL_API VisualModelImpl : public core::visual::VisualModel, public Vec3State
 {
 public:
     SOFA_CLASS2(VisualModelImpl, core::visual::VisualModel, Vec3State);
@@ -400,15 +400,6 @@ public:
     /// This method should update them
     void exportOBJ(std::string name, std::ostream* out, std::ostream* mtl, int& vindex, int& nindex, int& tindex, int& count) override;
 
-    virtual std::string getTemplateName() const override
-    {
-        return Vec3State::getTemplateName();
-    }
-
-    static std::string templateName(const VisualModelImpl* p = nullptr)
-    {
-        return Vec3State::templateName(p);
-    }
 
     /// Utility method to compute tangent from vertices and texture coordinates.
     static Coord computeTangent(const Coord &v1, const Coord &v2, const Coord &v3,

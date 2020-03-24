@@ -119,12 +119,7 @@ public:
         return BaseObject::create(tObj, context, arg);
     }
 
-    virtual string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static string templateName(const BoxROI<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

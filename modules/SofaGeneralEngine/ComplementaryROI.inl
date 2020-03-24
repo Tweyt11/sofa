@@ -136,13 +136,7 @@ void ComplementaryROI<DataTypes>::doUpdate()
 }
 
 template <class DataTypes>
-string ComplementaryROI<DataTypes>::getTemplateName() const
-{
-    return templateName(this);
-}
-
-template <class DataTypes>
-string ComplementaryROI<DataTypes>::templateName(const ComplementaryROI<DataTypes>*)
+string ComplementaryROI<DataTypes>::CustomTemplateName()
 {
     return DataTypes::Name();
 }

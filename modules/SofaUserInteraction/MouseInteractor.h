@@ -122,12 +122,7 @@ public:
 
     core::behavior::BaseMechanicalState *getMouseContainer() override {return mouseInSofa;}
 
-
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-    static std::string templateName(const MouseInteractor<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

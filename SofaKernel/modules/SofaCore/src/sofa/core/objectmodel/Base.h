@@ -184,16 +184,16 @@ public:
 
 
     /// Get the type name of this object (i.e. class and template types)
-    virtual std::string getTypeName() const;
+   virtual std::string getTypeName() const final;
 
     /// Get the class name of this object
-    virtual std::string getClassName() const;
+    virtual std::string getClassName() const final;
 
     /// Get the template type names (if any) used to instantiate this object
-    virtual std::string getTemplateName() const;
+    virtual std::string getTemplateName() const final;
 
     /// Get the template type names (if any) used to instantiate this object
-    virtual std::string getNameSpaceName() const;
+    virtual std::string getNameSpaceName() const final;
 
     /// Set the source filename (where the component is implemented)
     void setDefinitionSourceFileName(const std::string& sourceFileName);

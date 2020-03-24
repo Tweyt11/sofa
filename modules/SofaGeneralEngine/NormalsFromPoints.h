@@ -70,8 +70,8 @@ public:
     Data<bool> invertNormals; ///< Swap normals
     Data<bool> useAngles; ///< Use incident angles to weight faces normal contributions at each vertex
 
-    virtual std::string getTemplateName() const    override { return templateName(this);    }
-    static std::string templateName(const NormalsFromPoints<DataTypes>* = nullptr) { return DataTypes::Name();    }
+    static std::string CustomTemplateName()
+    { return DataTypes::Name();    }
 
 };
 

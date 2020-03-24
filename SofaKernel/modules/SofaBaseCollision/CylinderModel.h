@@ -143,12 +143,7 @@ public:
 
     const Coord & velocity(int index)const;
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const CylinderCollisionModel<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

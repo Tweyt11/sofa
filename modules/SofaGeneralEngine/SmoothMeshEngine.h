@@ -71,12 +71,7 @@ public:
     Data<bool> showInput; ///< showInput
     Data<bool> showOutput; ///< showOutput
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const SmoothMeshEngine<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

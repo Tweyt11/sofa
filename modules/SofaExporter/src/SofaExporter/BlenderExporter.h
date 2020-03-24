@@ -91,12 +91,7 @@ namespace sofa
 
                 static const char* Name(){return "Blender exporter";}
 
-                virtual std::string getTemplateName() const override
-                {
-                    return templateName(this);
-                }
-
-                static std::string templateName(const BlenderExporter<T>* = nullptr)
+                static std::string CustomTemplateName()
                 {
                     return T::Name();
                 }

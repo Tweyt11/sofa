@@ -141,12 +141,7 @@ public:
         return obj;
     }
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const MixedInteractionConstraint<DataTypes1,DataTypes2>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes1::Name();
     }
