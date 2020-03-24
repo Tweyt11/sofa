@@ -79,9 +79,7 @@ public:
     void notifyEndEdit() override ;
 
     void update() override;
-    const std::string& getName() const override ;
-    Base* getOwner() const override ;
-    BaseData* getData() const override ;
+
 
 private:
     bool m_updating {false};

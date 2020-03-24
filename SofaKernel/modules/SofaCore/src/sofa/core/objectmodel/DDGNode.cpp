@@ -132,66 +132,6 @@ const DDGNode::DDGLinkContainer& DDGNode::getOutputs()
     return outputs;
 }
 
-bool DDGNode::findDataLinkDest(DDGNode*& ptr, const std::string& path, const BaseLink* link)
-{
-    std::string pathStr, dataStr(" "); // non-empty data to specify that a data name is optionnal for DDGNode (as it can be a DataEngine)
-    if (link)
-    {
-        if (!link->parseString(path, &pathStr, &dataStr))
-            return false;
-    }
-    else
-    {
-        if (!BaseLink::ParseString(path, &pathStr, &dataStr, this->getOwner()))
-            return false;
-    }
-    bool self = (pathStr.empty() || pathStr == "[]");
-    if (dataStr == "") // no Data -> we look for a DataEngine
-    {
-        if (self)
-        {
-            ptr = this;
-            return true;
-        }
-        else
-        {
-            Base* owner = this->getOwner();
-            DataEngine* obj = nullptr;
-            if (!owner)
-                return false;
-            if (!owner->findLinkDest(obj, path, link))
-                return false;
-            ptr = obj;
-            return true;
-        }
-    }
-    Base* owner = this->getOwner();
-    if (!owner)
-        return false;
-    if (self)
-    {
-        ptr = owner->findData(dataStr);
-        return (ptr != nullptr);
-    }
-    else
-    {
-        Base* obj = nullptr;
-        if (!owner->findLinkDest(obj, BaseLink::CreateString(pathStr), link))
-            return false;
-        if (!obj)
-            return false;
-        ptr = obj->findData(dataStr);
-        return (ptr != nullptr);
-    }
-}
-
-void DDGNode::addLink(BaseLink* /*l*/)
-{
-    // the inputs and outputs links in DDGNode is manually added
-    // once the link vectors are constructed in Base or BaseData
-}
-
-
 void DDGNode::doAddInput(DDGNode* n)
 {
     inputs.push_back(n);

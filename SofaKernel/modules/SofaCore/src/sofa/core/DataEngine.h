@@ -94,30 +94,6 @@ public:
 
     /// Add a new output to this engine
     void addOutput(objectmodel::BaseData* n);
-
-    /// This method is needed by DDGNode
-    const std::string& getName() const override
-    {
-        return objectmodel::BaseObject::getName();
-    }
-
-    /// This method is needed by DDGNode
-    objectmodel::Base* getOwner() const override
-    {
-        return const_cast<DataEngine*>(this);
-    }
-
-    /// This method is needed by DDGNode
-    objectmodel::BaseData* getData() const override
-    {
-        return nullptr;
-    }
-
-    /// Add a link.
-    void addLink(objectmodel::BaseLink* l)
-    {
-        objectmodel::BaseObject::addLink(l);
-    }
 };
 
 } // namespace core

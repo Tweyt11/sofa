@@ -112,15 +112,6 @@ public:
         }
     }
 
-    virtual const std::string& getName() const = 0;
-
-    virtual Base* getOwner() const = 0;
-    virtual BaseData* getData() const = 0;
-
-    virtual bool findDataLinkDest(DDGNode*& ptr, const std::string& path, const BaseLink* link);
-
-    void addLink(BaseLink* l);
-
 protected:
 
     DDGLinkContainer inputs;
@@ -140,10 +131,8 @@ private:
 
     struct DirtyFlags
     {
-        DirtyFlags() : dirtyValue(false), dirtyOutputs(false) {}
-
-        bool dirtyValue;
-        bool dirtyOutputs;
+        bool dirtyValue {false};
+        bool dirtyOutputs {false};
     };
     DirtyFlags dirtyFlags;
 };
