@@ -34,8 +34,6 @@ namespace core
 namespace objectmodel
 {
 
-//#define SOFA_DDG_TRACE
-
 BaseData::BaseData(const char* h, DataFlags dataflags) : BaseData(sofa::helper::safeCharToString(h), dataflags)
 {
 }
@@ -178,10 +176,6 @@ void BaseData::update()
     }
     if (parentBaseData)
     {
-#ifdef SOFA_DDG_TRACE
-        if (m_owner)
-            m_owner->sout << "Data " << m_name << ": update from parent " << parentBaseData->m_name<< m_owner->sendl;
-#endif
         updateFromParentValue(parentBaseData);
         // If the value is dirty clean it
         if(this->isDirty())
@@ -274,11 +268,7 @@ bool BaseData::updateFromParentValue(const BaseData* parent)
     }
 
     std::string m = msgs.str();
-    if (m_owner
-#ifdef NDEBUG
-        && (!m.empty() || m_owner->notMuted())
-#endif
-    )
+    if (m_owner)
     {
         m_owner->sout << "Data link from " << (parent->m_owner ? parent->m_owner->getName() : std::string("?")) << "." << parent->getName() << " to " << m_owner->getName() << "." << getName() << " : ";
         if (!m.empty()) m_owner->sout << m;
