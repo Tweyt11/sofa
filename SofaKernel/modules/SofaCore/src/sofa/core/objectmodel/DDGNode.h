@@ -19,38 +19,22 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_CORE_OBJECTMODEL_DDGNODE_H
-#define SOFA_CORE_OBJECTMODEL_DDGNODE_H
+#pragma once
 
 #include <sofa/core/core.h>
-#include <sofa/core/objectmodel/Link.h>
-#include <sofa/core/objectmodel/BaseClass.h>
-#include <sofa/helper/NameDecoder.h>
-#include <list>
+#include <sofa/helper/stable_vector.h>
 
-namespace sofa
+namespace sofa::core
 {
+    class ExecParams;
+}
 
-namespace core
+namespace sofa::core::objectmodel
 {
-
-namespace objectmodel
-{
-
-using sofa::helper::NameDecoder;
-
 class Base;
 class BaseData;
+class BaseLink;
 class DDGNode;
-class BaseObjectDescription;
-
-template<>
-class LinkTraitsPtrCasts<DDGNode>
-{
-public:
-    static sofa::core::objectmodel::Base* getBase(sofa::core::objectmodel::DDGNode* n);
-    static sofa::core::objectmodel::BaseData* getData(sofa::core::objectmodel::DDGNode* n);
-};
 
 /**
  *  \brief Abstract base to manage data dependencies. BaseData and DataEngine inherites from this class
@@ -59,10 +43,7 @@ public:
 class SOFA_CORE_API DDGNode
 {
 public:
-
-    //typedef MultiLink<DDGNode, DDGNode, BaseLink::FLAG_DOUBLELINK|BaseLink::FLAG_DATALINK> DDGLink;
-    //typedef DDGLink::Container DDGLinkContainer;
-    typedef std::vector<DDGNode*> DDGLinkContainer;
+    typedef sofa::helper::stable_vector<DDGNode*> DDGLinkContainer;
     typedef DDGLinkContainer::const_iterator DDGLinkIterator;
 
     /// Constructor
@@ -94,32 +75,32 @@ public:
 
     /// Returns true if the DDGNode needs to be updated
     [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    bool isDirty(const core::ExecParams*) const { return isDirty(); }
+    bool isDirty(const ExecParams*) const { return isDirty(); }
     bool isDirty() const { return dirtyFlags.dirtyValue; }
 
     /// Indicate the value needs to be updated
     [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    virtual void setDirtyValue(const core::ExecParams*) final { return setDirtyValue(); }
+    virtual void setDirtyValue(const ExecParams*) final { return setDirtyValue(); }
     virtual void setDirtyValue();
 
     /// Indicate the outputs needs to be updated. This method must be called after changing the value of this node.
     [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    virtual void setDirtyOutputs(const core::ExecParams*) final { setDirtyOutputs(); }
+    virtual void setDirtyOutputs(const ExecParams*) final { setDirtyOutputs(); }
     virtual void setDirtyOutputs();
 
     /// Set dirty flag to false
     [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    void cleanDirty(const core::ExecParams*){ cleanDirty(); }
+    void cleanDirty(const ExecParams*){ cleanDirty(); }
     void cleanDirty();
 
     /// Notify links that the DGNode has been modified
     [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    virtual void notifyEndEdit(const core::ExecParams*) final { notifyEndEdit(); }
+    virtual void notifyEndEdit(const ExecParams*) final { notifyEndEdit(); }
     virtual void notifyEndEdit();
 
     /// Utility method to call update if necessary. This method should be called before reading of writing the value of this node.
     [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    void updateIfDirty(const core::ExecParams*) const { updateIfDirty(); }
+    void updateIfDirty(const ExecParams*) const { updateIfDirty(); }
     void updateIfDirty() const
     {
         if (isDirty())
@@ -131,7 +112,6 @@ public:
     virtual const std::string& getName() const = 0;
 
     virtual Base* getOwner() const = 0;
-
     virtual BaseData* getData() const = 0;
 
     virtual bool findDataLinkDest(DDGNode*& ptr, const std::string& path, const BaseLink* link);
@@ -143,28 +123,14 @@ protected:
     DDGLinkContainer inputs;
     DDGLinkContainer outputs;
 
-    virtual void doAddInput(DDGNode* n)
-    {
-        inputs.push_back(n);
-    }
-
-    virtual void doDelInput(DDGNode* n)
-    {
-        inputs.erase(std::remove(inputs.begin(), inputs.end(), n));
-    }
-
-    virtual void doAddOutput(DDGNode* n)
-    {
-        outputs.push_back(n);
-    }
-
-    virtual void doDelOutput(DDGNode* n)
-    {
-        outputs.erase(std::remove(outputs.begin(), outputs.end(), n));
-    }
+    virtual void doAddInput(DDGNode* n);
+    virtual void doDelInput(DDGNode* n);
+    virtual void doAddOutput(DDGNode* n);
+    virtual void doDelOutput(DDGNode* n);
 
     /// the dirtyOutputs flags of all the inputs will be set to false
-    void cleanDirtyOutputsOfInputs(const core::ExecParams*) { cleanDirtyOutputsOfInputs(); }
+    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    void cleanDirtyOutputsOfInputs(const ExecParams*) { cleanDirtyOutputsOfInputs(); }
     void cleanDirtyOutputsOfInputs();
 
 private:
@@ -181,8 +147,3 @@ private:
 
 } // namespace objectmodel
 
-} // namespace core
-
-} // namespace sofa
-
-#endif
