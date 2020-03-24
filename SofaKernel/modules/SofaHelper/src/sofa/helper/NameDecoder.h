@@ -22,8 +22,22 @@
 #pragma once
 
 #include <string>
+#include <typeinfo>
 namespace sofa::helper
 {
+
+template<class T>
+class IsTemplateNameOverriden
+{
+    typedef char YesType[1];
+    typedef char NoType[2];
+
+    template<typename C> static YesType& test( decltype (&C::CustomTemplateName) );
+    template<typename C> static NoType& test(...);
+
+public:
+    enum { value = sizeof(test<T>(0)) == sizeof(YesType) };
+};
 
 template<class T>
 class IsClassNameOverriden
@@ -40,6 +54,19 @@ public:
 
 class NameDecoder
 {
+private:
+    template<class T, typename std::enable_if<IsClassNameOverriden<T>::value, int>::type = 0>
+    static const std::string getOverridableName(){ return T::CustomClassName(); }
+
+    template<class T, typename std::enable_if<not IsClassNameOverriden<T>::value, int>::type = 0>
+    static const std::string getOverridableName(){ return decodeClassName(typeid(T)); }
+
+    template<class T, typename std::enable_if<IsTemplateNameOverriden<T>::value, int>::type = 0>
+    static const std::string getOverridableTemplateName(){ return T::CustomTemplateName(); }
+
+    template<class T, typename std::enable_if<not IsTemplateNameOverriden<T>::value, int>::type = 0>
+    static const std::string getOverridableTemplateName(){ return decodeTemplateName(typeid(T)); }
+
 public:
     /// Helper method to get the type name
     template<class T>
@@ -48,18 +75,12 @@ public:
         return decodeTypeName(typeid(T));
     }
 
-    template<class T, typename std::enable_if<IsClassNameOverriden<T>::value, int>::type = 0>
-    static const std::string getName(){ return T::CustomClassName(); }
-
-    template<class T, typename std::enable_if<not IsClassNameOverriden<T>::value, int>::type = 0>
-    static const std::string getName(){ return decodeClassName(typeid(T)); }
-
 
     /// Helper method to get the class name
     template<class T>
     static std::string getClassName()
     {
-        return getName<T>();
+        return getOverridableName<T>();
     }
 
     /// Helper method to get the namespace name
@@ -73,15 +94,8 @@ public:
     template<class T>
     static std::string getTemplateName()
     {
-        return decodeTemplateName(typeid(T));
+        return getOverridableTemplateName<T>();
     }
-
-    template<class T>
-    static std::string getComponentName()
-    {
-        return decodeClassName(typeid(T));
-    }
-
 
     /// Helper method to get the template name
     template<class T>
@@ -89,7 +103,6 @@ public:
     {
         return shortName(getClassName<T>());
     }
-
 
     static std::string shortName( const std::string& src );
 
