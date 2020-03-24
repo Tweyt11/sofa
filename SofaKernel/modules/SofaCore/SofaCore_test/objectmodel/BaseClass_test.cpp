@@ -66,6 +66,7 @@ public:
     SOFA_CLASS(CustomName123, BaseObject) ;
 
     static const std::string CustomClassName(){ return "ClassWithACustomName"; }
+    static const std::string CustomTemplateName(){ return "ClassWithACustomTemplate"; }
 
     template<class T>
     static const std::string className(){ return "TEST TEST"; }
@@ -119,6 +120,7 @@ TEST_F(BaseClass_test, checkStaticCustomClassName  )
 {
     ASSERT_EQ(BaseObject::className(&m_ptr4),"ClassWithACustomName") ;
     ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::CustomName123>(),"ClassWithACustomName") ;
+    ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::CustomName123>(),"ClassWithACustomTemplate") ;
 }
 
 TEST_F(BaseClass_test, checkDynamicClassName  )
@@ -131,6 +133,7 @@ TEST_F(BaseClass_test, checkDynamicClassName  )
 TEST_F(BaseClass_test, checkDynamicCustomName  )
 {
     EXPECT_EQ(m_ptr4.getClassName(),"ClassWithACustomName") ;
+    EXPECT_EQ(m_ptr4.getClassName(),"ClassWithACustomTemplate") ;
 }
 
 TEST_F(BaseClass_test, checkDynamicClassNameOnBase  )
@@ -143,7 +146,10 @@ TEST_F(BaseClass_test, checkDynamicClassNameOnBase  )
 TEST_F(BaseClass_test, checkDynamicClassCustomNameOnBase  )
 {
     ASSERT_EQ(m_baseptr4->getClassName(),"ClassWithACustomName") ;
+    ASSERT_EQ(m_baseptr4->getClassName(),"ClassWithACustomTemplate") ;
 }
+
+
 
 TEST_F(BaseClass_test, checkNameSpace  )
 {

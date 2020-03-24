@@ -289,14 +289,12 @@ bool Mapping<In,Out>::setTo(BaseState* to)
 
     if( !testMechanicalState(out))
         setNonMechanical();
-
     return true;
 }
 
 template <class In, class Out>
-std::string Mapping<In,Out>::templateName(const Mapping<In, Out>* /*mapping*/)
+std::string Mapping<In,Out>::CustomTemplateName()
 {
-    //	return std::string("Mapping<") + In::Name() + std::string(",") + Out::Name() + std::string(">");
     return In::Name() + std::string(",") + Out::Name();
 }
 
