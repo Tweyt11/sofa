@@ -246,7 +246,6 @@ public:
     {                                                                   \
         ::sofa::core::objectmodel::BaseData::BaseInitData res;          \
         this->initData0(field, res, name, help, dataflags);             \
-        res.ownerClass = GetClass()->className.c_str();                 \
         return res;                                                     \
     }                                                                   \
     template<class SOFA_T> ::sofa::core::objectmodel::BaseData::BaseInitData \
@@ -256,7 +255,6 @@ public:
         ::sofa::core::objectmodel::BaseData::BaseInitData res;          \
         this->initData0(field, res, name, help,                         \
                         isDisplayed, isReadOnly);                       \
-        res.ownerClass = GetClass()->className.c_str();                 \
         return res;                                                     \
     }                                                                   \
     template<class SOFA_T> typename ::sofa::core::objectmodel::Data<SOFA_T>::InitData initData(    \
@@ -266,7 +264,6 @@ public:
         typename ::sofa::core::objectmodel::Data<SOFA_T>::InitData res; \
         this->initData0(field, res, value, name, help,                  \
                         isDisplayed, isReadOnly);                       \
-        res.ownerClass = GetClass()->className.c_str();                 \
         return res;                                                     \
     }                                                                   \
     ::sofa::core::objectmodel::BaseLink::InitLink<MyType>               \
