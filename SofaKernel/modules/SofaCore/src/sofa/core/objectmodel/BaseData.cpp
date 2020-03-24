@@ -38,56 +38,57 @@ BaseData::BaseData(const char* h, DataFlags dataflags) : BaseData(sofa::helper::
 {
 }
 
-BaseData::BaseData(const std::string& h, DataFlags dataflags)
-    : help(h), ownerClass(""), group(""), widget("")
-    , m_counter(), m_isSet(), m_dataFlags(dataflags)
-    , m_owner(nullptr), m_name("")
-    , parentBaseData(initLink("parent", "Linked Data, from which values are automatically copied"))
+BaseData::BaseData() :
+    help(""), ownerClass(""), group(""), widget("")
+  , m_counter(0), m_isSet(false), m_dataFlags(FLAG_DISPLAYED | FLAG_AUTOLINK)
+  , m_owner(nullptr), m_name("")
+  , parentBaseData(initLink("parent", "Linked Data, from which values are automatically copied"))
 {
-    m_counter = 0;
-    m_isSet = false;
-    setFlag(FLAG_PERSISTENT, false);
+}
+
+  BaseData::BaseData(const std::string& h, DataFlags dataflags)
+  : BaseData()
+{
+    setHelp(h);
+    m_dataFlags = dataflags;
 }
 
 BaseData::BaseData( const char* helpMsg, bool isDisplayed, bool isReadOnly) : BaseData(sofa::helper::safeCharToString(helpMsg), isDisplayed, isReadOnly)
 {
 }
 
-
 BaseData::BaseData( const std::string& h, bool isDisplayed, bool isReadOnly)
-    : help(h), ownerClass(""), group(""), widget("")
-    , m_counter(), m_isSet(), m_dataFlags(FLAG_DEFAULT), m_owner(nullptr), m_name("")
-    , parentBaseData(initLink("parent", "Linked Data, from which values are automatically copied"))
+    : BaseData()
 {
-    m_counter = 0;
-    m_isSet = false;
-    setFlag(FLAG_DISPLAYED,isDisplayed);
-    setFlag(FLAG_READONLY,isReadOnly);
-    setFlag(FLAG_PERSISTENT, false);
+    setHelp(h);
+    setDisplayed(isDisplayed);
+    setReadOnly(isReadOnly);
 }
 
 BaseData::BaseData( const BaseInitData& init)
-    : help(init.helpMsg), ownerClass(init.ownerClass), group(init.group), widget(init.widget)
-    , m_counter(), m_isSet(), m_dataFlags(init.dataFlags)
-    , m_owner(init.owner), m_name(init.name)
-    , parentBaseData(initLink("parent", "Linked Data, from which values are automatically copied"))
+    : BaseData()
 {
-    m_counter = 0;
-    m_isSet = false;
-
     if (init.data && init.data != this)
     {
         {
-        helper::logging::MessageDispatcher::LoggerStream msgerror = msg_error("BaseData");
-        msgerror << "initData POINTER MISMATCH: field name \"" << init.name << "\"";
-        if (init.owner)
-            msgerror << " created by class " << init.owner->getClassName();
+            helper::logging::MessageDispatcher::LoggerStream msgerror = msg_error("BaseData");
+            msgerror << "initData POINTER MISMATCH: field name \"" << init.name << "\"";
+            if (init.owner)
+                msgerror << " created by class " << init.owner->getClassName();
         }
         sofa::helper::BackTrace::dump();
         exit( EXIT_FAILURE );
     }
-    if (m_owner) m_owner->addData(this, m_name);
-    setFlag(FLAG_PERSISTENT, false);
+
+    setOwner(init.owner);
+    setHelp(init.helpMsg);
+    setGroup(init.group);
+    setWidget(init.widget);
+    m_dataFlags = init.dataFlags;
+    setName(init.name);
+
+    if (m_owner)
+        m_owner->addData(this, m_name);
 }
 
 BaseData::~BaseData()
