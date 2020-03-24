@@ -132,22 +132,6 @@ const DDGNode::DDGLinkContainer& DDGNode::getOutputs()
     return outputs;
 }
 
-sofa::core::objectmodel::Base* LinkTraitsPtrCasts<DDGNode>::getBase(sofa::core::objectmodel::DDGNode* n)
-{
-    if (!n) return nullptr;
-    return n->getOwner();
-    //sofa::core::objectmodel::BaseData* d = dynamic_cast<sofa::core::objectmodel::BaseData*>(n);
-    //if (d) return d->getOwner();
-    //return dynamic_cast<sofa::core::objectmodel::Base*>(n);
-}
-
-sofa::core::objectmodel::BaseData* LinkTraitsPtrCasts<DDGNode>::getData(sofa::core::objectmodel::DDGNode* n)
-{
-    if (!n) return nullptr;
-    return n->getData();
-    //return dynamic_cast<sofa::core::objectmodel::BaseData*>(n);
-}
-
 bool DDGNode::findDataLinkDest(DDGNode*& ptr, const std::string& path, const BaseLink* link)
 {
     std::string pathStr, dataStr(" "); // non-empty data to specify that a data name is optionnal for DDGNode (as it can be a DataEngine)
@@ -206,6 +190,28 @@ void DDGNode::addLink(BaseLink* /*l*/)
     // the inputs and outputs links in DDGNode is manually added
     // once the link vectors are constructed in Base or BaseData
 }
+
+
+void DDGNode::doAddInput(DDGNode* n)
+{
+    inputs.push_back(n);
+}
+
+void DDGNode::doDelInput(DDGNode* n)
+{
+    inputs.erase(std::remove(inputs.begin(), inputs.end(), n));
+}
+
+void DDGNode::doAddOutput(DDGNode* n)
+{
+    outputs.push_back(n);
+}
+
+void DDGNode::doDelOutput(DDGNode* n)
+{
+    outputs.erase(std::remove(outputs.begin(), outputs.end(), n));
+}
+
 
 } // namespace objectmodel
 

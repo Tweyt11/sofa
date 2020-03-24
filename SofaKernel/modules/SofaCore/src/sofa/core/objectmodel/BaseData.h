@@ -23,8 +23,10 @@
 #define SOFA_CORE_OBJECTMODEL_BASEDATA_H
 
 #include <sofa/core/core.h>
+#include <sofa/core/ExecParams.h>
 #include <sofa/core/objectmodel/DDGNode.h>
-
+#include <sofa/core/objectmodel/Link.h>
+#include <sofa/defaulttype/DataTypeInfo.h>
 namespace sofa
 {
 

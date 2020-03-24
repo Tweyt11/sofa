@@ -23,6 +23,10 @@
 #define SOFA_CORE_DATATRACKER_H
 
 #include <sofa/core/objectmodel/DDGNode.h>
+#include <map>
+#include <functional>
+#include <vector>
+#include <sofa/core/ExecParams.h>
 
 namespace sofa
 {

@@ -22,6 +22,8 @@
 
 #include <SofaTest/Sofa_test.h>
 #include <SofaTest/TestMessageHandler.h>
+#include <sofa/core/ExecParams.h>
+using sofa::core::ExecParams;
 
 #include <SofaSimulationGraph/DAGSimulation.h>
 using sofa::simulation::Simulation ;
