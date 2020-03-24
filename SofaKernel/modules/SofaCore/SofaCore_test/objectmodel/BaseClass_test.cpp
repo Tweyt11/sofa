@@ -22,6 +22,7 @@
 /******************************************************************************
  * Contributors:                                                              *
  *    - apalliyali1@hamad.qa                                                  *
+ *    - damien.marchal@univ-lille.fr                                          *
  *****************************************************************************/
 #include <sofa/core/objectmodel/BaseObject.h>
 using sofa::core::objectmodel::BaseObject ;
@@ -120,7 +121,11 @@ TEST_F(BaseClass_test, checkStaticCustomClassName  )
 {
     ASSERT_EQ(BaseObject::className<decltype(m_ptr4)>(),"ClassWithACustomName") ;
     ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::CustomName123>(),"ClassWithACustomName") ;
-    ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::CustomName123>(),"ClassWithACustomTemplate") ;
+}
+
+TEST_F(BaseClass_test, checkStaticCustomTemplateName  )
+{
+    ASSERT_EQ(BaseObject::templateName<sofa::numbered_namespace_123::CustomName123>(),"ClassWithACustomTemplate") ;
 }
 
 TEST_F(BaseClass_test, checkDynamicClassName  )
@@ -133,7 +138,11 @@ TEST_F(BaseClass_test, checkDynamicClassName  )
 TEST_F(BaseClass_test, checkDynamicCustomName  )
 {
     EXPECT_EQ(m_ptr4.getClassName(),"ClassWithACustomName") ;
-    EXPECT_EQ(m_ptr4.getClassName(),"ClassWithACustomTemplate") ;
+}
+
+TEST_F(BaseClass_test, checkDynamicCustomTemplateName  )
+{
+    EXPECT_EQ(m_ptr4.getTemplateName(),"ClassWithACustomTemplate") ;
 }
 
 TEST_F(BaseClass_test, checkDynamicClassNameOnBase  )
@@ -146,7 +155,11 @@ TEST_F(BaseClass_test, checkDynamicClassNameOnBase  )
 TEST_F(BaseClass_test, checkDynamicClassCustomNameOnBase  )
 {
     ASSERT_EQ(m_baseptr4->getClassName(),"ClassWithACustomName") ;
-    ASSERT_EQ(m_baseptr4->getClassName(),"ClassWithACustomTemplate") ;
+}
+
+TEST_F(BaseClass_test, checkDynamicCustomTemplateNameOnBase  )
+{
+    ASSERT_EQ(m_baseptr4->getTemplateName(),"ClassWithACustomTemplate") ;
 }
 
 TEST_F(BaseClass_test, checkNameSpace)
