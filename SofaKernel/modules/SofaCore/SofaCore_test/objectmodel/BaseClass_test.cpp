@@ -107,18 +107,18 @@ TEST_F(BaseClass_test, checkClassEquivalence  )
 
 TEST_F(BaseClass_test, checkStaticClassName  )
 {
-    ASSERT_EQ(BaseObject::className(&m_ptr1),"EmptyObject") ;
-    ASSERT_EQ(BaseObject::className(&m_ptr2),"NumberedClass123") ;
-    ASSERT_EQ(BaseObject::className(&m_ptr3),"NumberedClass456") ;
+    ASSERT_EQ(BaseObject::className<decltype (m_ptr1)>(),"EmptyObject");
+    ASSERT_EQ(BaseObject::className<decltype (m_ptr2)>(),"NumberedClass123");
+    ASSERT_EQ(BaseObject::className<decltype (m_ptr3)>(),"NumberedClass456");
 
-    ASSERT_EQ(BaseObject::className<sofa::another_namespace::EmptyObject>(),"EmptyObject") ;
-    ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::NumberedClass123>(),"NumberedClass123") ;
-    ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::NumberedClass456>(),"NumberedClass456") ;
+    ASSERT_EQ(BaseObject::className<sofa::another_namespace::EmptyObject>(),"EmptyObject");
+    ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::NumberedClass123>(),"NumberedClass123");
+    ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::NumberedClass456>(),"NumberedClass456");
 }
 
 TEST_F(BaseClass_test, checkStaticCustomClassName  )
 {
-    ASSERT_EQ(BaseObject::className(&m_ptr4),"ClassWithACustomName") ;
+    ASSERT_EQ(BaseObject::className<decltype(m_ptr4)>(),"ClassWithACustomName") ;
     ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::CustomName123>(),"ClassWithACustomName") ;
     ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::CustomName123>(),"ClassWithACustomTemplate") ;
 }
@@ -149,11 +149,9 @@ TEST_F(BaseClass_test, checkDynamicClassCustomNameOnBase  )
     ASSERT_EQ(m_baseptr4->getClassName(),"ClassWithACustomTemplate") ;
 }
 
-
-
-TEST_F(BaseClass_test, checkNameSpace  )
+TEST_F(BaseClass_test, checkNameSpace)
 {
-    ASSERT_EQ(BaseObject::namespaceName(&m_ptr1),"sofa::another_namespace") ;
-    ASSERT_EQ(BaseObject::namespaceName(&m_ptr2),"sofa::numbered_namespace_123") ;
-    ASSERT_EQ(BaseObject::namespaceName(&m_ptr2),"sofa::numbered_namespace_123") ;
+    ASSERT_EQ(m_ptr1.getNameSpaceName(),"sofa::another_namespace") ;
+    ASSERT_EQ(m_ptr2.getNameSpaceName(),"sofa::numbered_namespace_123") ;
+    ASSERT_EQ(m_ptr3.getNameSpaceName(),"sofa::numbered_namespace_123") ;
 }

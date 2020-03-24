@@ -85,7 +85,7 @@ public:
 
         if (collModel1 == nullptr && collModel2 == nullptr )
         {
-            msg_error(context) << "Creation of " << className(obj) <<
+            msg_error(context) << "Creation of " << Base::className<T>() <<
                                   " CollisonListener failed because no Collision Model links are found: \"" << collModelPath1
                                << "\" and \"" << collModelPath2 << "\" " << context->sendl;
             return false;

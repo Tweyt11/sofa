@@ -290,8 +290,8 @@ public:
     RegisterObject& add(bool defaultTemplate=false)
     {
         RealObject* p = nullptr;
-        std::string classname = RealObject::className(p);
-        std::string templatename = RealObject::templateName(p);
+        std::string classname = sofa::core::objectmodel::Base::className<RealObject>();
+        std::string templatename = sofa::core::objectmodel::Base::templateName<RealObject>();
 
         if (defaultTemplate)
             entry.defaultTemplate = templatename;
