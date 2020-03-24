@@ -25,6 +25,19 @@
 namespace sofa::helper
 {
 
+template<class T>
+class IsClassNameOverriden
+{
+    typedef char YesType[1];
+    typedef char NoType[2];
+
+    template<typename C> static YesType& test( decltype (&C::CustomClassName) );
+    template<typename C> static NoType& test(...);
+
+public:
+    enum { value = sizeof(test<T>(0)) == sizeof(YesType) };
+};
+
 class NameDecoder
 {
 public:
@@ -35,11 +48,18 @@ public:
         return decodeTypeName(typeid(T));
     }
 
+    template<class T, typename std::enable_if<IsClassNameOverriden<T>::value, int>::type = 0>
+    static const std::string getName(){ return T::CustomClassName(); }
+
+    template<class T, typename std::enable_if<not IsClassNameOverriden<T>::value, int>::type = 0>
+    static const std::string getName(){ return decodeClassName(typeid(T)); }
+
+
     /// Helper method to get the class name
     template<class T>
     static std::string getClassName()
     {
-        return decodeClassName(typeid(T));
+        return getName<T>();
     }
 
     /// Helper method to get the namespace name
@@ -55,6 +75,21 @@ public:
     {
         return decodeTemplateName(typeid(T));
     }
+
+    template<class T>
+    static std::string getComponentName()
+    {
+        return decodeClassName(typeid(T));
+    }
+
+
+    /// Helper method to get the template name
+    template<class T>
+    static std::string getShortName()
+    {
+        return shortName(getClassName<T>());
+    }
+
 
     static std::string shortName( const std::string& src );
 
