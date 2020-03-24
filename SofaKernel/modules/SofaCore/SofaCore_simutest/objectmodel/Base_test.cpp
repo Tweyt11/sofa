@@ -52,18 +52,13 @@ class CustomBaseObjectT : public BaseObject
 public:
     SOFA_CLASS(SOFA_TEMPLATE(CustomBaseObjectT, D), BaseObject);
 
-    std::string getClassName() const override
-    {
-        return "MyFakeClassName";
-    }
-
-
+    static const std::string CustomClassName() { return "MyFakeClassName"; }
 };
+
 }
 
 using customns::CustomBaseObject;
 using customns::CustomBaseObjectT;
-
 
 class Base_test: public BaseSimulationTest
 {
@@ -108,16 +103,14 @@ TEST_F(Base_test , testBaseClass)
     EXPECT_EQ(CustomBaseObject::GetClass()->templateName, "");
     EXPECT_EQ(CustomBaseObject::GetClass()->shortName, "customBaseObject");
 
-    EXPECT_EQ(CustomBaseObjectT<Rigid3Types>::GetClass()->className, "CustomBaseObjectT");
+    EXPECT_EQ(CustomBaseObjectT<Rigid3Types>::GetClass()->className, "MyFakeClassName");
     EXPECT_EQ(CustomBaseObjectT<Rigid3Types>::GetClass()->templateName, "StdRigidTypes<3, double> >");
-    EXPECT_EQ(CustomBaseObjectT<Rigid3Types>::GetClass()->shortName, "customBaseObjectT");
+    EXPECT_EQ(CustomBaseObjectT<Rigid3Types>::GetClass()->shortName, "myFakeClassName");
 
-    EXPECT_EQ(CustomBaseObjectT<Vec3Types>::GetClass()->className, "CustomBaseObjectT");
+    EXPECT_EQ(CustomBaseObjectT<Vec3Types>::GetClass()->className, "MyFakeClassName");
     EXPECT_EQ(CustomBaseObjectT<Vec3Types>::GetClass()->templateName, "StdVectorTypes<Vec<3, double>, Vec<3, double>, double> >");
-    EXPECT_EQ(CustomBaseObjectT<Vec3Types>::GetClass()->shortName, "customBaseObjectT");
+    EXPECT_EQ(CustomBaseObjectT<Vec3Types>::GetClass()->shortName, "myFakeClassName");
 }
-
-static bool beforeRefactoring = true;
 
 TEST_F(Base_test , testGetClassName)
 {
@@ -125,22 +118,20 @@ TEST_F(Base_test , testGetClassName)
     EXPECT_EQ(o.getClassName(), "CustomBaseObject");
     EXPECT_EQ(o.getTemplateName(), "");
     EXPECT_EQ(o.getTypeName(), "CustomBaseObject");
+    EXPECT_EQ(o.getClass()->className, "CustomBaseObject");
 
     CustomBaseObjectT<Rigid3Types> ot;
-    EXPECT_EQ(ot.getClassName(), "CustomBaseObjectT");
-    EXPECT_EQ(ot.getTypeName(), "CustomBaseObjectT<StdRigidTypes<3, double> >>");
+    EXPECT_EQ(ot.getClassName(), "MyFakeClassName");
+    EXPECT_EQ(ot.getTypeName(), "CustomBaseObjectTStdRigidTypes<3, double> >");
     EXPECT_EQ(ot.getTemplateName(), "StdRigidTypes<3, double> >");
 
-    EXPECT_EQ(Base::className<CustomBaseObjectT<Rigid3Types>>(), "CustomBaseObjectT");
-    EXPECT_EQ(Base::typeName<CustomBaseObjectT<Rigid3Types>>(), "CustomBaseObjectTStdRigidTypes<3, double> >");
-    //EXPECT_EQ(Base::typeName<CustomBaseObjectT<Rigid3Types>>(), "CustomBaseObjectT<StdRigidTypes<3, double> >");
-    EXPECT_EQ(Base::namespaceName<CustomBaseObjectT<Rigid3Types>>(), "customns");
-}
+    Base* b = &ot;
+    EXPECT_EQ(b->getClassName(), "MyFakeClassName");
+    EXPECT_EQ(b->getTypeName(), "CustomBaseObjectTStdRigidTypes<3, double> >");
+    EXPECT_EQ(b->getTemplateName(), "StdRigidTypes<3, double> >");
 
-TEST_F(Base_test , testClassNameOverrideBeforeRefactoring)
-{
-    CustomBaseObjectT<Vec3Types> o;
-    EXPECT_EQ(o.getClassName(), "MyFakeClassName");
-    EXPECT_EQ(Base::className<decltype(o)>(), "MyFakeName");
+    EXPECT_EQ(Base::className<CustomBaseObjectT<Rigid3Types>>(), "MyFakeClassName");
+    EXPECT_EQ(Base::typeName<CustomBaseObjectT<Rigid3Types>>(), "CustomBaseObjectTStdRigidTypes<3, double> >");
+    EXPECT_EQ(Base::namespaceName<CustomBaseObjectT<Rigid3Types>>(), "customns");
 }
 

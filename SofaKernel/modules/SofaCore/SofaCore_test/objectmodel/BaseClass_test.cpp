@@ -54,29 +54,100 @@ public:
     SOFA_CLASS(NumberedClass123, BaseObject) ;
 };
 
+class NumberedClass456 : public another_namespace::EmptyObject
+{
+public:
+    SOFA_CLASS(NumberedClass456, another_namespace::EmptyObject) ;
+};
+
+class CustomName123 : public BaseObject
+{
+public:
+    SOFA_CLASS(CustomName123, BaseObject) ;
+
+    static const std::string CustomClassName(){ return "ClassWithACustomName"; }
+
+    template<class T>
+    static const std::string className(){ return "TEST TEST"; }
+};
+
 }
 }
 
 class BaseClass_test: public BaseTest
 {
 public:
-    sofa::another_namespace::EmptyObject* m_ptr1 = NULL ;
-    sofa::numbered_namespace_123::NumberedClass123* m_ptr2 = NULL ;
-    
+    sofa::another_namespace::EmptyObject m_ptr1;
+    sofa::numbered_namespace_123::NumberedClass123 m_ptr2;
+    sofa::numbered_namespace_123::NumberedClass456 m_ptr3;
+    sofa::numbered_namespace_123::CustomName123 m_ptr4;
 
-    void SetUp() override
-    {
-    }
+    sofa::core::objectmodel::Base* m_baseptr1 {&m_ptr1};
+    sofa::core::objectmodel::Base* m_baseptr2 {&m_ptr2};
+    sofa::core::objectmodel::Base* m_baseptr3 {&m_ptr3};
+    sofa::core::objectmodel::Base* m_baseptr4 {&m_ptr4};
 };
 
-TEST_F(BaseClass_test, checkClassName  )
+///
+/// tests that all the BaseClass returned from GetClass function are refering to the same
+/// BaseClass instance.
+///
+TEST_F(BaseClass_test, checkClassEquivalence  )
 {
-    ASSERT_STREQ(BaseObject::className(m_ptr1).c_str(),"EmptyObject") ;
-    ASSERT_STREQ(BaseObject::className(m_ptr2).c_str(),"NumberedClass123") ;
+    EXPECT_EQ(sofa::another_namespace::EmptyObject::GetClass(), m_ptr1.getClass());
+    EXPECT_EQ(sofa::another_namespace::EmptyObject::GetClass(), m_baseptr1->getClass());
+
+    EXPECT_EQ(sofa::numbered_namespace_123::NumberedClass123::GetClass(), m_ptr2.getClass());
+    EXPECT_EQ(sofa::numbered_namespace_123::NumberedClass123::GetClass(), m_baseptr2->getClass());
+
+    EXPECT_EQ(sofa::numbered_namespace_123::NumberedClass456::GetClass(), m_ptr3.getClass());
+    EXPECT_EQ(sofa::numbered_namespace_123::NumberedClass456::GetClass(), m_baseptr3->getClass());
+}
+
+TEST_F(BaseClass_test, checkStaticClassName  )
+{
+    ASSERT_EQ(BaseObject::className(&m_ptr1),"EmptyObject") ;
+    ASSERT_EQ(BaseObject::className(&m_ptr2),"NumberedClass123") ;
+    ASSERT_EQ(BaseObject::className(&m_ptr3),"NumberedClass456") ;
+
+    ASSERT_EQ(BaseObject::className<sofa::another_namespace::EmptyObject>(),"EmptyObject") ;
+    ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::NumberedClass123>(),"NumberedClass123") ;
+    ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::NumberedClass456>(),"NumberedClass456") ;
+}
+
+TEST_F(BaseClass_test, checkStaticCustomClassName  )
+{
+    ASSERT_EQ(BaseObject::className(&m_ptr4),"ClassWithACustomName") ;
+    ASSERT_EQ(BaseObject::className<sofa::numbered_namespace_123::CustomName123>(),"ClassWithACustomName") ;
+}
+
+TEST_F(BaseClass_test, checkDynamicClassName  )
+{
+    EXPECT_EQ(m_ptr1.getClassName(),"EmptyObject") ;
+    EXPECT_EQ(m_ptr2.getClassName(),"NumberedClass123") ;
+    EXPECT_EQ(m_ptr3.getClassName(),"NumberedClass456") ;
+}
+
+TEST_F(BaseClass_test, checkDynamicCustomName  )
+{
+    EXPECT_EQ(m_ptr4.getClassName(),"ClassWithACustomName") ;
+}
+
+TEST_F(BaseClass_test, checkDynamicClassNameOnBase  )
+{
+    ASSERT_EQ(m_baseptr1->getClassName(),"EmptyObject") ;
+    ASSERT_EQ(m_baseptr2->getClassName(),"NumberedClass123") ;
+    ASSERT_EQ(m_baseptr3->getClassName(),"NumberedClass456") ;
+}
+
+TEST_F(BaseClass_test, checkDynamicClassCustomNameOnBase  )
+{
+    ASSERT_EQ(m_baseptr4->getClassName(),"ClassWithACustomName") ;
 }
 
 TEST_F(BaseClass_test, checkNameSpace  )
 {
-    ASSERT_STREQ(BaseObject::namespaceName(m_ptr1).c_str(),"sofa::another_namespace") ;
-    ASSERT_STREQ(BaseObject::namespaceName(m_ptr2).c_str(),"sofa::numbered_namespace_123") ;
+    ASSERT_EQ(BaseObject::namespaceName(&m_ptr1),"sofa::another_namespace") ;
+    ASSERT_EQ(BaseObject::namespaceName(&m_ptr2),"sofa::numbered_namespace_123") ;
+    ASSERT_EQ(BaseObject::namespaceName(&m_ptr2),"sofa::numbered_namespace_123") ;
 }

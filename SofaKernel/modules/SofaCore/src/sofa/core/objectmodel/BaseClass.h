@@ -37,6 +37,7 @@ namespace objectmodel
 {
 
 class Base;
+using sofa::helper::NameDecoder;
 
 /**
  *  \brief Class hierarchy reflection base class
@@ -58,6 +59,7 @@ public:
     /// @todo the names could be hashed for faster comparisons
 
     std::string namespaceName;
+    std::string typeName;
     std::string className;
     std::string templateName;
     std::string shortName;
@@ -101,13 +103,7 @@ public:
 class DeprecatedBaseClass : public BaseClass
 {
 public:
-    DeprecatedBaseClass()
-    {
-        namespaceName= "DeprecatedBaseClass::namespace";
-        className = "DeprecatedBaseClass::classname";
-        templateName = "DeprecatedBaseClass::templatename";
-        shortName = "DeprecatedBaseClass::shortname";
-    }
+    DeprecatedBaseClass();
 
     void* dynamicCast(Base*) const override { return nullptr; }
     bool isInstance(Base*) const override { return false; }
@@ -240,8 +236,7 @@ public:
 #define SOFA_ABSTRACT_CLASS_DECL                                        \
     typedef MyType* Ptr;                                                \
     using SPtr = sofa::core::sptr<MyType>;                              \
-                                                                        \
-    static const MyClass* GetClass() { return MyClass::get(); }         \
+    static const ::sofa::core::objectmodel::BaseClass* GetClass() { return MyClass::get(); }   \
     virtual const ::sofa::core::objectmodel::BaseClass* getClass() const override \
     { return GetClass(); }                                              \
     static const char* HeaderFileLocation() { return __FILE__; }        \
@@ -351,14 +346,12 @@ class TClass : public BaseClass
 protected:
     TClass()
     {
-        T* ptr = nullptr;
-        namespaceName = T::namespaceName(ptr);
-        className = T::className(ptr);
-        templateName = T::templateName(ptr);
-        shortName = T::shortName(ptr);
-//#ifdef SOFA_TARGET
-//        targetName = sofa_tostring(SOFA_TARGET);
-//#endif
+        typeName = NameDecoder::getTypeName<T>();
+        namespaceName = NameDecoder::getNamespaceName<T>();
+        className = NameDecoder::getClassName<T>();
+        templateName = NameDecoder::getTemplateName<T>();
+        shortName = NameDecoder::shortName(className);
+
         parents.resize(TClassParents<Parents>::nb());
         for (int i=0; i<TClassParents<Parents>::nb(); ++i)
             parents[i] = TClassParents<Parents>::get(i);
@@ -379,10 +372,10 @@ protected:
 
 public:
 
-    static const TClass<T, Parents>* get()
+    static const BaseClass* get()
     {
-        static TClass<T, Parents> *singleton = new TClass<T, Parents>;
-        return singleton;
+        static TClass<T, Parents> *theClass=new TClass<T, Parents>();
+        return theClass;
     }
 };
 

@@ -93,6 +93,7 @@ public:
     virtual void update() = 0;
 
     /// Returns true if the DDGNode needs to be updated
+    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
     bool isDirty(const core::ExecParams*) const { return isDirty(); }
     bool isDirty() const { return dirtyFlags.dirtyValue; }
 
