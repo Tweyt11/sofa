@@ -103,9 +103,9 @@ public:
 
     virtual void reinitIfChanged();
 
-    template<class T>
-    static std::string templateName(const T* ptr= nullptr) {
-        return core::behavior::PairInteractionProjectiveConstraintSet<DataTypes>::templateName(ptr);
+    static std::string CustomTemplateName()
+    {
+        return sofa::core::objectmodel::Base::templateName<core::behavior::PairInteractionProjectiveConstraintSet<DataTypes>>();
     }
 
 protected :

@@ -228,7 +228,7 @@ public:
         if (static_cast<BaseObject*>(stin) == static_cast<BaseObject*>(stout))
         {
             // we should refuse to create mappings with the same input and output model, which may happen if a State object is missing in the child node
-            msg_error(context) << "Creation of " << className(obj) << " mapping failed because the same object \"" << stin->getName() << "\" is linked as both input and output.";
+            msg_error(context) << "Creation of " << Base::className<T>() << " mapping failed because the same object \"" << stin->getName() << "\" is linked as both input and output.";
             msg_error(context) << "  Maybe a MechanicalObject should be added before this mapping.";
             return false;
         }
