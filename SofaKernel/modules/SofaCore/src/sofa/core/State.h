@@ -144,13 +144,7 @@ public:
 
     /// @}
 
-
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const State<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return TDataTypes::Name();
     }

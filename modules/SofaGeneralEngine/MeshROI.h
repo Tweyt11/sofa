@@ -97,12 +97,7 @@ public:
         return core::objectmodel::BaseObject::create(tObj, context, arg);
     }
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const MeshROI<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

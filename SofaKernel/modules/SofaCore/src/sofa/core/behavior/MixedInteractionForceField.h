@@ -179,12 +179,7 @@ public:
         return obj;
     }
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const MixedInteractionForceField<DataTypes1,DataTypes2>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes1::Name()+std::string(",")+DataTypes2::Name();
     }

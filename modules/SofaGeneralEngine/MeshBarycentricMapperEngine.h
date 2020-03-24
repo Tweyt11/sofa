@@ -79,13 +79,7 @@ public:
 
     void addPointInCube(const int /*cubeIndex*/, const SReal* /*baryCoords*/);
 
-
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const MeshBarycentricMapperEngine<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

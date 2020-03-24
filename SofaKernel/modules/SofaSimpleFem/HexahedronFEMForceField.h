@@ -171,6 +171,8 @@ public:
     // Make other overloaded version of getPotentialEnergy() to show up in subclass.
     using InheritForceField::getPotentialEnergy;
 
+    static std::string CustomTemplateName() { return DataTypes::Name(); }
+
 protected:
     typedef defaulttype::Vec<24, Real> Displacement;                ///< the displacement vector
 

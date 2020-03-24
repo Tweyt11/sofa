@@ -78,13 +78,7 @@ public:
 
     Data<bool> f_update; ///< Recompute every time step
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-
-    static std::string templateName(const HausdorffDistance<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

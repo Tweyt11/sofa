@@ -62,8 +62,10 @@ public:
     //Output
     Data<helper::vector<Index> > d_indices; ///< selected point/cell indices
 
-    virtual std::string getTemplateName() const    override {        return templateName(this);    }
-    static std::string templateName(const SelectConnectedLabelsROI* = NULL)    {       return sofa::defaulttype::DataTypeName<T>::name();    }
+    static std::string CustomTemplateName()
+    {
+        return sofa::defaulttype::DataTypeName<T>::name();
+    }
 
     SelectConnectedLabelsROI(): Inherited()
       , d_nbLabels ( initData ( &d_nbLabels,(unsigned int)0,"nbLabels","number of label lists" ) )

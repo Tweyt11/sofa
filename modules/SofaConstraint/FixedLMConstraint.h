@@ -95,11 +95,7 @@ public:
     void writeConstraintEquations(unsigned int& lineNumber, core::MultiVecId id, ConstOrder order) override;
 
 
-    std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-    static std::string templateName(const FixedLMConstraint<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

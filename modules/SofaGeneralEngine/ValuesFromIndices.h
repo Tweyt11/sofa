@@ -71,12 +71,7 @@ public:
     Data<VecValue> f_out; ///< Output values corresponding to the indices
     Data<std::string> f_outStr; ///< Output values corresponding to the indices, converted as a string
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const ValuesFromIndices<T>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return sofa::defaulttype::DataTypeName<T>::name();
     }

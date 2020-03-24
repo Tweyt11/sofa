@@ -68,12 +68,7 @@ public:
 
     void doUpdate() override;
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const MergeVectors<VecT>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return Data<Value>::templateName();
     }
@@ -88,7 +83,6 @@ public:
 
 extern template class SOFA_GENERAL_ENGINE_API MergeVectors< helper::vector<int> >;
 extern template class SOFA_GENERAL_ENGINE_API MergeVectors< helper::vector<bool> >;
-//extern template class SOFA_GENERAL_ENGINE_API MergeVectors< helper::vector<std::string> >;
 extern template class SOFA_GENERAL_ENGINE_API MergeVectors< helper::vector<defaulttype::Vec2u> >;
 extern template class SOFA_GENERAL_ENGINE_API MergeVectors< helper::vector<double> >;
 extern template class SOFA_GENERAL_ENGINE_API MergeVectors< helper::vector<defaulttype::Vec2d> >;

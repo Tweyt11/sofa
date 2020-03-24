@@ -147,12 +147,7 @@ public:
      */
     void applyController(void);
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const MechanicalStateController<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

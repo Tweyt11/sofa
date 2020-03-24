@@ -60,17 +60,10 @@ public:
     Data<std::string>   d_alias                 ; ///< The new alias of the component.
 
 
-    static std::string className(const MakeAliasComponent* ptr)
-    {
-        SOFA_UNUSED(ptr);
-        return "MakeAlias" ;
-    }
-
-    virtual std::string getClassName() const override
+    static std::string CustomClassName()
     {
         return "MakeAlias" ;
     }
-
 
 };
 

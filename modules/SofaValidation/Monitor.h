@@ -81,12 +81,7 @@ public:
     /// write in gnuplot files the Monitored desired data (velocities,positions,forces)
     virtual void exportGnuplot ( Real time );
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const Monitor<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

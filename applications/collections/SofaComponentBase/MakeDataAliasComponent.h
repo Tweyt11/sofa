@@ -61,13 +61,7 @@ public:
     Data<std::string>   d_alias               ; ///< The alias of the data field.
 
     /// Inherited virtual function from Base
-    static std::string className(const MakeDataAliasComponent* ptr)
-    {
-        SOFA_UNUSED(ptr);
-        return "MakeDataAlias" ;
-    }
-
-    virtual std::string getClassName() const override
+    static std::string CustomClassName()
     {
         return "MakeDataAlias" ;
     }

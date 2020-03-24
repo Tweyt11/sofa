@@ -87,12 +87,7 @@ public:
         return obj;
     }
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const DevTensionMonitor<TDataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return TDataTypes::Name();
     }

@@ -262,21 +262,16 @@ public:
         v->execute( this->getContext() );
     }
 
-    static std::string templateName(const MatrixLinearSolver<Matrix,Vector,ThreadManager>* = nullptr)
-    {
-        return ThreadManager::Name()+Matrix::Name();
-    }
 
     bool isAsyncSolver() override
     {
         return ThreadManager::isAsyncSolver();
     }
 
-    virtual std::string getTemplateName() const override
+    static std::string CustomTemplateName()
     {
-        return templateName(this);
+        return ThreadManager::Name()+Matrix::Name();
     }
-
 
     void invert(Matrix& /*M*/) override {}
 

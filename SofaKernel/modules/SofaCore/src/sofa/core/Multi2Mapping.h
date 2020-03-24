@@ -214,12 +214,7 @@ public:
     /// It is for instance used in RigidMapping to get the local coordinates of the object.
     void disable() override;
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const Multi2Mapping<TIn1,TIn2, TOut>* = nullptr);
+    static std::string CustomTemplateName();
 
     /// Pre-construction check method called by ObjectFactory.
     ///

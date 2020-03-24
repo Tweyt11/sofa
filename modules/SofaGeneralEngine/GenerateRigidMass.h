@@ -104,8 +104,7 @@ public:
         return core::DataEngine::canCreate (obj, context, arg);
     }
 
-    virtual std::string getTemplateName() const override;
-    static std::string templateName(const GenerateRigidMass<DataTypes,MassType>*);
+    static std::string CustomTemplateName();
 
 };
 

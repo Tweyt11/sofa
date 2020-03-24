@@ -191,14 +191,7 @@ public:
     /// It is for instance used in RigidMapping to get the local coordinates of the object.
     void disable() override;
 
-
-
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const MultiMapping<TIn, TOut>* = nullptr);
+    static std::string CustomTemplateName();
 
     template<class T>
     static std::string shortName(const T* ptr = nullptr, objectmodel::BaseObjectDescription* arg = nullptr)

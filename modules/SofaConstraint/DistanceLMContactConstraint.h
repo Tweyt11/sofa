@@ -92,11 +92,7 @@ public:
     void addContact(unsigned m1, unsigned m2);
     void draw(const core::visual::VisualParams* vparams) override;
 
-    std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-    static std::string templateName(const DistanceLMContactConstraint<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

@@ -69,12 +69,7 @@ public:
 
     void draw( const core::visual::VisualParams* ) override;
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const ExtrudeQuadsAndGenerateHexas<DataTypes>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return DataTypes::Name();
     }

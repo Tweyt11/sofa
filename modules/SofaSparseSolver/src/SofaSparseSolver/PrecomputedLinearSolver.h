@@ -113,12 +113,7 @@ public:
         return core::objectmodel::BaseObject::canCreate(obj, context, arg);
     }
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const PrecomputedLinearSolver<TMatrix,TVector>* = nullptr)
+    static std::string CustomTemplateName()
     {
         return TVector::Name();
     }
