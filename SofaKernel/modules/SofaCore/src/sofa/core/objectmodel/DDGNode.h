@@ -31,9 +31,6 @@ namespace sofa::core
 
 namespace sofa::core::objectmodel
 {
-class Base;
-class BaseData;
-class BaseLink;
 class DDGNode;
 
 /**
@@ -45,6 +42,9 @@ class SOFA_CORE_API DDGNode
 public:
     typedef sofa::helper::stable_vector<DDGNode*> DDGLinkContainer;
     typedef DDGLinkContainer::const_iterator DDGLinkIterator;
+
+    /// Update this value
+    virtual void update() = 0;
 
     /// Constructor
     DDGNode();
@@ -69,9 +69,6 @@ public:
 
     /// Get the list of outputs for this DDGNode
     const DDGLinkContainer& getOutputs();
-
-    /// Update this value
-    virtual void update() = 0;
 
     /// Returns true if the DDGNode needs to be updated
     [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
@@ -102,7 +99,7 @@ public:
     virtual void notifyEndEdit();
 
     /// Utility method to call update if necessary. This method should be called before reading of writing the value of this node.
-        [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
+    [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
     void updateIfDirty(const core::ExecParams*) const { updateIfDirty(); }
     void updateIfDirty() const
     {

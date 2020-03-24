@@ -20,12 +20,7 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <sofa/core/objectmodel/DDGNode.h>
-#include <sofa/core/objectmodel/BaseData.h>
-#include <sofa/core/objectmodel/Base.h>
-#include <sofa/core/DataEngine.h>
-
-//#define SOFA_DDG_TRACE
-
+#include <algorithm>
 namespace sofa
 {
 
@@ -61,15 +56,23 @@ void DDGNode::setDirtyValue()
     }
 }
 
+void DDGNode::updateIfDirty() const
+{
+    if (isDirty())
+    {
+        const_cast <DDGNode*> (this)->update();
+    }
+}
+
 void DDGNode::setDirtyOutputs()
 {
     bool& dirtyOutputs = dirtyFlags.dirtyOutputs;
     if (!dirtyOutputs)
     {
         dirtyOutputs = true;
-        for(DDGLinkIterator it=outputs.begin(), itend=outputs.end(); it != itend; ++it)
+        for(auto& it : outputs)
         {
-            (*it)->setDirtyValue();
+            it->setDirtyValue();
         }
     }
 }
@@ -86,14 +89,14 @@ void DDGNode::cleanDirty()
 
 void DDGNode::notifyEndEdit()
 {
-    for(DDGLinkIterator it=outputs.begin(), itend=outputs.end(); it != itend; ++it)
-        (*it)->notifyEndEdit();
+    for(auto& it : outputs)
+        it->notifyEndEdit();
 }
 
 void DDGNode::cleanDirtyOutputsOfInputs()
 {
-    for(DDGLinkIterator it=inputs.begin(), itend=inputs.end(); it != itend; ++it)
-        (*it)->dirtyFlags.dirtyOutputs = false;
+    for(auto& it : inputs)
+        it->dirtyFlags.dirtyOutputs = false;
 }
 
 void DDGNode::addInput(DDGNode* n)

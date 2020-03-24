@@ -28,12 +28,16 @@
 #include <vector>
 #include <sofa/core/ExecParams.h>
 
+namespace sofa::core::objectmodel
+{
+    class BaseData;
+}
+
 namespace sofa
 {
 
 namespace core
 {
-
     /// Tracking Data mechanism
     /// to be able to check when selected Data changed since their last clean.
     ///
