@@ -373,7 +373,8 @@ public:
  *  as verifications and changes notifications can be handled in the accessor's
  *  constructor and destructor instead of at each item access.
  */
-class WriteAccessWithRawPtr
+class [[deprecated("2020-03-25: Replaced with Read/Write accessor that alreay have the feature")]]
+WriteAccessWithRawPtr
 {
 public:
     WriteAccessWithRawPtr(BaseData* data)
