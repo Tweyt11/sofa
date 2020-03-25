@@ -35,12 +35,20 @@ class Data_test : public BaseTest
 {
 public:
     Data<int> dataInt;
+    Data<int> dataInt2;
     Data<float> dataFloat;
+    Data<double> dataDouble;
     Data<bool> dataBool;
     Data<sofa::defaulttype::Vec3> dataVec3;
     Data<sofa::helper::vector<sofa::defaulttype::Vec3>> dataVectorVec3;
     Data<sofa::helper::vector<sofa::helper::types::RGBAColor>> dataVectorColor;
 };
+
+TEST_F(Data_test, getValueTypeInfoEquality)
+{
+    EXPECT_EQ(dataInt.getValueTypeInfo(), dataInt2.getValueTypeInfo());
+    EXPECT_EQ(dataFloat.getValueTypeInfo(), dataFloat.getValueTypeInfo());
+}
 
 TEST_F(Data_test, getValueTypeString)
 {
