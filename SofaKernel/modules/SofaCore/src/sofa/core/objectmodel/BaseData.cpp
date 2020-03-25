@@ -279,6 +279,11 @@ bool BaseData::updateFromParentValue(const BaseData* parent)
     return true;
 }
 
+const std::string& BaseData::getOwnerClass() const
+{
+    return m_owner->getClass()->className;
+}
+
 /// Copy the value of another Data.
 /// Note that this is a one-time copy and not a permanent link (otherwise see setParent)
 /// @return true if copy was successfull
