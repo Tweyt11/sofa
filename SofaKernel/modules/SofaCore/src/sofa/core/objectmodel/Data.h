@@ -48,8 +48,7 @@ public:
     {
     }
 
-    //TODO(dmarchal:08/10/2019)Uncomment the deprecated when VS2015 support will be dropped. 
-    //[[deprecated("Replaced with one with std::string instead of char* version")]]
+    [[deprecated("2019-10-08: Replaced with one with std::string instead of char* version")]]
     TData( const char* helpMsg=nullptr, bool isDisplayed=true, bool isReadOnly=false) :
         TData( sofa::helper::safeCharToString(helpMsg), isDisplayed, isReadOnly) {}
 
@@ -100,8 +99,6 @@ public:
     Return false if failed
      */
     virtual bool read( const std::string& s ) override;
-
-    bool isCounterValid() const override {return true;}
 
     bool copyValue(const TData<T>* parent);
 

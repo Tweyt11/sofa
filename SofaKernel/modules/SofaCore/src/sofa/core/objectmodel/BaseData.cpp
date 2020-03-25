@@ -130,8 +130,7 @@ bool BaseData::setParent(BaseData* parent, const std::string& path)
     {
         addInput(parent);
         BaseData::setDirtyValue();
-        if (!isCounterValid())
-            update();
+        update();
 
         m_counter++;
         m_isSet = true;
