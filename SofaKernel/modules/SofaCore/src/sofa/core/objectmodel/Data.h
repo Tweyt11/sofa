@@ -314,7 +314,8 @@ public:
         m_value = ValueType(init.value);
     }
 
-    /** \copydoc BaseData(const char*, bool, bool) */
+    /** \copydoc BaseData() */
+    Data() {}
 
     /** \copydoc BaseData(const std::string& , bool, bool) */
     Data( const std::string& helpMsg, bool isDisplayed=true, bool isReadOnly=false)
@@ -445,7 +446,7 @@ private:
     ////////////////////////// DEPRECATED SECTION ///////////////////////////////////
 public:
     [[deprecated("2020-03-25: Replaced with one with std::string instead of char* version")]]
-    Data( const char* helpMsg=nullptr, bool isDisplayed=true, bool isReadOnly=false)
+    Data( const char* helpMsg, bool isDisplayed=true, bool isReadOnly=false)
         : Data(sofa::helper::safeCharToString(helpMsg), isDisplayed, isReadOnly) {}
 
     [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
@@ -526,7 +527,7 @@ template<class T>
 inline
 std::string TData<T>::getValueTypeString() const
 {
-    return BaseData::typeName(&virtualGetValue());
+    return getValueTypeInfo()->name();
 }
 
 template <class T>
