@@ -42,7 +42,7 @@ BaseData::BaseData() :
     help(""), ownerClass(""), group(""), widget("")
   , m_counter(0), m_isSet(false), m_dataFlags(FLAG_DISPLAYED | FLAG_AUTOLINK)
   , m_owner(nullptr), m_name("")
-  , parentBaseData(initLink("parent", "Linked Data, from which values are automatically copied"))
+  , parentBaseData(BaseLink::InitLink<BaseData>(this, "parent", "Linked Data, from which values are automatically copied"))
 {
 }
 

@@ -281,7 +281,7 @@ public:
     /// Accessor to the vector containing all the fields of this object
     const VecLink& getLinks() const { return m_vecLink; }
 
-    virtual bool findDataLinkDest(BaseData*& ptr, const std::string& path, const BaseLink* link);
+    bool findDataLinkDest(BaseData*& ptr, const std::string& path, const BaseLink* link);
 
     template<class DataT>
     bool findDataLinkDest(DataT*& ptr, const std::string& path, const BaseLink* link)
@@ -296,13 +296,6 @@ public:
     void addLink(BaseLink* l);
 
 protected:
-
-    BaseLink::InitLink<BaseData>
-    initLink(const std::string& name, const std::string& help)
-    {
-        return BaseLink::InitLink<BaseData>(this, name, help);
-    }
-
     /// List of links
     VecLink m_vecLink;
 
