@@ -167,9 +167,6 @@ public:
     /// Set widget
     void setWidget(const std::string& val) { widget = val; }
 
-    /// True if the counter of modification gives valid information.
-    virtual bool isCounterValid() const = 0;
-
     /// @name Flags
     /// @{
 
