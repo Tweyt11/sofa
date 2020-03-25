@@ -403,76 +403,6 @@ protected:
     }
 
 
-
-public:
-
-    /// Helper method to get the type name of a type derived from this class
-    ///
-    /// This method should be used as follow :
-    /// \code  T* ptr = nullptr; std::string type = T::typeName(ptr); \endcode
-    /// This way derived classes can redefine the typeName method
-    template<class T>
-    static std::string typeName()
-    {
-        return T::GetClass()->typeName;
-    }
-
-    /// Helper method to get the class name of a type derived from this class
-    ///
-    /// This method should be used as follow :
-    /// \code  std::string type = Base::className<B>(); \endcode
-    /// This way derived classes can redefine the className method
-    template<class T>
-    static std::string className()
-    {
-        return T::GetClass()->className;
-    }
-
-    /// Helper method to get the namespace name of a type derived from this class
-    ///
-    /// This method should be used as follow :
-    /// \code  std::string type = Base::namespaceName<T>(); \endcode
-    /// This way derived classes can redefine the namespaceName method
-    template<class T>
-    static std::string namespaceName()
-    {
-        return T::GetClass()->namespaceName;
-    }
-
-    /// Helper method to get the template name of a type derived from this class
-    ///
-    /// This method should be used as follow :
-    /// \code  std::string type = Base::templateName<B>); \endcode
-    /// This way derived classes can redefine the templateName method
-    template<class T>
-    static std::string templateName()
-    {
-        return T::GetClass()->templateName;
-    }
-
-    /// Helper method to get the shortname of a type derived from this class.
-    /// The default implementation return the class name.
-    ///
-    /// This method should be used as follow :
-    /// \code  std::string type = Base::shortNam<B>(); \endcode
-    /// This way derived classes can redefine the shortName method
-    template< class T>
-    static std::string shortName( const T* ptr = nullptr, BaseObjectDescription* = nullptr )
-    {
-        SOFA_UNUSED(ptr);
-        return T::GetClass()->shortName;
-    }
-
-    /// @name componentstate
-    ///   Methods related to component state
-    /// @{
-
-    ComponentState getComponentState() const { return d_componentstate.getValue() ; }
-    bool isComponentStateValid() const { return d_componentstate == ComponentState::Valid; }
-
-    ///@}
-
-
 protected:
     /// List of fields (Data instances)
     VecData m_vecData;
@@ -496,10 +426,6 @@ public:
     Data< sofa::defaulttype::BoundingBox > f_bbox; ///< this object bounding box
 
     Data< ComponentState >  d_componentstate; ///< the object state
-
-    [[deprecated("m_componentstate was renamed to d_componentstate. Please upgrade your code")]]
-    Data< ComponentState >& m_componentstate{d_componentstate}; ///< the object state
-
 
     std::string m_definitionSourceFileName        {""};
     int         m_definitionSourceFilePos         {-1};
@@ -564,6 +490,81 @@ public:
 #undef SOFA_BASE_CAST_DEFINITION
 
     /// @}
+
+    ////////////////////////////////// DEPRECATED AREA /////////////////////////////
+public:
+    [[deprecated("Since 2020-03-25 m_componentstate was renamed to d_componentstate. Please upgrade your code")]]
+    Data< ComponentState >& m_componentstate{d_componentstate}; ///< the object state
+
+    /// Helper method to get the type name of a type derived from this class
+    ///
+    /// This method should be used as follow :
+    /// \code  T* ptr = nullptr; std::string type = T::typeName(ptr); \endcode
+    /// This way derived classes can redefine the typeName method
+    template<class T>
+    [[deprecated("Since 2020-03-25 This function is deprecated. Use T::GetClass()->typeName instead.")]]
+    static std::string typeName()
+    {
+        return T::GetClass()->typeName;
+    }
+
+    /// Helper method to get the class name of a type derived from this class
+    ///
+    /// This method should be used as follow :
+    /// \code  std::string type = Base::className<B>(); \endcode
+    /// This way derived classes can redefine the className method
+
+    template<class T>
+    [[deprecated("Since 2020-03-25 This function is deprecated. Use T::GetClass()->className instead.")]]
+    static std::string className()
+    {
+        return T::GetClass()->className;
+    }
+
+    /// Helper method to get the namespace name of a type derived from this class
+    ///
+    /// This method should be used as follow :
+    /// \code  std::string type = Base::namespaceName<T>(); \endcode
+    /// This way derived classes can redefine the namespaceName method
+    template<class T>
+    [[deprecated("Since 2020-03-25 This function is deprecated. Use T::GetClass()->namespaceName instead.")]]
+    static std::string namespaceName()
+    {
+        return T::GetClass()->namespaceName;
+    }
+
+    /// Helper method to get the template name of a type derived from this class
+    ///
+    /// This method should be used as follow :
+    /// \code  std::string type = Base::templateName<B>); \endcode
+    /// This way derived classes can redefine the templateName method
+    template<class T>
+    [[deprecated("Since 2020-03-25 This function is deprecated. Use T::GetClass()->templateName instead.")]]
+    static std::string templateName()
+    {
+        return T::GetClass()->templateName;
+    }
+
+    /// Helper method to get the shortname of a type derived from this class.
+    /// The default implementation return the class name.
+    ///
+    /// This method should be used as follow :
+    /// \code  std::string type = Base::shortNam<B>(); \endcode
+    /// This way derived classes can redefine the shortName method
+    template< class T>
+    [[deprecated("Since 2020-03-25 This function is deprecated. Use T::GetClass()->shortName instead.")]]
+    static std::string shortName( const T* ptr = nullptr, BaseObjectDescription* = nullptr )
+    {
+        SOFA_UNUSED(ptr);
+        return T::GetClass()->shortName;
+    }
+
+    /// @name componentstate
+    ///   Methods related to component state
+    /// @{
+    ComponentState getComponentState() const { return d_componentstate.getValue() ; }
+    bool isComponentStateValid() const { return d_componentstate == ComponentState::Valid; }
+    ///@}
 };
 
 
