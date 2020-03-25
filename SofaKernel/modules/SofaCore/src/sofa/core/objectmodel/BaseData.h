@@ -91,20 +91,12 @@ public:
      */
     BaseData(const std::string& helpMsg, DataFlags flags = FLAG_DEFAULT);
 
-    //TODO(dmarchal:08/10/2019)Uncomment the deprecated when VS2015 support will be dropped. 
-    //[[deprecated("Replaced with one with std::string instead of char* version")]]
-    BaseData(const char* helpMsg, DataFlags flags = FLAG_DEFAULT);
-
     /** Constructor.
      *  \param helpMsg A help message that describes this %Data.
      *  \param isDisplayed Whether this %Data should be displayed in GUIs.
      *  \param isReadOnly Whether this %Data should be modifiable in GUIs.
      */
     BaseData(const std::string& helpMsg, bool isDisplayed=true, bool isReadOnly=false);
-
-    //TODO(dmarchal:08/10/2019)Uncomment the deprecated when VS2015 support will be dropped. 
-    //[[deprecated("Replaced with one with std::string instead of char* version")]]
-    BaseData(const char* helpMsg, bool isDisplayed=true, bool isReadOnly=false);
 
     /// Destructor.
     ~BaseData() override;
@@ -239,24 +231,16 @@ public:
     /// True if the value has been modified
     /// If this data is linked, the value of this data will be considered as modified
     /// (even if the parent's value has not been modified)s
-    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    bool isSet(const core::ExecParams*) const { return isSet(); }
     bool isSet() const { return m_isSet; }
 
     /// Reset the isSet flag to false, to indicate that the current value is the default for this %Data.
-    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    void unset(const core::ExecParams*) { unset(); }
     void unset() { m_isSet = false; }
 
     /// Reset the isSet flag to true, to indicate that the current value has been modified.
-    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    void forceSet(const core::ExecParams*) { forceSet(); }
     void forceSet() { m_isSet = true; }
 
     /// Return the number of changes since creation
     /// This can be used to efficiently detect changes
-    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    int getCounter(const core::ExecParams*) const { return getCounter(); }
     int getCounter() const { return m_counter; }
 
     /// @}
@@ -329,18 +313,19 @@ protected:
     /// Parent Data
     SingleLink<BaseData,BaseData,BaseLink::FLAG_STOREPATH|BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> parentBaseData;
 
-    /// Helper method to decode the type name to a more readable form if possible
-    [[deprecated("Decode typename have been removed, please contact sofa-framework")]]
-    static std::string decodeTypeName(const std::type_info&){ return "deprecated function"; }
-
 private:
     BaseData();
 
 public:
 
+    //////////////////////// DEPRECATED STUFF //////////////////////////////////////////////////////
+    /// Helper method to decode the type name to a more readable form if possible
+    [[deprecated("2020-03-25: Decode typename have been removed, please contact sofa-framework")]]
+    static std::string decodeTypeName(const std::type_info&){ return "deprecated function"; }
+
     /// Helper method to get the type name of type T
     template<class T>
-    [[deprecated("Decode typename have been removed, please contact sofa-framework")]]
+    [[deprecated("2020-03-25: Decode typename have been removed, please contact sofa-framework")]]
     static std::string typeName(const T* = nullptr)
     {
         if (defaulttype::DataTypeInfo<T>::ValidInfo)
@@ -348,6 +333,24 @@ public:
         else
             return "deprecated function";
     }
+
+    [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    int getCounter(const core::ExecParams*) const { return getCounter(); }
+
+    [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    void forceSet(const core::ExecParams*) { forceSet(); }
+
+    [[deprecated("2020-03-25 Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    void unset(const core::ExecParams*) { unset(); }
+
+    [[deprecated("2020-03-25 Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    bool isSet(const core::ExecParams*) const { return isSet(); }
+
+    [[deprecated("2019-10-08: Replaced with one with std::string instead of char* version")]]
+    BaseData(const char* helpMsg, DataFlags flags = FLAG_DEFAULT);
+
+    [[deprecated("2019-10-08: Replaced with one with std::string instead of char* version")]]
+    BaseData(const char* helpMsg, bool isDisplayed=true, bool isReadOnly=false);
 };
 
 template<class Type>
