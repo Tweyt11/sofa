@@ -497,8 +497,7 @@ public:
 
     Data< ComponentState >  d_componentstate; ///< the object state
 
-    /// TODO @marques bruno: uncomment once c++17 is enabled in SOFA 
-    // [[deprecated("m_componentstate was renamed to d_componentstate. Please upgrade your code")]]
+    [[deprecated("m_componentstate was renamed to d_componentstate. Please upgrade your code")]]
     Data< ComponentState >& m_componentstate{d_componentstate}; ///< the object state
 
 
