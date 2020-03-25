@@ -137,8 +137,9 @@ class SOFA_CORE_API DataFileNameVector : public sofa::core::objectmodel::Data< s
 public:
     typedef sofa::core::objectmodel::Data<sofa::helper::SVector<std::string> > Inherit;
 
+    [[deprecated("2020-03-25: Replaced with one with std::string instead of char* version")]]
     DataFileNameVector( const char* helpMsg=nullptr, bool isDisplayed=true, bool isReadOnly=false )
-        : Inherit(helpMsg, isDisplayed, isReadOnly)
+        : Inherit(sofa::helper::safeCharToString(helpMsg), isDisplayed, isReadOnly)
     {
     }
 
