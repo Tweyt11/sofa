@@ -284,22 +284,6 @@ public:
     using TData<T>::updateIfDirty;
     using TData<T>::notifyEndEdit;
 
-    /// @name Class reflection system
-    /// @{
-
-    [[deprecated("Data are not part of the class system anymore. ")]]
-    static const BaseClass* GetClass() { return DeprecatedBaseClass::GetSingleton(); }
-
-    [[deprecated("Data are not part of the class system anymore. ")]]
-    virtual const BaseClass* getClass() const { return DeprecatedBaseClass::GetSingleton(); }
-
-    static std::string templateName(const Data<T>* = nullptr)
-    {
-        T* ptr = nullptr;
-        return BaseData::typeName(ptr);
-    }
-    /// @}
-
     /// @name Construction / destruction
     /// @{
 
@@ -314,7 +298,7 @@ public:
         T value;
     };
 
-    // It's used for getting a new instance from an existing instance. This function is used by the communication plugin
+    /// It's used for getting a new instance from an existing instance. This function is used by the communication plugin
     virtual BaseData* getNewInstance() { return new Data();}
 
     /** \copydoc BaseData(const BaseData::BaseInitData& init) */
@@ -331,9 +315,6 @@ public:
     }
 
     /** \copydoc BaseData(const char*, bool, bool) */
-    //[[deprecated("Replaced with one with std::string instead of char* version")]]
-    Data( const char* helpMsg=nullptr, bool isDisplayed=true, bool isReadOnly=false)
-        : Data(sofa::helper::safeCharToString(helpMsg), isDisplayed, isReadOnly) {}
 
     /** \copydoc BaseData(const std::string& , bool, bool) */
     Data( const std::string& helpMsg, bool isDisplayed=true, bool isReadOnly=false)
@@ -403,36 +384,6 @@ public:
         return m_value.getValue();
     }
 
-    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    inline void endEdit(const core::ExecParams*)
-    {
-        endEdit();
-    }
-
-    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    inline T* beginWriteOnly(const core::ExecParams*)
-    {
-        return beginWriteOnly();
-    }
-
-    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    inline T* beginEdit(const core::ExecParams*)
-    {
-        return beginEdit();
-    }
-
-    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    inline void setValue(const core::ExecParams*, const T& value)
-    {
-        setValue(value);
-    }
-
-    [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
-    inline const T& getValue(const core::ExecParams*) const
-    {
-        return getValue();
-    }
-
 
     /// @}
 
@@ -490,6 +441,55 @@ protected:
 private:
     Data(const Data& );
     Data& operator=(const Data& );
+
+    ////////////////////////// DEPRECATED SECTION ///////////////////////////////////
+public:
+    [[deprecated("2020-03-25: Replaced with one with std::string instead of char* version")]]
+    Data( const char* helpMsg=nullptr, bool isDisplayed=true, bool isReadOnly=false)
+        : Data(sofa::helper::safeCharToString(helpMsg), isDisplayed, isReadOnly) {}
+
+    [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    inline void endEdit(const core::ExecParams*)
+    {
+        endEdit();
+    }
+
+    [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    inline T* beginWriteOnly(const core::ExecParams*)
+    {
+        return beginWriteOnly();
+    }
+
+    [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    inline T* beginEdit(const core::ExecParams*)
+    {
+        return beginEdit();
+    }
+
+    [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    inline void setValue(const core::ExecParams*, const T& value)
+    {
+        setValue(value);
+    }
+
+    [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
+    inline const T& getValue(const core::ExecParams*) const
+    {
+        return getValue();
+    }
+
+    [[deprecated("2020-03-25: Data are not part of the class system anymore. ")]]
+    static const BaseClass* GetClass() { return DeprecatedBaseClass::GetSingleton(); }
+
+    [[deprecated("2020-03-25: Data are not part of the class system anymore. ")]]
+    virtual const BaseClass* getClass() const { return DeprecatedBaseClass::GetSingleton(); }
+
+    [[deprecated("2020-03-25: Data are not part of the class system anymore. ")]]
+    static std::string templateName(const Data<T>* = nullptr)
+    {
+        T* ptr = nullptr;
+        return BaseData::typeName(ptr);
+    }
 };
 
 class EmptyData : public Data<void*> {};
