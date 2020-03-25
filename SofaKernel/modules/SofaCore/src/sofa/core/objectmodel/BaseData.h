@@ -149,12 +149,6 @@ public:
     /// Set the help message.
     void setHelp(const std::string& val) { help = val; }
 
-    /// Get owner class
-    const std::string& getOwnerClass() const { return ownerClass; }
-
-    /// Set owner class
-    void setOwnerClass(const char* val) { ownerClass = val; }
-
     /// Get group
     const std::string& getGroup() const { return group; }
 
@@ -339,6 +333,12 @@ public:
         else
             return "deprecated function";
     }
+
+    [[deprecated("2020-03-25: This methods has been removed as there is an alternative to it")]]
+    const std::string& getOwnerClass() const ;
+
+    [[deprecated("2020-03-25: This methods has been removed as it is not needed anymore.")]]
+    void setOwnerClass(const char* val) { ownerClass = val; }
 
     [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
     int getCounter(const core::ExecParams*) const { return getCounter(); }
