@@ -293,8 +293,6 @@ protected:
 
     /// Help message
     std::string help {""};
-    /// Owner class
-    std::string ownerClass {""} ;
     /// group
     std::string group {""};
     /// widget
@@ -338,7 +336,7 @@ public:
     const std::string& getOwnerClass() const ;
 
     [[deprecated("2020-03-25: This methods has been removed as it is not needed anymore.")]]
-    void setOwnerClass(const char* val) { ownerClass = val; }
+    void setOwnerClass(const char*) {}
 
     [[deprecated("2020-03-25: Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
     int getCounter(const core::ExecParams*) const { return getCounter(); }
