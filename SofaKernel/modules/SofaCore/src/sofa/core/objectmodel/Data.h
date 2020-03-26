@@ -26,7 +26,11 @@
 #include <sofa/core/objectmodel/BaseData.h>
 #include <sofa/helper/StringUtils.h>
 #include <sofa/helper/accessor.h>
+
+/// This is for DeprecatedBaseClass. To generate an error if some deprecated function are used.
 #include <sofa/core/objectmodel/BaseClass.h>
+
+
 namespace sofa
 {
 
@@ -445,120 +449,35 @@ protected:
 class EmptyData : public Data<void*> {};
 
 /// Specialization for reading strings
-template<>
-bool Data<std::string>::read( const std::string& str );
-
+//template<>
+//bool Data<std::string>::read( const std::string& str );
 
 /// Specialization for reading booleans
-template<>
-bool Data<bool>::read( const std::string& str );
+//template<>
+//bool Data<bool>::read( const std::string& str );
 
-
-/// General case for printing default value
-template<class T>
-inline
-void Data<T>::printValue( std::ostream& out) const
-{
-    out << getValue() << " ";
-}
-
-/// General case for printing default value
-template<class T>
-inline
-std::string Data<T>::getValueString() const
-{
-    std::ostringstream out;
-    out << getValue();
-    return out.str();
-}
-
-template<class T>
-inline
-std::string Data<T>::getValueTypeString() const
-{
-    return getValueTypeInfo()->name();
-}
-
-template <class T>
-bool Data<T>::read(const std::string& s)
-{
-    if (s.empty())
-    {
-        bool resized = getValueTypeInfo()->setSize( beginEdit(), 0 );
-        endEdit();
-        return resized;
-    }
-    std::istringstream istr( s.c_str() );
-    istr >> *beginEdit();
-    endEdit();
-    if( istr.fail() )
-    {
-        return false;
-    }
-    return true;
-}
-
-template <class T>
-bool Data<T>::copyValue(const Data<T>* parent)
-{
-    setValue(parent->getValue());
-    return true;
-}
-
-template <class T>
-bool Data<T>::copyValue(const BaseData* parent)
-{
-    const Data<T>* p = dynamic_cast<const Data<T>*>(parent);
-    if (p)
-    {
-        setValue(p->getValue());
-        return true;
-    }
-    return BaseData::copyValue(parent);
-}
-
-template <class T>
-bool Data<T>::validParent(BaseData* parent)
-{
-    if (dynamic_cast<Data<T>*>(parent))
-        return true;
-    return BaseData::validParent(parent);
-}
-
-template <class T>
-void Data<T>::doSetParent(BaseData* parent)
-{
-    parentData.set(dynamic_cast<Data<T>*>(parent));
-    BaseData::doSetParent(parent);
-}
-
-template <class T>
-bool Data<T>::updateFromParentValue(const BaseData* parent)
-{
-    if (parent == parentData.get())
-    {
-        copyValue(parentData.get());
-        return true;
-    }
-    else
-        return BaseData::updateFromParentValue(parent);
-}
-
-#if  !defined(SOFA_CORE_OBJECTMODEL_DATA_CPP)
+#if !defined(SOFA_CORE_OBJECTMODEL_DATA_CPP)
 extern template class SOFA_CORE_API Data< std::string >;
 extern template class SOFA_CORE_API Data< sofa::helper::vector<std::string> >;
 extern template class SOFA_CORE_API Data< bool >;
+extern template class SOFA_CORE_API Data< double >;
+extern template class SOFA_CORE_API Data< int >;
+extern template class SOFA_CORE_API Data< unsigned int >;
 #endif
 
 } // namespace objectmodel
 
 } // namespace core
 
-// Overload helper::ReadAccessor and helper::WriteAccessor
+} // namespace sofa
+#include <sofa/core/objectmodel/Data.inl>
+
+
+namespace sofa
+{
 
 namespace helper
 {
-
 
 /// @warning the Data is updated (if needed) only by the Accessor constructor
 template<class T>
