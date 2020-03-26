@@ -39,7 +39,7 @@ BaseData::BaseData(const char* h, DataFlags dataflags) : BaseData(sofa::helper::
 }
 
 BaseData::BaseData() :
-    help(""), ownerClass(""), group(""), widget("")
+    help(""), group(""), widget("")
   , m_counter(0), m_isSet(false), m_dataFlags(FLAG_DISPLAYED | FLAG_AUTOLINK)
   , m_owner(nullptr), m_name("")
   , parentBaseData(BaseLink::InitLink<BaseData>(this, "parent", "Linked Data, from which values are automatically copied"))
