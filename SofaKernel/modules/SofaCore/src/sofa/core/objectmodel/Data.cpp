@@ -22,6 +22,7 @@
 #define SOFA_CORE_OBJECTMODEL_DATA_CPP
 
 #include <sofa/core/objectmodel/Data.h>
+#include <sofa/core/objectmodel/Data.inl>
 
 namespace sofa
 {
@@ -36,7 +37,7 @@ namespace objectmodel
 template<>
 bool SOFA_CORE_API Data<std::string>::read( const std::string& str )
 {
-    virtualSetValue(str);
+    setValue(str);
     return true;
 }
 
@@ -55,13 +56,16 @@ bool SOFA_CORE_API Data<bool>::read( const std::string& str )
         val = (atoi(str.c_str()) != 0);
     else
         return false;
-    virtualSetValue(val);
+    setValue(val);
     return true;
 }
 
 template class SOFA_CORE_API Data< std::string >;
 template class SOFA_CORE_API Data< sofa::helper::vector<std::string> >;
 template class SOFA_CORE_API Data< bool >;
+template class SOFA_CORE_API Data< double >;
+template class SOFA_CORE_API Data< int >;
+template class SOFA_CORE_API Data< unsigned int >;
 
 } // objectmodel
 
