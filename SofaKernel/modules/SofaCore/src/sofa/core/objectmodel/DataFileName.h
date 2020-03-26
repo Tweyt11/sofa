@@ -144,7 +144,7 @@ public:
     }
 
     DataFileNameVector( const sofa::helper::vector<std::string>& value, const char* helpMsg=nullptr, bool isDisplayed=true, bool isReadOnly=false )
-        : Inherit(value, helpMsg, isDisplayed, isReadOnly)
+        : Inherit(value, sofa::helper::safeCharToString(helpMsg), isDisplayed, isReadOnly)
     {
         updatePath();
     }
