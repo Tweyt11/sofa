@@ -34,7 +34,7 @@ void DataCallback::addInputs(std::initializer_list<BaseData*> data)
 {
     for(BaseData* d : data)
     {
-        addInput(d);
+        addInput(d->getDDGNode());
     }
 }
 

@@ -27,6 +27,7 @@
 #include <sofa/core/objectmodel/DDGNode.h>
 #include <sofa/core/objectmodel/Link.h>
 #include <sofa/defaulttype/DataTypeInfo.h>
+#include <sofa/core/objectmodel/DataLink.h>
 namespace sofa
 {
 
@@ -43,7 +44,7 @@ class BaseData;
  *  \brief Abstract base class for Data.
  *
  */
-class SOFA_CORE_API BaseData : public DDGNode
+class SOFA_CORE_API BaseData
 {
 public:
     /// Flags that describe some properties of a Data, and that can be OR'd together.
@@ -99,7 +100,9 @@ public:
     BaseData(const std::string& helpMsg, bool isDisplayed=true, bool isReadOnly=false);
 
     /// Destructor.
-    ~BaseData() override;
+    virtual ~BaseData();
+
+    DDGNode* getDDGNode();
 
     /// Assign a value to this %Data from a string representation.
     /// \return true on success.
@@ -133,6 +136,7 @@ public:
     /// returned by getValueTypeInfo().
     /// \warning You must call endEditVoidPtr() once you're done modifying the value.
     virtual void* beginEditVoidPtr() = 0;
+    virtual void* beginWriteOnlyVoidPtr() = 0;
 
     /// Must be called after beginEditVoidPtr(), after you are finished modifying this %Data.
     virtual void endEditVoidPtr() = 0;
@@ -194,7 +198,8 @@ public:
     /// @}
 
     /// If we use the Data as a link and not as value directly
-    std::string getLinkPath() const { return parentBaseData.getPath(); }
+    std::string getLinkPath() const { return m_parentData.get()->getLinkPath(); }
+
     /// Return whether this %Data can be used as a linkPath.
     ///
     /// True by default.
@@ -237,47 +242,82 @@ public:
     /// @}
 
     /// Link to a parent data. The value of this data will automatically duplicate the value of the parent data.
-    bool setParent(BaseData* parent, const std::string& path = std::string());
-    bool setParent(const std::string& path);
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    //bool setParent(BaseData* parent, const std::string& path);
+    bool setParent(BaseData* parent);
+    //bool setParent(const std::string& path);
 
     /// Check if a given Data can be linked as a parent of this data
-    virtual bool validParent(BaseData* parent);
+    [[deprecated("2020-03-20: BaseData cleaning")]]
+    virtual bool validParent(BaseData* parent){ return canBeParent(parent); }
+    virtual bool canBeParent(BaseData* parent);
 
-    BaseData* getParent() const { return parentBaseData.get(); }
+    void unSetParent(){ m_parentData.unSet(); }
+    BaseData* getParent() const { return m_parentData.get(); }
+    bool hasParent(){ return m_parentData.isSet(); }
 
     /// Update the value of this %Data
-    void update() override;
+    /// void update() override;
 
     /// @name Links management
     /// @{
-
-    typedef std::vector<BaseLink*> VecLink;
     /// Accessor to the vector containing all the fields of this object
-    const VecLink& getLinks() const { return m_vecLink; }
-
-    bool findDataLinkDest(BaseData*& ptr, const std::string& path, const BaseLink* link);
-
-    template<class DataT>
-    bool findDataLinkDest(DataT*& ptr, const std::string& path, const BaseLink* link)
-    {
-        BaseData* base = nullptr;
-        if (!findDataLinkDest(base, path, link)) return false;
-        ptr = dynamic_cast<DataT*>(base);
-        return (ptr != nullptr);
-    }
-
-    /// Add a link.
-    void addLink(BaseLink* l);
-
-protected:
-    /// List of links
-    VecLink m_vecLink;
+    ///bool findDataLinkDest(BaseData*& ptr, const std::string& path, const BaseLink* link);
 
     /// @}
 
-    virtual void doSetParent(BaseData* parent);
+    //// All these functions are now deprecated....
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void setDirtyOutputs() const;
 
-    void doDelInput(DDGNode* n) override;
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void updateIfDirty() const;
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void notifyEndEdit() const;
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void cleanDirty() const;
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void addOutput(DDGNode* node);
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void addInput(DDGNode* node);
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void delOutput(DDGNode* node);
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void delInput(DDGNode* node);
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void addOutput(BaseData* node);
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void addInput(BaseData* node);
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void delOutput(BaseData* node);
+
+    //[[deprecated("2020-03-20: BaseData cleaning")]]
+    void delInput(BaseData* node);
+
+
+
+    [[deprecated("2020-03-20: BaseData cleaning")]]
+    const DDGNode::DDGLinkContainer& getOutputs();
+
+    [[deprecated("2020-03-20: BaseData cleaning")]]
+    const DDGNode::DDGLinkContainer& getInputs();
+
+    [[deprecated("2020-03-20: BaseData cleaning")]]
+    bool isDirty();
+
+    DDGNode* m_ddgnode{nullptr};
+
+protected:
+    void doSetParent(BaseData* parent);
 
     /// Update this %Data from the value of its parent
     virtual bool updateFromParentValue(const BaseData* parent);
@@ -299,8 +339,7 @@ protected:
     /// Data name within the Base component
     std::string m_name;
 
-    /// Parent Data
-    SingleLink<BaseData,BaseData,BaseLink::FLAG_STOREPATH|BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> parentBaseData;
+    DataLink m_parentData;
 
 private:
     BaseData();

@@ -100,6 +100,9 @@ public:
     void updateIfDirty(const ExecParams*) const { updateIfDirty(); }
     void updateIfDirty() const;
 
+    void updateDirtyInputs();
+
+    virtual void* getOwner(){ return nullptr; }
 protected:
 
     DDGLinkContainer inputs;
@@ -114,7 +117,6 @@ protected:
     [[deprecated("Aspects have been removed. If the feature was of interest for you, please contact sofa-framework")]]
     void cleanDirtyOutputsOfInputs(const ExecParams*) { cleanDirtyOutputsOfInputs(); }
     void cleanDirtyOutputsOfInputs();
-
 private:
 
     struct DirtyFlags

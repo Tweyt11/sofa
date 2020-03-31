@@ -112,11 +112,11 @@ public:
         return m_extension;
     }
 
-    virtual void update()
-    {
-        this->Inherit::update();
-        this->updatePath();
-    }
+//    virtual void update()
+//    {
+//        //this->Inherit::update();
+//        this->updatePath();
+//    }
 
 protected:
     void updatePath();
@@ -217,11 +217,11 @@ public:
         return fullpath[i];
     }
 
-    virtual void update()
-    {
-        this->Inherit::update();
-        this->updatePath();
-    }
+//    virtual void update()
+//    {
+//        this->Inherit::update();
+//        this->updatePath();
+//    }
 
 protected:
     void updatePath();

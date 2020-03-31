@@ -202,6 +202,7 @@ public:
     using BaseData::setDirtyOutputs;
     using BaseData::updateIfDirty;
     using BaseData::notifyEndEdit;
+    using BaseData::cleanDirty;
 
     /// @name Construction / destruction
     /// @{
@@ -272,17 +273,51 @@ public:
     /// @name Simple edition and retrieval API
     /// @{
 
-    /// BeginEdit method if it is only to write the value
+    /// Return a pointer to edit the value of the data.
+    /// Before returning the editting pointer the following action are done:
+    ///     - update the value for the data from the connected parent (if any)
+    ///     - unlink the connected parent(if any)
     inline T* beginEdit()
     {
-        updateIfDirty();
+        std::cout << "BEGINEDIT " << getName() << std::endl;
+        if(m_parentData.isSet())
+        {
+            std::cout << "BEGINEDIT. " << std::endl;
+
+            updateIfDirty();
+            std::cout << "UNLINK. =>X2" << std::endl;
+
+            //m_parentData.unSet();
+        }
         m_counter++;
         m_isSet = true;
         setDirtyOutputs();
         return m_value.beginEdit();
     }
 
+    /// Return a pointer to edit the value of the data.
+    /// Before returning the editting pointer the following action are done:
+    ///     - *does not* update the value from the connected parent (if any)
+    ///     - unlink the connected parent(if any)
     inline T* beginWriteOnly()
+    {
+        std::cout << "BEGINWRITEONLY: =>" << getName() << std::endl;
+
+        /// If there is a link we disconnect it.
+        /// without updating its value
+        if(m_parentData.isSet())
+        {
+            std::cout << "BEGINWRITEONLY: Unlink " << m_parentData.get()->getName() << std::endl;
+            m_parentData.unSet();
+            cleanDirty();
+        }
+        m_counter++;
+        m_isSet=true;
+        setDirtyOutputs();
+        return m_value.beginEdit();
+    }
+
+    inline T* beginWriteOnlyNoUnlink()
     {
         m_counter++;
         m_isSet=true;
@@ -305,6 +340,7 @@ public:
 
     inline const T& getValue() const
     {
+        std::cout << "Data::getValue: " << getName() << std::endl;
         updateIfDirty();
         return m_value.getValue();
     }
@@ -312,6 +348,7 @@ public:
     /// Get current value as a void pointer (use getValueTypeInfo to find how to access it)
     const void* getValueVoidPtr() const override
     {
+        std::cout << "GET VALUEVOID PTR " << getName() << std::endl;
         return &(getValue());
     }
 
@@ -319,6 +356,11 @@ public:
     void* beginEditVoidPtr() override
     {
         return beginEdit();
+    }
+
+    void* beginWriteOnlyVoidPtr() override
+    {
+        return beginWriteOnly();
     }
 
     /// End edit current value as a void pointer (use getValueTypeInfo to find how to access it)
@@ -430,20 +472,25 @@ public:
         return BaseData::typeName(ptr);
     }
 
+    static sofa::defaulttype::AbstractTypeInfo* GetValueTypeInfo()
+    {
+        return sofa::defaulttype::VirtualTypeInfo<T>::get();
+    }
+
     /// Get info about the value type of the associated variable
     const sofa::defaulttype::AbstractTypeInfo* getValueTypeInfo() const override
     {
-        return sofa::defaulttype::VirtualTypeInfo<T>::get();
+        return GetValueTypeInfo();
     }
     virtual bool read( const std::string& s ) override;
     bool copyValue(const Data<T>* parent);
     bool copyValue(const BaseData* parent) override;
-    bool validParent(BaseData* parent) override;
+    bool canBeParent(BaseData* parent) override;
 
 protected:
-    void doSetParent(BaseData* parent) override;
-    bool updateFromParentValue(const BaseData* parent) override;
-    SingleLink<Data<T>,Data<T>, BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> parentData;
+    //void doSetParent(BaseData* parent) override;
+    //bool updateFromParentValue(const BaseData* parent) override;
+    //SingleLink<Data<T>,Data<T>, BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> parentData;
 };
 
 class EmptyData : public Data<void*> {};

@@ -75,6 +75,17 @@ void DataTrackerDDGNode::addOutputs(std::initializer_list<sofa::core::objectmode
         addOutput(d);
 }
 
+void DataTrackerDDGNode::addInput(sofa::core::objectmodel::BaseData* basedata)
+{
+    DDGNode::addInput(basedata->getDDGNode());
+}
+
+void DataTrackerDDGNode::addOutput(sofa::core::objectmodel::BaseData* basedata)
+{
+    DDGNode::addOutput(basedata->getDDGNode());
+}
+
+
 void DataTrackerDDGNode::cleanDirty(const core::ExecParams*)
 {
     core::objectmodel::DDGNode::cleanDirty();
@@ -88,7 +99,8 @@ void DataTrackerDDGNode::updateAllInputsIfDirty()
     const DDGLinkContainer& inputs = DDGNode::getInputs();
     for(size_t i=0, iend=inputs.size() ; i<iend ; ++i )
     {
-        static_cast<core::objectmodel::BaseData*>(inputs[i])->updateIfDirty();
+        inputs[i]->updateIfDirty();
+        //static_cast<core::objectmodel::BaseData*>(inputs[i])->updateIfDirty();
     }
 }
 ///////////////////////

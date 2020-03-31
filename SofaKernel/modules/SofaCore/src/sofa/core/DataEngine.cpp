@@ -43,7 +43,7 @@ void DataEngine::addInput(objectmodel::BaseData* n)
     m_dataTracker.trackData(*n);
     if (n->getOwner() == this && n->getGroup().empty())
         n->setGroup("Inputs"); // set the group of input Datas if not yet set
-    core::objectmodel::DDGNode::addInput(n);
+    core::objectmodel::DDGNode::addInput(n->getDDGNode());
     setDirtyValue();
 }
 
@@ -52,7 +52,7 @@ void DataEngine::addOutput(objectmodel::BaseData* n)
 {
     if (n->getOwner() == this && n->getGroup().empty())
         n->setGroup("Outputs"); // set the group of output Datas if not yet set
-    core::objectmodel::DDGNode::addOutput(n);
+    core::objectmodel::DDGNode::addOutput(n->getDDGNode());
     setDirtyValue();
 }
 
@@ -60,8 +60,7 @@ void DataEngine::updateAllInputs()
 {
     for(auto& input : getInputs())
     {
-        static_cast<sofa::core::objectmodel::BaseData*>(input)
-                ->updateIfDirty();
+        input->updateIfDirty();
     }
 }
 

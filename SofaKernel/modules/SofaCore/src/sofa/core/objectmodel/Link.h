@@ -290,7 +290,7 @@ class LinkTraitsFindDest<OwnerType, DestType, true>
 public:
     static bool findLinkDest(OwnerType* owner, DestType*& ptr, const std::string& path, const BaseLink* link)
     {
-        return owner->findDataLinkDest(ptr, path, link);
+        return false; //owner->findDataLinkDest(ptr, path, link);
     }
     template<class TContext>
     static bool checkPath(const std::string& path, TContext* context)
