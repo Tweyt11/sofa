@@ -90,30 +90,24 @@ bool Data<T>::copyValue(const BaseData* parent)
 }
 
 template <class T>
-bool Data<T>::validParent(BaseData* parent)
+bool Data<T>::canBeParent(BaseData* parent)
 {
     if (dynamic_cast<Data<T>*>(parent))
         return true;
-    return BaseData::validParent(parent);
+    return BaseData::canBeParent(parent);
 }
 
-template <class T>
-void Data<T>::doSetParent(BaseData* parent)
-{
-    parentData.set(dynamic_cast<Data<T>*>(parent));
-    BaseData::doSetParent(parent);
-}
 
-template <class T>
-bool Data<T>::updateFromParentValue(const BaseData* parent)
-{
-    if (parent == parentData.get())
-    {
-        copyValue(parentData.get());
-        return true;
-    }
-    else
-        return BaseData::updateFromParentValue(parent);
-}
+//template <class T>
+//bool Data<T>::updateFromParentValue(const BaseData* parent)
+//{
+//    if (parent == parentData.get())
+//    {
+//        copyValue(parentData.get());
+//        return true;
+//    }
+//    else
+//        return BaseData::updateFromParentValue(parent);
+//}
 
 } /// namespace sofa::core::objectmodel

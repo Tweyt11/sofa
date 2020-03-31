@@ -34,7 +34,30 @@ namespace core
 namespace objectmodel
 {
 
-BaseData::BaseData(const char* h, DataFlags dataflags) : BaseData(sofa::helper::safeCharToString(h), dataflags)
+class DDGNodeBaseData : public sofa::core::objectmodel::DDGNode
+{
+    BaseData* m_basedata;
+public:
+    DDGNodeBaseData(BaseData* basedata) : m_basedata(basedata) {}
+
+    void update() override
+    {
+        std::cout << "DDGNodeBaseData::update(BEGIN)" << std::endl;
+
+        updateDirtyInputs();
+
+        if(m_basedata->hasParent())
+            m_basedata->copyValue(m_basedata->getParent());
+
+        cleanDirty();
+        std::cout << "DDGNodeBaseData::update(END)" << std::endl;
+    }
+
+    void* getOwner() override { return m_basedata; }
+};
+
+BaseData::BaseData(const char* h, DataFlags dataflags) :
+    BaseData(sofa::helper::safeCharToString(h), dataflags)
 {
 }
 
@@ -42,12 +65,13 @@ BaseData::BaseData() :
     help(""), group(""), widget("")
   , m_counter(0), m_isSet(false), m_dataFlags(FLAG_DISPLAYED | FLAG_AUTOLINK)
   , m_owner(nullptr), m_name("")
-  , parentBaseData(BaseLink::InitLink<BaseData>(this, "parent", "Linked Data, from which values are automatically copied"))
+  , m_ddgnode(new DDGNodeBaseData(this))
+  , m_parentData(*this)
 {
 }
 
-  BaseData::BaseData(const std::string& h, DataFlags dataflags)
-  : BaseData()
+BaseData::BaseData(const std::string& h, DataFlags dataflags)
+    : BaseData()
 {
     setHelp(h);
     m_dataFlags = dataflags;
@@ -93,117 +117,105 @@ BaseData::BaseData( const BaseInitData& init)
 
 BaseData::~BaseData()
 {
+    if(m_ddgnode)
+    {
+        delete m_ddgnode;
+        m_ddgnode=nullptr;
+    }
 }
 
-bool BaseData::validParent(BaseData* parent)
+bool BaseData::canBeParent(BaseData* parent)
 {
     // Check if automatic conversion is possible
-    if (this->getValueTypeInfo()->ValidInfo() && parent->getValueTypeInfo()->ValidInfo())
+    if (getValueTypeInfo()->ValidInfo() && parent->getValueTypeInfo()->ValidInfo())
         return true;
+
     // Check if one of the data is a simple string
-    if (this->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name() || parent->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name())
+    //// TODO(dmarchal: 2020-03-27...why is this needed ? Why getValueTypeInfo() not enough)
+    if (getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name()
+            || parent->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name())
         return true;
+
     // No conversion found
     return false;
 }
 
-bool BaseData::setParent(BaseData* parent, const std::string& path)
+DDGNode* BaseData::getDDGNode()
 {
-    // First remove previous parents
-    while (!this->inputs.empty())
-        this->delInput(*this->inputs.begin());
-    if (parent && !validParent(parent))
-    {
-        if (m_owner)
-        {
-            msg_error(m_owner) << "Invalid Data link from " << (parent->m_owner ? parent->m_owner->getName() : std::string("?")) << "." << parent->getName() << " to " << m_owner->getName() << "." << getName();
-            
-            msg_error_when(!this->getValueTypeInfo()->ValidInfo(), m_owner) << "Possible reason: destination Data " << getName() << " has an unknown type";
-            msg_error_when(!parent->getValueTypeInfo()->ValidInfo(), m_owner) << "Possible reason: source Data " << parent->getName() << " has an unknown type";
-        }
-        return false;
-    }
-    doSetParent(parent);
-    if (!path.empty())
-        parentBaseData.set(parent, path);
-    if (parent)
-    {
-        addInput(parent);
-        BaseData::setDirtyValue();
-        update();
+    return m_ddgnode;
+}
 
-        m_counter++;
-        m_isSet = true;
-    }
+bool BaseData::setParent(BaseData* parent)
+{
+    assert(parent != nullptr && "it is not allowed to use nullptr as parent.");
+
+    if(!canBeParent(parent))
+        return false;
+
+    m_parentData.set(parent);
     return true;
+
 }
 
-bool BaseData::setParent(const std::string& path)
-{
-    BaseData* parent = nullptr;
-    if (this->findDataLinkDest(parent, path, &parentBaseData))
-        return setParent(parent, path);
-    else // simply set the path
+//bool BaseData::setParent(const std::string& path)
+//{
+/*
+    if(m_owner)
     {
-        if (parentBaseData.get())
-            this->delInput(parentBaseData.get());
-        parentBaseData.set(parent, path);
-        return false;
+        m_parentData.set(m_owner->findDataFromPath(path));
+        return true;
     }
-}
 
-void BaseData::doSetParent(BaseData* parent)
-{
-    parentBaseData.set(parent);
-}
-
-void BaseData::doDelInput(DDGNode* n)
-{
-    if (parentBaseData == n)
-        doSetParent(nullptr);
-    DDGNode::doDelInput(n);
-}
-
-void BaseData::update()
-{
-    cleanDirty();
-    for(DDGLinkIterator it=inputs.begin(); it!=inputs.end(); ++it)
-    {
-        if ((*it)->isDirty())
-        {
-            (*it)->update();
-        }
-    }
-    if (parentBaseData)
-    {
-        updateFromParentValue(parentBaseData);
-        // If the value is dirty clean it
-        if(this->isDirty())
-        {
-            cleanDirty();
-        }
-    }
-}
+    m_parentData.set(LazyResolver());
+    return false;
+    */
+//}
 
 /// Update this Data from the value of its parent
 bool BaseData::updateFromParentValue(const BaseData* parent)
 {
+    return copyValue(parent);
+}
+
+const std::string& BaseData::getOwnerClass() const
+{
+    return m_owner->getClass()->className;
+}
+
+/// Copy the value of another Data.
+/// Note that this is a one-time copy and not a permanent link (otherwise see setParent)
+/// @return true if copy was successfull
+bool BaseData::copyValue(const BaseData* parent)
+{
+    std::cout << "BaseData::copyValue "<< this->getName() << "," << parent->getName() << std::endl;
     const defaulttype::AbstractTypeInfo* dataInfo = this->getValueTypeInfo();
     const defaulttype::AbstractTypeInfo* parentInfo = parent->getValueTypeInfo();
 
     // Check if one of the data is a simple string
-    if (this->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name() || parent->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name())
+    //TODO(dmarchal 2020-03-20: Deprecate this and replace with a fast mecanisme.
+    if (this->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name()
+            || parent->getValueTypeInfo()->name() == defaulttype::DataTypeInfo<std::string>::name())
     {
         std::string text = parent->getValueString();
         return this->read(text);
     }
 
+    std::cout << "UPDAte FROM PARENT VALUE 2 "<< this << "," << parent << std::endl;
+
     // Check if automatic conversion is possible
     if (!dataInfo->ValidInfo() || !parentInfo->ValidInfo())
         return false; // No conversion found
     std::ostringstream msgs;
+
+    std::cout << "UPDAte FROM PARENT VALUE 2.1 "<< this->getName() << "," << parent->getName() << std::endl;
+
     const void* parentValue = parent->getValueVoidPtr();
-    void* dataValue = this->beginEditVoidPtr();
+    std::cout << "UPDAte FROM PARENT VALUE 2.2 "<< this->getName() << "," << parent->getName() << std::endl;
+
+    void* dataValue = this->beginWriteOnlyVoidPtr();
+
+    std::cout << "UPDAte FROM PARENT VALUE 3"<< this->getName() << "," << parent->getName() << std::endl;
+
 
     // First decide how many values will be copied
     std::size_t inSize = 1;
@@ -279,39 +291,80 @@ bool BaseData::updateFromParentValue(const BaseData* parent)
     return true;
 }
 
-const std::string& BaseData::getOwnerClass() const
+void BaseData::setDirtyOutputs() const
 {
-    return m_owner->getClass()->className;
+    m_ddgnode->setDirtyOutputs();
 }
 
-/// Copy the value of another Data.
-/// Note that this is a one-time copy and not a permanent link (otherwise see setParent)
-/// @return true if copy was successfull
-bool BaseData::copyValue(const BaseData* parent)
+const DDGNode::DDGLinkContainer& BaseData::getOutputs()
 {
-    if (updateFromParentValue(parent))
-        return true;
-    return false;
+    return m_ddgnode->getOutputs();
 }
 
-bool BaseData::findDataLinkDest(BaseData*& ptr, const std::string& path, const BaseLink* link)
+const DDGNode::DDGLinkContainer& BaseData::getInputs()
 {
-    if (m_owner)
-        return m_owner->findDataLinkDest(ptr, path, link);
-    else
-    {
-        msg_error("BaseData") << "findDataLinkDest: no owner defined for Data " << getName() << ", cannot lookup Data link " << path;
-        return false;
-    }
+    return m_ddgnode->getInputs();
 }
 
-/// Add a link.
-/// Note that this method should only be called if the link was not initialized with the initLink method
-void BaseData::addLink(BaseLink* l)
+void BaseData::updateIfDirty() const
 {
-    m_vecLink.push_back(l);
+    m_ddgnode->updateIfDirty();
 }
 
+void BaseData::notifyEndEdit() const
+{
+    m_ddgnode->notifyEndEdit();
+}
+
+void BaseData::cleanDirty() const
+{
+    m_ddgnode->cleanDirty();
+}
+
+void BaseData::addInput(DDGNode *node)
+{
+    m_ddgnode->addInput(node);
+}
+
+void BaseData::addOutput(DDGNode *node)
+{
+    m_ddgnode->addOutput(node);
+}
+
+void BaseData::delInput(DDGNode *node)
+{
+    m_ddgnode->delInput(node);
+}
+
+void BaseData::delOutput(DDGNode *node)
+{
+    m_ddgnode->delOutput(node);
+}
+
+void BaseData::addInput(BaseData *node)
+{
+    m_ddgnode->addInput(node->getDDGNode());
+}
+
+void BaseData::addOutput(BaseData *node)
+{
+    m_ddgnode->addOutput(node->getDDGNode());
+}
+
+void BaseData::delInput(BaseData *node)
+{
+    m_ddgnode->delInput(node->getDDGNode());
+}
+
+void BaseData::delOutput(BaseData *node)
+{
+    m_ddgnode->delOutput(node->getDDGNode());
+}
+
+bool BaseData::isDirty()
+{
+    return m_ddgnode->isDirty();
+}
 
 } // namespace objectmodel
 

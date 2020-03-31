@@ -408,35 +408,35 @@ bool Base::parseField( const std::string& attribute, const std::string& value)
         // test if data is a link and can be linked
         if (value.length() > 0 && value[0] == '@' && dataVec[d]->canBeLinked())
         {
-            if (!dataVec[d]->setParent(value))
-            {
-                BaseData* data = nullptr;
-                BaseLink* bl = nullptr;
-                dataVec[d]->findDataLinkDest(data, value, bl);
-                if (data != nullptr && dynamic_cast<EmptyData*>(data) != nullptr)
-                {
-                    Base* owner = data->getOwner();
-                    DDGNode* o = dynamic_cast<DDGNode*>(owner);
-                    o->delOutput(data);
-                    owner->removeData(data);
-                    BaseData* newBD = dataVec[d]->getNewInstance();
-                    newBD->setName(data->getName());
-                    owner->addData(newBD);
-                    newBD->setGroup("Outputs");
-                    o->addOutput(newBD);
-                    dataVec[d]->setParent(newBD);
-                    ok = true;
-                    continue;
-                }
-                msg_warning()<<"Could not setup Data link between "<< value << " and " << attribute << "." ;
-                ok = false;
-                continue;
-            }
-            else
-            {
+            //if (!dataVec[d]->setParent(value))
+            //{
+//                BaseData* data = nullptr;
+//                BaseLink* bl = nullptr;
+
+//                //dataVec[d]->findDataLinkDest(data, value, bl);
+
+//                if (data != nullptr && dynamic_cast<EmptyData*>(data) != nullptr)
+//                {
+//                    Base* owner = data->getOwner();
+//                    DDGNode* o = dynamic_cast<DDGNode*>(owner);
+//                    o->delOutput(data);
+//                    owner->removeData(data);
+//                    BaseData* newBD = dataVec[d]->getNewInstance();
+//                    newBD->setName(data->getName());
+//                    owner->addData(newBD);
+//                    newBD->setGroup("Outputs");
+//                    o->addOutput(newBD);
+//                    dataVec[d]->setParent(newBD);
+//                    ok = true;
+//                    continue;
+//                }
+//                msg_warning()<<"Could not setup Data link between "<< value << " and " << attribute << "." ;
+//                ok = false;
+//                continue;
+            //
                 BaseData* parentData = dataVec[d]->getParent();
                 msg_info() << "Link from parent Data " << value << " (" << parentData->getValueTypeInfo()->name() << ") to Data " << attribute << "(" << dataVec[d]->getValueTypeInfo()->name() << ") OK";
-            }
+            //}
             /* children Data cannot be modified changing the parent Data value */
             dataVec[d]->setReadOnly(true);
             continue;

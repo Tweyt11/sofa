@@ -64,6 +64,15 @@ void DDGNode::updateIfDirty() const
     }
 }
 
+void DDGNode::updateDirtyInputs()
+{
+    for(auto& it : inputs)
+    {
+        if(it->isDirty())
+            it->update();
+    }
+}
+
 void DDGNode::setDirtyOutputs()
 {
     bool& dirtyOutputs = dirtyFlags.dirtyOutputs;

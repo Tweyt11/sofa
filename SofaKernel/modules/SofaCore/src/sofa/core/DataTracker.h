@@ -98,6 +98,8 @@ namespace core
         /// Create a DataCallback object associated with multiple Data.
         void addInputs(std::initializer_list<sofa::core::objectmodel::BaseData*> datas);
         void addOutputs(std::initializer_list<sofa::core::objectmodel::BaseData*> datas);
+        void addInput(sofa::core::objectmodel::BaseData*);
+        void addOutput(sofa::core::objectmodel::BaseData*);
 
         /// Set dirty flag to false
         /// for the DDGNode and for all the tracked Data
