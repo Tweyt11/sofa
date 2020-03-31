@@ -378,7 +378,6 @@ MathOp<VecT>::~MathOp()
 {
     for (unsigned int i=0; i<vf_inputs.size(); ++i)
     {
-        this->delInput(vf_inputs[i]);
         delete vf_inputs[i];
     }
     vf_inputs.clear();
@@ -403,7 +402,6 @@ void MathOp<VecT>::createInputs(int nb)
     }
     for (unsigned int i = n; i < vf_inputs.size(); ++i)
     {
-        this->delInput(vf_inputs[i]);
         delete vf_inputs[i];
     }
     vf_inputs.resize(n);

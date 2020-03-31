@@ -119,7 +119,6 @@ protected:
     {
         for (unsigned int i=0; i<vf.size(); ++i)
         {
-            this->delInput(vf[i]);
             delete vf[i];
         }
         vf.clear();
