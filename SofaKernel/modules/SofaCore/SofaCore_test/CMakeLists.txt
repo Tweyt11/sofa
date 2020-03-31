@@ -9,7 +9,10 @@ set(SOURCE_FILES
     objectmodel/BaseLink_test.cpp
     objectmodel/BaseObjectDescription_test.cpp
     objectmodel/Data_test.cpp
+    objectmodel/DataLink_test.cpp
+    objectmodel/Data_vector_test.cpp
     objectmodel/DataFileName_test.cpp
+    objectmodel/DataFileName_vector_test.cpp
     objectmodel/DataCallback_test.cpp
     objectmodel/DDGNode_test.cpp
     DataEngine_test.cpp

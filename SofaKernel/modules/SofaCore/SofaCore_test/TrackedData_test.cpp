@@ -24,6 +24,7 @@
 #include <sofa/simulation/AnimateBeginEvent.h>
 #include <sofa/helper/cast.h>
 
+#include <functional>
 #include <sofa/helper/testing/BaseTest.h>
 using sofa::helper::testing::BaseTest ;
 
@@ -172,7 +173,7 @@ public:
     {
         m_dataTracker.addInputs({&input,&input2}); // several inputs can be added
         m_dataTracker.addOutputs({&depend_on_input, &depend_on_input2}); // several output can be added
-        m_dataTracker.addCallback( &TestObject2::myUpdate );
+        m_dataTracker.addCallback(TestObject2::myUpdate);
         m_dataTracker.setDirtyValue();
     }
 
@@ -185,9 +186,9 @@ protected:
 
     core::DataTrackerEngine m_dataTracker;
 
-
     static void myUpdate( core::DataTrackerEngine* dataTrackerEngine )
     {
+        std::cout << "DataTrackerEngine::update(BEGIN): " << std::endl;
         ++s_updateCounter;
 
         // get the list of inputs for this DDGNode
@@ -196,16 +197,16 @@ protected:
         const core::DataTrackerEngine::DDGLinkContainer& outputs = dataTrackerEngine->getOutputs();
 
         // we known who is who from the order Data were added to the DataTrackerEngine
-        bool input = static_cast<Data< bool >*>( inputs[0] )->getValue();
-        bool input2 = static_cast<Data< bool >*>( inputs[1] )->getValue();
-
+        bool inputv = static_cast<Data< bool >*>( inputs[0]->getOwner() )->getValue();
+        bool input2v = static_cast<Data< bool >*>( inputs[1]->getOwner() )->getValue();
         dataTrackerEngine->cleanDirty();
 
-        Data< bool >* output = static_cast<Data< bool >*>( outputs[0] );
-        Data< bool >* output2 = static_cast<Data< bool >*>( outputs[1] );
+        auto output1 = static_cast<Data<bool>*>(outputs[0]->getOwner());
+        auto output2 = static_cast<Data<bool>*>(outputs[1]->getOwner());
+        output1->setValue(inputv);
+        output2->setValue(input2v);
+        std::cout << "DataTrackerEngine::update(END): "<<s_updateCounter << std::endl;
 
-        output->setValue( input );
-        output2->setValue( input2 );
     }
 
 };
@@ -268,12 +269,20 @@ struct DataTrackerEngine_test: public BaseTest
         ASSERT_TRUE(testObject.depend_on_input.getValue()==true);
         ASSERT_EQ( localCounter, TestObject2::s_updateCounter );
 
+        std::cout << "==================================================== 0" << std::endl;
         testObject.input.setValue(false);
+        std::cout << "==================================================== 00" << std::endl;
         ASSERT_TRUE(testObject.depend_on_input.getValue()==false);
         ++localCounter;
+        std::cout << "==================================================== 1" << std::endl;
         ASSERT_EQ( localCounter, TestObject2::s_updateCounter );
 
+        std::cout << "==================================================== 2" << std::endl;
+        ASSERT_TRUE(testObject.depend_on_input2.getDDGNode()->isDirty());
         ASSERT_TRUE(testObject.depend_on_input2.getValue());
+        ASSERT_EQ( localCounter, TestObject2::s_updateCounter );
+        std::cout << "==================================================== 3" << std::endl;
+
         testObject.input2.setValue(false);
         ASSERT_FALSE(testObject.depend_on_input2.getValue());
         ++localCounter;
@@ -292,13 +301,10 @@ struct DataTrackerEngine_test: public BaseTest
         const core::DataTrackerEngine::DDGLinkContainer& outputs = dataTrackerEngine->getOutputs();
 
         // we known who is who from the order Data were added to the DataTrackerEngine
-        bool input = static_cast<Data< bool >*>( inputs[0] )->getValue();
-
+        bool input = static_cast<Data< bool >*>( inputs[0]->getOwner() )->getValue();
         dataTrackerEngine->cleanDirty();
 
-
-        Data< bool >* output = static_cast<Data< bool >*>( outputs[0] );
-
+        Data< bool >* output = static_cast<Data< bool >*>( outputs[0]->getOwner() );
         output->setValue( input );
     }
 
@@ -311,8 +317,8 @@ struct DataTrackerEngine_test: public BaseTest
         DummyObject testObject, testObject2;
 
         core::DataTrackerEngine dataTracker;
-        dataTracker.addInput(&testObject.myData); // several inputs can be added
-        dataTracker.addOutput(&testObject2.myData); // several output can be added
+        dataTracker.addInput(testObject.myData.getDDGNode()); // several inputs can be added
+        dataTracker.addOutput(testObject2.myData.getDDGNode()); // several output can be added
         dataTracker.addCallback( &DataTrackerEngine_test::myUpdate );
         dataTracker.setDirtyValue();
         unsigned localCounter = 0u;
@@ -368,7 +374,7 @@ struct DataTrackerFunctor_test: public BaseTest
 
         void operator() ( core::DataTrackerFunctor<MyDataFunctor>* tracker )
         {
-            core::objectmodel::BaseData* data = down_cast<core::objectmodel::BaseData>( tracker->getInputs()[0] );
+            core::objectmodel::BaseData* data = down_cast<core::objectmodel::BaseData>( tracker->getInputs()[0]->getOwner() );
             msg_info("MyDataFunctor")<<"Data "<<data->getName()<<" just changed for the "<<++m_counter<<"-th time";
         }
 
@@ -383,17 +389,13 @@ struct DataTrackerFunctor_test: public BaseTest
         DummyObject testObject;
         testObject.init();
 
-
         // as soon as testObject.myData changes, myDataFunctor will be triggered
         MyDataFunctor myDataFunctor;
         core::DataTrackerFunctor<MyDataFunctor> myDataTrackerFunctor( myDataFunctor );
-        myDataTrackerFunctor.addInput( &testObject.myData );
+        myDataTrackerFunctor.addInput( testObject.myData.getDDGNode() );
 
         // the functor is called when adding an input
         ASSERT_EQ( 1u, myDataFunctor.m_counter );
-
-
-
 
         // modifying the Data is calling the functor
         testObject.myData.setValue( false );

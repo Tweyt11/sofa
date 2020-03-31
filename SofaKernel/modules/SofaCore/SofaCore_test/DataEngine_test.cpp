@@ -64,6 +64,9 @@ public:
 
     void doUpdate() override
     {
+
+        std::cout << "HELLO" << input.getCounter() << std::endl;
+
         // true only iff the DataTracker associated to the Data 'input' is Dirty
         // that could only happen if 'input' was dirtied since last update
         if( m_dataTracker.hasChanged( input ) )
@@ -89,7 +92,6 @@ struct DataEngine_test: public BaseTest
     template < class T >
     void testTrackedData(T& engine)
     {
-        // input did not change, it is not dirtied, so neither its associated DataTracker
         ASSERT_TRUE(engine.output.getValue()==TestEngine::NO_CHANGED);
 
         // modifying input sets it as dirty, so its associated DataTracker too
@@ -108,6 +110,21 @@ struct DataEngine_test: public BaseTest
     }
 
 };
+
+TEST_F(DataEngine_test, checkInitialState )
+{
+    ASSERT_EQ(engine.input.getDDGNode()->getInputs().size(), 0);
+    ASSERT_EQ(engine.input.getDDGNode()->getOutputs().size(), 1);
+
+    ASSERT_EQ(engine.getInputs().size(), 1);
+
+    ASSERT_EQ(engine.output.getDDGNode()->getInputs().size(), 1);
+    ASSERT_EQ(engine.output.getDDGNode()->getOutputs().size(), 0);
+
+    ASSERT_FALSE(engine.input.getDDGNode()->isDirty());
+    ASSERT_TRUE(engine.isDirty());
+    ASSERT_TRUE(engine.output.getDDGNode()->isDirty());
+}
 
 // Test
 TEST_F(DataEngine_test, testDataEngine )

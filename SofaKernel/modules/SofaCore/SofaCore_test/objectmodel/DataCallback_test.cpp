@@ -73,8 +73,8 @@ struct DataCallback_test: public BaseTest
             , m_datacallback2()
             , m_datacallbackAll( )
         {
-            m_datacallback1.addInput(&d_objdata1);
-            m_datacallback2.addInput(&d_objdata2);
+            m_datacallback1.addInput(d_objdata1.getDDGNode());
+            m_datacallback2.addInput(d_objdata2.getDDGNode());
             m_datacallbackAll.addInputs({&d_objdata1, &d_objdata2});
         }
     };
