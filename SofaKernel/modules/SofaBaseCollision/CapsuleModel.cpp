@@ -19,7 +19,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#define SOFA_COMPONENT_COLLISION_CAPSULEMODEL_CPP
+#define SOFA_COMPONENT_COLLISION_CAPSULECOLLISIONMODEL_CPP
 #include <SofaBaseCollision/CapsuleModel.inl>
 #include <sofa/core/ObjectFactory.h>
 
@@ -33,17 +33,18 @@ namespace collision
 {
 
 using namespace sofa::defaulttype;
-using namespace sofa::core::collision;
-using namespace helper;
 
-static int CapsuleModelClass = core::RegisterObject("Collision model which represents a set of Capsules")
-        .add<  TCapsuleModel<Vec3Types> >()
+static int CapsuleCollisionModelClass = core::RegisterObject("Collision model which represents a set of Capsules")
+        .add< CapsuleCollisionModel<sofa::defaulttype::Vec3Types> >()
+
         .addAlias("Capsule")
         .addAlias("CapsuleModel")
+        .addAlias("TCapsuleModel")
+
         ;
 
 template class SOFA_BASE_COLLISION_API TCapsule<defaulttype::Vec3Types>;
-template class SOFA_BASE_COLLISION_API TCapsuleModel<defaulttype::Vec3Types>;
+template class SOFA_BASE_COLLISION_API CapsuleCollisionModel<defaulttype::Vec3Types>;
 
 } // namespace collision
 

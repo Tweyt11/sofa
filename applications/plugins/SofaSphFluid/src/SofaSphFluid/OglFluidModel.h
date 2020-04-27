@@ -27,9 +27,8 @@ class SOFA_SPH_FLUID_API OglFluidModel : public core::visual::VisualModel
 {
 public:
     SOFA_CLASS(OglFluidModel, core::visual::VisualModel);
-    //typedef ExtVec3fTypes DataTypes;
     typedef typename DataTypes::Coord Coord;
-	typedef typename DataTypes::VecCoord VecCoord;
+    typedef typename DataTypes::VecCoord VecCoord;
     typedef typename DataTypes::Deriv Deriv;
     typedef typename DataTypes::VecDeriv VecDeriv;
     typedef typename DataTypes::Real Real;
@@ -64,7 +63,7 @@ public:
     Data<unsigned int> d_debugFBO;
     Data<float> d_spriteRadius;
     Data<float> d_spriteThickness;
-    Data<unsigned int> d_spriteBlurRadius;
+    Data<float> d_spriteBlurRadius;
     Data<float> d_spriteBlurScale;
     Data<float> d_spriteBlurDepthFalloff;
     Data<sofa::defaulttype::RGBAColor> d_spriteDiffuseColor;

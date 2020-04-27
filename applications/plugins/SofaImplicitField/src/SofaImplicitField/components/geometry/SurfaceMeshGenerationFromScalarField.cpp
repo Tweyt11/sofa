@@ -29,7 +29,7 @@ using sofa::core::RegisterObject ;
 #include <sofa/defaulttype/Vec3Types.h>
 
 using sofa::defaulttype::Vec3dTypes ;
-using sofa::defaulttype::ExtVec3fTypes ;
+using sofa::defaulttype::Vec3fTypes ;
 using sofa::defaulttype::Vec4f ;
 
 #include <sofa/helper/MarchingCubeUtility.h>

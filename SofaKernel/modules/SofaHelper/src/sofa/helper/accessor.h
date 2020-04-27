@@ -317,8 +317,6 @@ sofa::helper::WriteOnlyAccessor<D> getWriteOnlyAccessor(D& c)
     return sofa::helper::WriteOnlyAccessor<D>{ c };
 }
 
-
-
 } // namespace helper
 
 } // namespace sofa

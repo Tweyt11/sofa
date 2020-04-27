@@ -20,6 +20,8 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <cmath>
+#include <sofa/helper/rmath.h>
+using sofa::helper::isEqual;
 
 #include <SofaBaseVisual/BaseCamera.h>
 #include <sofa/core/visual/VisualParams.h>
@@ -263,7 +265,7 @@ bool glhUnProjectf(Real winx, Real winy, Real winz, Real *modelview, Real *proje
     //Objects coordinates
     out = m * in;
 
-    if (out[3] == 0.0)
+    if (isEqual(out[3], 0.0))
         return false;
     out[3] = 1.0 / out[3];
     objectCoordinate[0] = out[0] * out[3];
@@ -358,8 +360,10 @@ BaseCamera::Vec2 BaseCamera::worldToScreenCoordinates(const BaseCamera::Vec3& po
     this->getProjectionMatrix(projection.ptr());
 
     clipSpacePos = projection * (modelview * clipSpacePos);
-    if (clipSpacePos.w() == 0.0)
+    if (isEqual(clipSpacePos.w(), 0.0))
         clipSpacePos.w() = 1.0;
+        return Vec2(std::nan(""), std::nan(""));
+
     sofa::defaulttype::Vec3 ndcSpacePos = sofa::defaulttype::Vec3(clipSpacePos.x(),clipSpacePos.y(), clipSpacePos.z()) * clipSpacePos.w();
     Vec2 screenCoord = Vec2((ndcSpacePos.x() + 1.0) / 2.0 * viewport[2], (ndcSpacePos.y() + 1.0) / 2.0 * viewport[3]);
     return screenCoord + Vec2(viewport[0], viewport[1]);
@@ -598,8 +602,11 @@ BaseCamera::Vec3 BaseCamera::viewportToWorldPoint(const BaseCamera::Vec3& p)
     getOpenGLModelViewMatrix(glM.ptr());
 
     Vec4 vsPosition = glP.inverted().transposed() * Vec4(nsPosition, 1.0);
+    if(isEqual(vsPosition.w(), 0.0))
+    {
+        return Vec3(std::nan(""), std::nan(""), std::nan(""));
+    }
     vsPosition /= vsPosition.w();
-
     Vec4 v = (glM.inverted().transposed() * vsPosition);
 
     return Vec3(v[0],v[1],v[2]);
@@ -612,8 +619,13 @@ BaseCamera::Vec3 BaseCamera::worldToScreenPoint(const BaseCamera::Vec3& p)
     getOpenGLModelViewMatrix(glM.ptr());
 
     Vec4 nsPosition = (glP.transposed() * glM.transposed() * Vec4(p, 1.0));
-    nsPosition /= nsPosition.w();
 
+    if(isEqual(nsPosition.w(), 0.0))
+    {
+        return Vec3(std::nan(""), std::nan(""), std::nan(""));
+    }
+
+    nsPosition /= nsPosition.w();
     return Vec3((nsPosition.x() * 0.5 + 0.5) * p_widthViewport.getValue() + 0.5,
                 p_heightViewport.getValue() - (nsPosition.y() * 0.5 + 0.5) * p_heightViewport.getValue() + 0.5,
                 (nsPosition.z() * 0.5 + 0.5));

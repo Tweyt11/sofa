@@ -2,6 +2,7 @@
 
 #include <sofa/core/objectmodel/DDGNode.h>
 #include <sofa/core/objectmodel/Base.h>
+#include <sofa/core/objectmodel/AspectPool.h>
 #include <sofa/core/ExecParams.h>
 #include <sofa/core/core.h>
 
@@ -94,7 +95,7 @@ protected:
 
 private:
     /// Number of changes since creation
-    sofa::helper::fixed_array<int, sofa::core::SOFA_DATA_MAX_ASPECTS> m_counters;
+    int m_counter;
 };
 
 

@@ -12,6 +12,8 @@ if(SOFAHELPER_HAVE_BOOST_SYSTEM
    AND SOFAHELPER_HAVE_BOOST_PROGRAM_OPTIONS
    AND SOFAHELPER_HAVE_BOOST_THREAD)
     sofa_set_01(SOFAHELPER_HAVE_BOOST VALUE TRUE BOTH_SCOPES)
+else()
+    sofa_set_01(SOFAHELPER_HAVE_BOOST VALUE FALSE BOTH_SCOPES)
 endif()
 # OpenGL (gl, glu) + GLEW
 if(NOT SOFA_NO_OPENGL)
@@ -23,7 +25,7 @@ if(SOFA_BUILD_TESTS)
     sofa_find_package(GTest CONFIG BOTH_SCOPES)
 endif()
 # Eigen (header only)
-sofa_find_package(Eigen3 REQUIRED BOTH_SCOPES)
+find_package(Eigen3 REQUIRED)
 # Json (header only) needed by AdvancedTimer
 sofa_find_package(Json 3.1.2 REQUIRED BOTH_SCOPES)
 
@@ -335,7 +337,8 @@ endif()
 # since this is configuration specific it is a bit more convenient to put it as a debug compile definition for
 # PluginManager.cpp, at the expense of being much less visible compare to having it in the generated
 # SofaFramework/config.h
-set_property(SOURCE system/PluginManager.cpp APPEND PROPERTY COMPILE_DEFINITIONS_DEBUG "SOFA_LIBSUFFIX=_d" )
+set_property(SOURCE ${SRC_ROOT}/system/PluginManager.cpp APPEND PROPERTY COMPILE_DEFINITIONS_DEBUG "SOFA_LIBSUFFIX=_d" )
+
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_HELPER")
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION "${SOFAFRAMEWORK_VERSION}")
@@ -362,7 +365,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux)
     # X11 functions are used in glfont.cpp
     sofa_find_package(X11 REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${X11_X11_LIB})
-    target_include_directories(${PROJECT_NAME} PUBLIC
+    target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
         "$<BUILD_INTERFACE:${X11_X11_INCLUDE_PATH}>"
         # No INSTALL_INTERFACE include dir => dev user will need to find_package this dependency
         )
@@ -383,11 +386,11 @@ if(NOT SOFA_NO_OPENGL)
         target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL::GL OpenGL::GLU)
     else()
         target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENGL_LIBRARIES})
-        target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
+        target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${OPENGL_INCLUDE_DIR})
     endif()
     if(CMAKE_SYSTEM_NAME STREQUAL Linux AND SOFA_BUILD_RELEASE_PACKAGE AND OPENGL_GLU_FOUND)
         # Add GLU to Linux binaries
-        sofa_install_libraries(LIBRARIES ${OPENGL_glu_LIBRARY})
+        sofa_install_libraries(PATHS ${OPENGL_glu_LIBRARY})
     endif()
 
     if(GLEW_FOUND)
@@ -400,11 +403,11 @@ endif()
 
 # Boost
 if(Boost_FOUND)
-    target_link_libraries(${PROJECT_NAME} PUBLIC Boost::boost Boost::system Boost::filesystem Boost::program_options Boost::thread)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Boost::boost Boost::system Boost::filesystem Boost::program_options)
     if(Boost_THREAD_FOUND)
         target_link_libraries(${PROJECT_NAME} PUBLIC Boost::thread)
     endif()
-    sofa_install_libraries(LIBRARIES ${Boost_LIBRARIES}) # Boost_LIBRARIES covers Boost internal dependencies
+    sofa_install_libraries(PATHS ${Boost_LIBRARIES}) # Boost_LIBRARIES covers Boost internal dependencies
 endif()
 
 # GTest
@@ -413,26 +416,7 @@ if(SOFA_BUILD_TESTS AND GTest_FOUND)
 endif()
 
 # Eigen (header only)
-if(EIGEN3_FOUND)
-    install(DIRECTORY ${EIGEN3_INCLUDE_DIR}/Eigen
-        COMPONENT headers
-        DESTINATION "include/extlibs/Eigen"
-        PATTERN "*.in" EXCLUDE
-        PATTERN "*.txt" EXCLUDE
-        PATTERN "*.cpp" EXCLUDE
-        )
-    install(DIRECTORY ${EIGEN3_INCLUDE_DIR}/unsupported/Eigen
-        COMPONENT headers
-        DESTINATION "include/extlibs/Eigen/unsupported/Eigen"
-        PATTERN "*.in" EXCLUDE
-        PATTERN "*.txt" EXCLUDE
-        PATTERN "*.cpp" EXCLUDE
-        )
-    target_include_directories(${PROJECT_NAME} PUBLIC
-        "$<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>"
-        "$<INSTALL_INTERFACE:include/extlibs/Eigen>"
-        )
-endif()
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 
 # Json (header only) needed by AdvancedTimer
 if(JSON_FOUND)
@@ -443,7 +427,7 @@ if(JSON_FOUND)
         PATTERN "*.txt" EXCLUDE
         PATTERN "*.cpp" EXCLUDE
         )
-    target_include_directories(${PROJECT_NAME} PUBLIC
+    target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
         "$<BUILD_INTERFACE:${JSON_INCLUDE_DIR}>"
         "$<INSTALL_INTERFACE:include/extlibs/json>"
         )

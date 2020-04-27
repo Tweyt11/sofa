@@ -153,9 +153,12 @@ void SphereCollisionModel<DataTypes>::draw(const core::visual::VisualParams* vpa
         for (int i=0; i<npoints; i++)
         {
             TSphere<DataTypes> t(this,i);
-            Vector3 p = t.p();
-            points.push_back(p);
-            radius.push_back((float)t.r());
+            if (t.isActive())
+            {
+                Vector3 p = t.p();
+                points.push_back(p);
+                radius.push_back((float)t.r());
+            }
         }
 
         vparams->drawTool()->setLightingEnabled(true); //Enable lightning
@@ -180,7 +183,7 @@ void SphereCollisionModel<DataTypes>::computeBoundingTree(int maxDepth)
     if(m_componentstate!=ComponentState::Valid)
         return ;
 
-    CubeModel* cubeModel = createPrevious<CubeModel>();
+    CubeCollisionModel* cubeModel = createPrevious<CubeCollisionModel>();
     const int npoints = mstate->getSize();
     bool updated = false;
     if (npoints != size)
@@ -220,7 +223,7 @@ void SphereCollisionModel<DataTypes>::computeContinuousBoundingTree(SReal dt, in
     if(m_componentstate!=ComponentState::Valid)
         return ;
 
-    CubeModel* cubeModel = createPrevious<CubeModel>();
+    CubeCollisionModel* cubeModel = createPrevious<CubeCollisionModel>();
     const int npoints = mstate->getSize();
     bool updated = false;
     if (npoints != size)
@@ -272,6 +275,8 @@ typename SphereCollisionModel<DataTypes>::Real SphereCollisionModel<DataTypes>::
 template<class DataTypes>
 void SphereCollisionModel<DataTypes>::computeBBox(const core::ExecParams* params, bool onlyVisible)
 {
+    SOFA_UNUSED(params);
+
     if(m_componentstate!=ComponentState::Valid)
         return ;
 
@@ -297,7 +302,7 @@ void SphereCollisionModel<DataTypes>::computeBBox(const core::ExecParams* params
         }
     }
 
-    this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
+    this->f_bbox.setValue(sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
 }
 
 

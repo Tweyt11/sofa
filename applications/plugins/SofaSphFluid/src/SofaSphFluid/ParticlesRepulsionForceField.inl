@@ -76,12 +76,12 @@ void ParticlesRepulsionForceField<DataTypes>::addForce(const core::MechanicalPar
     const Real h2 = h*h;
     const Real ks = stiffness.getValue();
     const Real kd = damping.getValue();
-    const int n = x.size();
+    const size_t n = x.size();
 
     // Initialization
     f.resize(n);
     particles.resize(n);
-    for (int i=0; i<n; i++)
+    for (size_t i=0; i<n; i++)
     {
         particles[i].neighbors.clear();
     }
@@ -90,10 +90,10 @@ void ParticlesRepulsionForceField<DataTypes>::addForce(const core::MechanicalPar
     // This is an O(n2) step, except if a hash-grid is used to optimize it
     if (grid == nullptr)
     {
-        for (int i=0; i<n; i++)
+        for (size_t i=0; i<n; i++)
         {
             const Coord& ri = x[i];
-            for (int j=i+1; j<n; j++)
+            for (size_t j=i+1; j<n; j++)
             {
                 const Coord& rj = x[j];
                 Real r2 = (rj-ri).norm2();
@@ -109,7 +109,7 @@ void ParticlesRepulsionForceField<DataTypes>::addForce(const core::MechanicalPar
     }
 
     // Compute the forces
-    for (int i=0; i<n; i++)
+    for (size_t i=0; i<n; i++)
     {
         Particle& Pi = particles[i];
 
@@ -151,11 +151,11 @@ void ParticlesRepulsionForceField<DataTypes>::addDForce(const core::MechanicalPa
     const Real h2 = h*h;
     const Real ks = (Real)(stiffness.getValue() * mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue()));
     //const Real kd = damping.getValue()*bFactor;
-    const int n = x.size();
+    const size_t n = x.size();
     df.resize(dx.size());
 
     // Compute the forces
-    for (int i=0; i<n; i++)
+    for (size_t i=0; i<n; i++)
     {
         Particle& Pi = particles[i];
 

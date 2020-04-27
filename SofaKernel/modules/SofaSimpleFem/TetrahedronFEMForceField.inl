@@ -1708,7 +1708,7 @@ inline void TetrahedronFEMForceField<DataTypes>::addDForce(const core::Mechanica
 //////////////////////////////////////////////////////////////////////
 
 template<class DataTypes>
-void TetrahedronFEMForceField<DataTypes>::computeBBox(const core::ExecParams* params, bool onlyVisible)
+void TetrahedronFEMForceField<DataTypes>::computeBBox(const core::ExecParams*, bool onlyVisible)
 {
     if( !onlyVisible ) return;
 
@@ -1727,7 +1727,7 @@ void TetrahedronFEMForceField<DataTypes>::computeBBox(const core::ExecParams* pa
         }
     }
 
-    this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
+    this->f_bbox.setValue(sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
 }
 
 template<class DataTypes>

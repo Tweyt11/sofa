@@ -86,6 +86,7 @@ CollisionModel::CollisionModel()
     , previous(initLink("previous", "Previous (coarser / upper / parent level) CollisionModel in the hierarchy."))
     , next(initLink("next", "Next (finer / lower / child level) CollisionModel in the hierarchy."))
     , userData(nullptr)
+    , l_collElemActiver(initLink("collisionElementActiver", "CollisionElementActiver component that activates or deactivates collision element(s) during execution"))
 {
 }
 

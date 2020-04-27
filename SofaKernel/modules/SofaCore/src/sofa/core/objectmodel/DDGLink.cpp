@@ -17,7 +17,7 @@ BaseDDGLink::BaseDDGLink(const BaseDDGLink::InitDDGLink &init)
 {
     addLink(&inputs);
     addLink(&outputs);
-    m_counters.assign(0);
+    m_counter = 0;
 
     if (m_owner)
     {
@@ -48,7 +48,7 @@ void BaseDDGLink::set(Base* linkedBase)
         m_linkedBase->removeDDGLinkOwner(m_owner);
     m_linkedBase = linkedBase;
     addInput(&m_linkedBase->d_componentstate);
-    ++m_counters[size_t(currentAspect())];
+    ++m_counter;
     setDirtyOutputs();
 }
 
@@ -68,7 +68,7 @@ void BaseDDGLink::update()
             (*it)->update();
         }
     }
-    ++m_counters[size_t(currentAspect())];
+    ++m_counter;
     cleanDirty();
 }
 
