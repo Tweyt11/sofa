@@ -104,18 +104,18 @@ void UnilateralInteractionConstraint<DataTypes>::addContact(double mu, Deriv nor
     c.contactId = id;
     c.localId	= localid;
     c.contactDistance = contactDistance;
-    msg_warning() << "Contact Info::::::::::::::::::::::";
-    msg_warning() << "c.P	" << c.P;
-    msg_warning() << "c.Q	" << c.Q;
-    msg_warning() << "c.m1	" << c.m1;
-    msg_warning() << "c.m2	" << c.m2;
-    msg_warning() << "c.norm	" << c.norm;
-    msg_warning() << "c.s	" << c.s;
-    msg_warning() << "c.t	" << c.t;
-    msg_warning() << "c.mu	" << c.mu;
-    msg_warning() << "c.contactId	" << c.contactId;
-    msg_warning() << "c.localId	" << c.localId;
-    msg_warning() << "c.contactDistance	" << c.contactDistance;
+//    msg_warning() << "Contact Info::::::::::::::::::::::";
+//    msg_warning() << "c.P	" << c.P;
+//    msg_warning() << "c.Q	" << c.Q;
+//    msg_warning() << "c.m1	" << c.m1;
+//    msg_warning() << "c.m2	" << c.m2;
+//    msg_warning() << "c.norm	" << c.norm;
+//    msg_warning() << "c.s	" << c.s;
+//    msg_warning() << "c.t	" << c.t;
+//    msg_warning() << "c.mu	" << c.mu;
+//    msg_warning() << "c.contactId	" << c.contactId;
+//    msg_warning() << "c.localId	" << c.localId;
+//    msg_warning() << "c.contactDistance	" << c.contactDistance;
 }
 
 
@@ -171,10 +171,10 @@ void UnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const cor
 
             MatrixDerivRowIterator c1_it = c1.writeLine(c.id);
             c1_it.addCol(c.m1, -c.norm);
-            msg_warning() << " c1_it.index(): " << c1_it.index() << " cm1: " << c.m1 << " val: " << -c.norm;
+//            msg_warning() << " c1_it.index(): " << c1_it.index() << " cm1: " << c.m1 << " val: " << -c.norm;
             MatrixDerivRowIterator c2_it = c2.writeLine(c.id);
             c2_it.addCol(c.m2, c.norm);
-            msg_warning() << " c2_it.index(): " << c2_it.index()<< " cm2: " << c.m2 << " val: " << c.norm;
+//            msg_warning() << " c2_it.index(): " << c2_it.index()<< " cm2: " << c.m2 << " val: " << c.norm;
 
             if (c.mu > 0.0)
             {
@@ -269,7 +269,6 @@ void UnilateralInteractionConstraint<DataTypes>::getPositionViolation(defaulttyp
         // Sets dfree in global violation vector
 
         v->set(c.id, dfree);
-        msg_warning() << " c.id in violation is: " << c.id;
         c.dfree = dfree; // PJ : For isActive() method. Don't know if it's still usefull.
 
         if (c.mu > 0.0)
@@ -432,8 +431,6 @@ void UnilateralInteractionConstraint<DataTypes>::draw(const core::visual::Visual
 
         redVertices.push_back(c.P);
         redVertices.push_back(c.Q);
-        msg_warning() << "cP:" << c.P;
-        msg_warning() << "cQ:" << c.Q;
         otherVertices.push_back(c.P);
         otherColors.push_back(sofa::defaulttype::RGBAColor::white());
         otherVertices.push_back(c.P + c.norm);

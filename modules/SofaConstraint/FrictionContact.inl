@@ -143,6 +143,12 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::setDe
 template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
 void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::activateMappers()
 {
+    sofa::helper::system::thread::CTime *timer = new sofa::helper::system::thread::CTime();
+    double timeScale, time;
+    timeScale = 1000.0 / (double)sofa::helper::system::thread::CTime::getTicksPerSec();
+
+    time= (double)timer->getTime();
+
     auto it = contacts.begin();
     auto o = *it;
     CollisionElement1 elem1(o->elem.first);
@@ -196,8 +202,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::activ
         CollisionElement2 elem2(o->elem.second);
         int index1 = elem1.getIndex();
         int index2 = elem2.getIndex();
-        msg_warning() << "index1 in activatemappeers: " << index1;
-        msg_warning() << "index2 in activatemappeers: " << index2;
+//        msg_warning() << "index1 in activatemappeers: " << index1;
+//        msg_warning() << "index2 in activatemappeers: " << index2;
 
         typename DataTypes1::Real r1 = 0.;
         typename DataTypes2::Real r2 = 0.;
@@ -225,6 +231,8 @@ void FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::activ
     mapper1.updateXfree();
     if (!selfCollision) mapper2.update();
     if (!selfCollision) mapper2.updateXfree();
+
+    msg_warning(this)<<" time in activateMappers : "<<( (double)timer->getTime() - time)*timeScale<<" ms";
 }
 
 template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >

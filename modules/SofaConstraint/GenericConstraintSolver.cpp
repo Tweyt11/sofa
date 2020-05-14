@@ -86,6 +86,9 @@ GenericConstraintSolver::GenericConstraintSolver()
     ,l_contactMstate(initLink("contactMstate","The mechanicalState storing the contact"))
     , current_cp(&m_cpBuffer[0])
     , last_cp(NULL)
+    , d_storeLambdas(initData(&d_storeLambdas,false,"storeLambdas","Use the reduced model with the ECSW method"))
+    , d_lambdaPath(initData(&d_lambdaPath,std::string("lambdaStored.txt"),"lambdaPath","Path to the Reduced Integration domain when performing the ECSW method"))
+
 {
     addAlias(&maxIt, "maxIt");
 
@@ -169,6 +172,12 @@ void GenericConstraintSolver::init()
 //    msg_warning(this) << "Matrix Obtained";
 //    for (int i=0; i<10; i++)
 //        msg_warning("MatrixLoader") << "Lambda coeffs:" << contactIndices(i);
+
+    std::ofstream myLambdas (d_lambdaPath.getValue());
+    myLambdas.close();
+    std::ofstream Wfile ("W_File.txt");
+    Wfile.close();
+
 
 }
 
@@ -332,6 +341,7 @@ bool GenericConstraintSolver::buildSystem(const core::ConstraintParams *cParams,
             core::behavior::BaseConstraintCorrection* cc = constraintCorrections[i];
             if (!cc->isActive()) continue;
             sofa::helper::AdvancedTimer::stepBegin("Object name: " + cc->getName());
+            msg_warning() << "about to cc->addComplianceInConstraintSpace(cParams, &current_cp->W); in genericConstraintSolver";
             cc->addComplianceInConstraintSpace(cParams, &current_cp->W);
             sofa::helper::AdvancedTimer::stepEnd("Object name: " + cc->getName());
         }
@@ -369,17 +379,23 @@ void GenericConstraintSolver::rebuildSystem(double massFactor, double forceFacto
 void printLCP(std::ostream& file, double *q, double **M, double *f, int dim, bool printMatrix = true)
 {
     file.precision(9);
+    std::ofstream Wfile ("W_File.txt", std::fstream::app);
+
     // affichage de la matrice du LCP
     if (printMatrix) {
         file << msgendl << " M = [";
         for(int compteur=0;compteur<dim;compteur++) {
             for(int compteur2=0;compteur2<dim;compteur2++) {
                 file << "\t" << M[compteur][compteur2];
+                Wfile <<"\t" << M[compteur][compteur2];
             }
             file << msgendl;
+            Wfile << msgendl;
         }
         file << "      ];" << msgendl << msgendl;
+        Wfile << msgendl;
     }
+    Wfile.close();
 
     // affichage de q
     file << " q = [";
@@ -425,7 +441,13 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
         }
 
         sofa::helper::AdvancedTimer::stepBegin("ConstraintsGaussSeidel");
+
+        sofa::helper::system::thread::CTime *timer = new sofa::helper::system::thread::CTime();
+        double timeScale, time;
+        timeScale = 1000.0 / (double)sofa::helper::system::thread::CTime::getTicksPerSec();
+        time = (double)timer->getTime();
         current_cp->gaussSeidel(0, this);
+        msg_warning(this)<<" time to solve with Gauss-Seidel : "<<( (double)timer->getTime() - time)*timeScale<<" ms";
         sofa::helper::AdvancedTimer::stepEnd("ConstraintsGaussSeidel");
     }
     msg_info() << "Still there 1..........................";
@@ -456,14 +478,24 @@ bool GenericConstraintSolver::solveSystem(const core::ConstraintParams * /*cPara
     }
     msg_info() << "Still there 3..........................";
     double *lambda = current_cp->getF();
-    if (f_printLog.getValue())
+    if (d_storeLambdas.getValue())
     {
-        std::ofstream myLambdas ("lambdaStored.txt", std::fstream::app);
+        std::ofstream myLambdas (d_lambdaPath.getValue(), std::fstream::app);
         for (unsigned int k=0; k<current_cp->getDimension() ;k++)
             myLambdas << lambda[k] << " ";
         myLambdas << std::endl;
         myLambdas.close();
     }
+//    int dim = current_cp->getDimension();
+//    double** w =  current_cp->getW();
+//    for (int i=0; i<dim;i++){
+//        for (int j=0; j<dim;j++){
+//            msg_error() << w[i][j];
+//        }
+//        msg_error() << "____________";
+//    }
+
+
     if(d_computeConstraintForces.getValue())
     {
         WriteOnlyAccessor<Data<helper::vector<double>>> constraints = d_constraintForces;
@@ -674,28 +706,28 @@ void GenericConstraintProblem::solveTimed(double tol, int maxIt, double timeout)
 // Debug is only available when called directly by the solver (not in haptic thread)
 void GenericConstraintProblem::gaussSeidel(double timeout, GenericConstraintSolver* solver)
 {
-    MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
-    matLoaderModes->setFileName("lambdaModes.txt");
-//    msg_warning("GenericConstraintProblem") << "Name of data file read";
+//    MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
+//    matLoaderModes->setFileName("lambdaModes.txt");
+////    msg_warning("GenericConstraintProblem") << "Name of data file read";
 
-    matLoaderModes->load();
-//    msg_warning("GenericConstraintProblem") << "file loaded";
+//    matLoaderModes->load();
+////    msg_warning("GenericConstraintProblem") << "file loaded";
 
-    matLoaderModes->getMatrix(lambdaModes);
-//    msg_warning("GenericConstraintProblem") << "Matrix Obtained";
+//    matLoaderModes->getMatrix(lambdaModes);
+////    msg_warning("GenericConstraintProblem") << "Matrix Obtained";
 
 
-    MatrixLoader<Eigen::MatrixXd>* matLoader = new MatrixLoader<Eigen::MatrixXd>();
-    matLoader->setFileName("lambdaCoeffs.txt");
-//    msg_warning("GenericConstraintProblem") << "Name of data file read";
+//    MatrixLoader<Eigen::MatrixXd>* matLoader = new MatrixLoader<Eigen::MatrixXd>();
+//    matLoader->setFileName("lambdaCoeffs.txt");
+////    msg_warning("GenericConstraintProblem") << "Name of data file read";
 
-    matLoader->load();
-//    msg_warning("GenericConstraintProblem") << "file loaded";
+//    matLoader->load();
+////    msg_warning("GenericConstraintProblem") << "file loaded";
 
-    matLoader->getMatrix(contactIndices);
-//    msg_warning("GenericConstraintProblem") << "Matrix Obtained";
-    for (int i=0; i<10; i++)
-//        msg_warning("MatrixLoader") << "Lambda coeffs:" << contactIndices(i);
+//    matLoader->getMatrix(contactIndices);
+////    msg_warning("GenericConstraintProblem") << "Matrix Obtained";
+//    for (int i=0; i<10; i++)
+////        msg_warning("MatrixLoader") << "Lambda coeffs:" << contactIndices(i);
 
     if(!dimension)
     {

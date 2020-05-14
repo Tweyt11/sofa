@@ -75,6 +75,7 @@ TetrahedronFEMForceField<DataTypes>::TetrahedronFEMForceField()
     , isToPrint( initData(&isToPrint, false, "isToPrint", "suppress somes data before using save as function"))
     , _updateStiffness(initData(&_updateStiffness,false,"updateStiffness","udpate structures (precomputed in init) using stiffness parameters in each iteration (set listening=1)"))
     , l_topology(initLink("topology", "link to the tetrahedron topology container"))
+    , m_K(initData(&m_K,"Stiffness_Matrix_K", "The stiffness matrix computed by this forcefield"))
 {
     _poissonRatio.setRequired(true);
     _youngModulus.setRequired(true);
@@ -1447,6 +1448,8 @@ void TetrahedronFEMForceField<DataTypes>::init()
     reinit(); // compute per-element stiffness matrices and other precomputed values
 
     msg_info() << "Init done with "<<_indexedElements->size()<<" tetras.";
+    Keig.resize(_mesh->getNbPoints()*3, _mesh->getNbPoints()*3);
+//    msg_warning() << "NB points:::::::::::::::::: " << _mesh->getNbPoints();
 }
 
 
@@ -2087,6 +2090,11 @@ void TetrahedronFEMForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMa
     }
     else
     {
+
+        Keig.setZero();
+
+        std::vector< Eigen::Triplet<double> > tripletList;
+        tripletList.reserve(_mesh->getNbTetrahedra()*4);
         for(it = _indexedElements->begin(), IT=0 ; it != _indexedElements->end() ; ++it,++IT)
         {
             if (method == SMALL)
@@ -2113,12 +2121,15 @@ void TetrahedronFEMForceField<DataTypes>::addKToMatrix(sofa::defaulttype::BaseMa
                             COLUMN = offset+3*noeud2+j;
                             column = 3*n2+j;
                             mat->add(ROW, COLUMN, - tmp[row][column]*k);
+                            tripletList.push_back(Eigen::Triplet<double>(ROW,COLUMN,- tmp[row][column]*k));
                         }
                     }
                 }
             }
         }
 
+        Keig.setFromTriplets(tripletList.begin(), tripletList.end());
+        m_K.setValue(Keig);
     }
 }
 

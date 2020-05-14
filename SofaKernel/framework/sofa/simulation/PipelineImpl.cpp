@@ -114,7 +114,16 @@ void PipelineImpl::computeCollisionDetection()
     if(root == NULL) return;
     std::vector<CollisionModel*> collisionModels;
     root->getTreeObjects<CollisionModel>(&collisionModels);
+
+    sofa::helper::system::thread::CTime *timer = new sofa::helper::system::thread::CTime();
+    double timeScale, time;
+    timeScale = 1000.0 / (double)sofa::helper::system::thread::CTime::getTicksPerSec();
+    time = (double)timer->getTime();
+
     doCollisionDetection(collisionModels);
+
+    msg_warning(this)<<" time for collision detection : "<<( (double)timer->getTime() - time)*timeScale<<" ms";
+
 }
 
 void PipelineImpl::computeCollisionResponse()

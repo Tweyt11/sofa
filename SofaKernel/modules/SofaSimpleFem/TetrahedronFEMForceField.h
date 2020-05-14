@@ -33,7 +33,8 @@
 #include <sofa/helper/OptionsGroup.h>
 
 #include <sofa/helper/ColorMap.h>
-
+//  Eigen Sparse Matrix
+#include <Eigen/Sparse>
 // corotational tetrahedron from
 // @InProceedings{NPF05,
 //   author       = "Nesme, Matthieu and Payan, Yohan and Faure, Fran\c{c}ois",
@@ -46,7 +47,25 @@
 //   url          = "http://www-evasion.imag.fr/Publications/2005/NPF05"
 // }
 
+namespace std
+{
 
+/// Output stream
+template<class T>
+std::ostream& operator<< ( std::ostream& os, const Eigen::SparseMatrix<T>& s )
+{
+    //// Un-implmented.
+    return os;
+}
+
+/// Input stream
+template<class T>
+std::istream& operator>> ( std::istream& in, Eigen::SparseMatrix<T>& l )
+{
+    //// Un-implmented.
+    return in;
+}
+}
 namespace sofa
 {
 
@@ -75,6 +94,8 @@ public:
         m->_gatherBsize.endEdit();
     }
 };
+
+
 
 
 /** Compute Finite Element forces based on tetrahedral elements.
@@ -230,6 +251,8 @@ public:
     Data<bool>  isToPrint;
     Data<bool>  _updateStiffness; ///< udpate structures (precomputed in init) using stiffness parameters in each iteration (set listening=1)
 
+    Data<Eigen::SparseMatrix<double> > m_K;
+    Eigen::SparseMatrix<double> Keig;
     SingleLink<TetrahedronFEMForceField<DataTypes>, sofa::core::topology::BaseMeshTopology, BaseLink::FLAG_STOREPATH|BaseLink::FLAG_STRONGLINK> l_topology;
 
     helper::vector<defaulttype::Vec<6,Real> > elemDisplacements;

@@ -47,10 +47,17 @@ MORFrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::MORFric
 {
 }
 
+//template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
+//MORFrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::MORFrictionContact(CollisionModel1* model1_, CollisionModel2* model2_, Intersection* intersectionMethod_)
+//    : FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>(model1_, model2_, intersectionMethod_)
+//{
+//}
 
 template < class TCollisionModel1, class TCollisionModel2, class ResponseDataTypes  >
 MORFrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::MORFrictionContact(CollisionModel1* model1_, CollisionModel2* model2_, Intersection* intersectionMethod_)
     : FrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>(model1_, model2_, intersectionMethod_)
+    , d_lambdaModesPath (initData(&d_lambdaModesPath, "lambdaModesPath", "path to the file containing the lambda modes"))
+    , d_lambdaModesCoeffsPath (initData(&d_lambdaModesCoeffsPath, "lambdaModesCoeffsPath", "path to the file containing the coefficients of lambda modes"))
 {
 }
 
@@ -177,9 +184,13 @@ void MORFrictionContact<TCollisionModel1,TCollisionModel2,ResponseDataTypes>::ac
             mmodel2 = mapper2.createMapping(this->getName().c_str());
         }
         msg_warning() << "Creating new UnilateralInteractionConstraint!!!!!!!!!!!!!!!!!";
+        msg_warning() << "lambdapath is: " << d_lambdaModesPath.getValue();
+        msg_warning() << "lambdaCoeffspath is: " << d_lambdaModesCoeffsPath.getValue();
+        msg_warning() << "mu is: " << mu.getValue();
+
         msg_warning() << "********************************************************************************************************************";
-//        m_constraint = sofa::core::objectmodel::New<constraintset::UnilateralInteractionConstraint<defaulttype::Vec3Types> >(mmodel1, mmodel2);
-        m_constraint = sofa::core::objectmodel::New<constraintset::MORUnilateralInteractionConstraint<defaulttype::Vec3Types> >(mmodel1, mmodel2);
+//        m_constraint = sofa::core::objectmodel::New<constraintset::MORUnilateralInteractionConstraint<defaulttype::Vec3Types> >(mmodel1, mmodel2);
+        m_constraint = sofa::core::objectmodel::New<constraintset::MORUnilateralInteractionConstraint<defaulttype::Vec3Types> >(mmodel1, mmodel2, d_lambdaModesPath.getValue(), d_lambdaModesCoeffsPath.getValue());
         m_constraint->setName( this->getName() );
         this->setInteractionTags(mmodel1, mmodel2);
         m_constraint->setCustomTolerance( tol.getValue() );

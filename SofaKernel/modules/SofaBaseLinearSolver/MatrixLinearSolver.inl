@@ -229,11 +229,13 @@ void MatrixLinearSolver<Matrix,Vector>::invertSystem()
 template<class Matrix, class Vector>
 bool MatrixLinearSolver<Matrix,Vector>::addJMInvJtLocal(Matrix * /*M*/,ResMatrixType * result,const JMatrixType * J, double fact)
 {
+    msg_warning() << "In addJMInvJtLocal %%%%%%%%%%%%%";
     for (typename JMatrixType::Index row=0; row<J->rowSize(); row++)
     {
         // STEP 1 : put each line of matrix Jt in the right hand term of the system
         for (typename JMatrixType::Index i=0; i<J->colSize(); i++) currentGroup->systemRHVector->set(i,J->element(row,i)); // currentGroup->systemMatrix->rowSize()
 
+        msg_warning() << J;
         // STEP 2 : solve the system :
         solveSystem();
 
@@ -286,10 +288,12 @@ bool MatrixLinearSolver<Matrix,Vector>::addMInvJtLocal(Matrix * /*M*/,ResMatrixT
 template<class Matrix, class Vector>
 bool MatrixLinearSolver<Matrix,Vector>::addJMInvJt(defaulttype::BaseMatrix* result, defaulttype::BaseMatrix* J, double fact)
 {
+    msg_warning() << "In MatrixLinearSolver<Matrix,Vector>::addJMInvJt(";
     if (J->rowSize()==0) return true;
 
     JMatrixType * j_local = internalData.getLocalJ(J);
     ResMatrixType * res_local = internalData.getLocalRes(result);
+    msg_warning() << "Just before bool res = addJMInvJtLocal(currentGroup->systemMatrix,res_local,j_local,fact);";
     bool res = addJMInvJtLocal(currentGroup->systemMatrix,res_local,j_local,fact);
     internalData.addLocalRes(result);
     return res;
@@ -320,7 +324,7 @@ bool MatrixLinearSolver<Matrix,Vector>::buildComplianceMatrix(const sofa::core::
     }
 
     executeVisitor(simulation::MechanicalGetConstraintJacobianVisitor(cparams,j_local));
-
+    msg_warning() << "In MatrixLinearSolver<Matrix,Vector>::buildComplianceMatrix(";
     return addJMInvJt(result,j_local,fact);
 }
 

@@ -96,9 +96,13 @@ public:
     typedef core::objectmodel::Data<MatrixDeriv>    DataMatrixDeriv;
 
     typedef typename core::behavior::PairInteractionConstraint<DataTypes> Inherit;
+
+    std::string m_lambdaModesPath;
+    std::string m_lambdaModesCoeffsPath;
     Eigen::MatrixXd lambdaModes;
     Eigen::MatrixXd contactIndices;
     sofa::helper::vector<unsigned int> reducedContacts;
+
 
 protected:
 
@@ -124,7 +128,7 @@ public:
 
     using UnilateralInteractionConstraint<DataTypes>::constraintId;
 protected:
-    MORUnilateralInteractionConstraint(MechanicalState* object1=nullptr, MechanicalState* object2=nullptr);
+    MORUnilateralInteractionConstraint(MechanicalState* object1=nullptr, MechanicalState* object2=nullptr, std::string lambdaModesPath=nullptr,std::string lambdaModesCoeffsPath=nullptr);
     ~MORUnilateralInteractionConstraint();
 
 public:

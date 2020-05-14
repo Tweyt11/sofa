@@ -71,7 +71,7 @@ void UnilateralConstraintResolutionWithFriction::resolution(int line, double** /
 {
     double f[2];
     double normFt;
-    msg_warning("UnilateralConstraintResolutionWithFriction") << "Using the friction resolution !!!";
+//    msg_warning("UnilateralConstraintResolutionWithFriction") << "Using the friction resolution !!!";
     f[0] = force[line]; f[1] = force[line+1];
     force[line] -= d[line] / _W[0];
 
@@ -91,14 +91,14 @@ void UnilateralConstraintResolutionWithFriction::resolution(int line, double** /
     double fN = _mu*force[line];
     if(normFt > fN)
     {
-        msg_warning("UnilateralConstraintResolutionWithFriction") << "Sliding !!!: " << normFt << " > " << _mu << " * " << force[line];
+//        msg_warning("UnilateralConstraintResolutionWithFriction") << "Sliding !!!: " << normFt << " > " << _mu << " * " << force[line];
         double factor = fN / normFt;
         force[line+1] *= factor;
         force[line+2] *= factor;
     }
     else
     {
-        msg_warning("UnilateralConstraintResolutionWithFriction") << "Not sliding !!!: " << normFt << " < " << _mu << " * " << force[line];
+//        msg_warning("UnilateralConstraintResolutionWithFriction") << "Not sliding !!!: " << normFt << " < " << _mu << " * " << force[line];
     }
 }
 

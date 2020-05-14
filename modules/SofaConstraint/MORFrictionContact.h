@@ -96,6 +96,8 @@ protected:
 
 //    ~FrictionContact() override;
 public:
+    sofa::core::objectmodel::DataFileName d_lambdaModesPath;
+    sofa::core::objectmodel::DataFileName d_lambdaModesCoeffsPath;
     void cleanup() override;
 
 //    std::pair<core::CollisionModel*,core::CollisionModel*> getCollisionModels() override { return std::make_pair(model1,model2); }

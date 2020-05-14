@@ -40,9 +40,20 @@ namespace constraintset
 {
 using sofa::component::loader::MatrixLoader;
 template<class DataTypes>
-MORUnilateralInteractionConstraint<DataTypes>::MORUnilateralInteractionConstraint(MechanicalState* object1, MechanicalState* object2)
+MORUnilateralInteractionConstraint<DataTypes>::MORUnilateralInteractionConstraint(MechanicalState* object1, MechanicalState* object2, std::string lambdaModesPath, std::string lambdaModesCoeffsPath)
     : UnilateralInteractionConstraint<DataTypes>(object1,object2)
 {
+    m_lambdaModesPath = lambdaModesPath;
+    m_lambdaModesCoeffsPath = lambdaModesCoeffsPath;
+    MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
+    matLoaderModes->setFileName(m_lambdaModesPath);
+    matLoaderModes->load();
+    matLoaderModes->getMatrix(lambdaModes);
+
+    MatrixLoader<Eigen::MatrixXd>* matLoader = new MatrixLoader<Eigen::MatrixXd>();
+    matLoader->setFileName(m_lambdaModesCoeffsPath);
+    matLoader->load();
+    matLoader->getMatrix(contactIndices);
 }
 
 template<class DataTypes>
@@ -60,7 +71,7 @@ template<class DataTypes>
 void MORUnilateralInteractionConstraint<DataTypes>::init()
 {
 //        UnilateralInteractionConstraint<DataTypes>::init();
-//        msg_warning(this) << "Calling iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiit";
+        msg_warning(this) << "Calling iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiit of MORUnilateralInteractionConstraint";
 //        MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
 //        matLoaderModes->setFileName("lambdaModesNG2.txt");
 //        msg_warning(this) << "Name of data file readddddddddddddddddddddddddd";
@@ -91,30 +102,6 @@ template<class DataTypes>
 void MORUnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const core::ConstraintParams *, DataMatrixDeriv &c1_d, DataMatrixDeriv &c2_d, unsigned int &contactId
         , const DataVecCoord &, const DataVecCoord &)
 {
-    MatrixLoader<Eigen::MatrixXd>* matLoaderModes = new MatrixLoader<Eigen::MatrixXd>();
-    matLoaderModes->setFileName("lambdaModesVLONG7.txt");
-//    matLoaderModes->setFileName("lambdaModesWithFrictionPoint.txt");
-    msg_warning(this) << "Name of data file read";
-
-    matLoaderModes->load();
-    msg_warning(this) << "file loaded";
-
-    matLoaderModes->getMatrix(lambdaModes);
-    msg_warning(this) << "Matrix Obtained";
-
-
-    MatrixLoader<Eigen::MatrixXd>* matLoader = new MatrixLoader<Eigen::MatrixXd>();
-    matLoader->setFileName("lambdaCoeffsVLONG7.txt");
-//    matLoader->setFileName("lambdaCoeffsWithFrictionPoint.txt");
-    msg_warning(this) << "Name of data file read";
-
-    matLoader->load();
-    msg_warning(this) << "file loaded";
-
-    matLoader->getMatrix(contactIndices);
-    msg_warning(this) << "Matrix Obtained";
-    for (int i=0; i<10; i++)
-        msg_warning("MatrixLoader") << "Lambda coeffs:" << contactIndices(i);
     assert(this->mstate1);
     assert(this->mstate2);
     msg_warning() << "MORUnilateralInteractionConstraint id is : " << contactId;
@@ -175,10 +162,10 @@ void MORUnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const 
                         c1_it.addCol(c.m1, -lambdaModes(contactIndices(c.m2),numMode)*c.norm);
                         c2_it.addCol(c.m2, lambdaModes(contactIndices(c.m2),numMode)*c.norm);
                         somethingAdded = true;
-                        msg_warning() << "c.m2::::: " << c.m2;
-                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode):" << lambdaModes(contactIndices(c.m2),numMode);
-                        msg_warning() << "c.norm:" << c.norm;
-                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode)*c.norm:" << lambdaModes(contactIndices(c.m2),numMode)*c.norm;
+//                        msg_warning() << "c.m2::::: " << c.m2;
+//                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode):" << lambdaModes(contactIndices(c.m2),numMode);
+//                        msg_warning() << "c.norm:" << c.norm;
+//                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode)*c.norm:" << lambdaModes(contactIndices(c.m2),numMode)*c.norm;
                     }
 
                 if (c.mu > 0.0)
@@ -187,10 +174,10 @@ void MORUnilateralInteractionConstraint<DataTypes>::buildConstraintMatrix(const 
                         c1_it.addCol(c.m1, -lambdaModes(contactIndices(3*c.m2),numMode)*c.norm);
                         c2_it.addCol(c.m2, lambdaModes(contactIndices(3*c.m2),numMode)*c.norm);
                         somethingAdded = true;
-                        msg_warning() << "c.m2::::: " << c.m2;
-                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode):" << lambdaModes(contactIndices(3*c.m2),numMode);
-                        msg_warning() << "c.norm:" << c.norm;
-                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode)*c.norm:" << lambdaModes(contactIndices(3*c.m2),numMode)*c.norm;
+//                        msg_warning() << "c.m2::::: " << c.m2;
+//                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode):" << lambdaModes(contactIndices(3*c.m2),numMode);
+//                        msg_warning() << "c.norm:" << c.norm;
+//                        msg_warning() << "lambdaModes(contactIndices(c.m2),numMode)*c.norm:" << lambdaModes(contactIndices(3*c.m2),numMode)*c.norm;
 
                         MatrixDerivRowIterator c1_it_1 = c1.writeLine(line+1);
 
@@ -338,8 +325,6 @@ void MORUnilateralInteractionConstraint<DataTypes>::getPositionViolation(default
         }
 
         // Sets dfree in global violation vector
-        msg_warning() << "c.m2:" << c.m2;
-        msg_warning() << "v->size():" << v->size();
         if (c.mu == 0.0){
             for (int k=0;k<reducedContacts.size();k++){
                 if (contactIndices(c.m2) != -1)
@@ -360,7 +345,7 @@ void MORUnilateralInteractionConstraint<DataTypes>::getPositionViolation(default
 
 
 
-        msg_warning() << " c.id in violation is: " << c.id;
+//        msg_warning() << " c.id in violation is: " << c.id;
         c.dfree = dfree; // PJ : For isActive() method. Don't know if it's still usefull.
     }
      msg_warning() << " v size is: " << v->size();

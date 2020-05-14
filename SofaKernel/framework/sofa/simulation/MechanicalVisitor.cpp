@@ -1211,9 +1211,9 @@ void MechanicalAccumulateConstraint::bwdMechanicalMapping(simulation::Node* node
 Visitor::Result MechanicalBuildConstraintMatrix::fwdConstraintSet(simulation::Node* node, core::behavior::BaseConstraintSet* c)
 {
     ctime_t t0 = begin(node, c);
-    msg_warning("MechanicalBuildConstraintMatrix") << "contactId in visitor " << contactId;
+//    msg_warning("MechanicalBuildConstraintMatrix") << "contactId in visitor " << contactId;
     c->buildConstraintMatrix(cparams, res, contactId);
-    msg_warning("MechanicalBuildConstraintMatrix") << "contactId in visitor afterwards " << contactId;
+//    msg_warning("MechanicalBuildConstraintMatrix") << "contactId in visitor afterwards " << contactId;
     end(node, c, t0);
     return RESULT_CONTINUE;
 }
