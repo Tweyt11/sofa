@@ -19,73 +19,34 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <SofaImplicitField/config.h>
+#pragma once
 
-#include "initSofaImplicitField.h"
-#include "components/geometry/ScalarField.h"
-#include "components/geometry/SphericalField.h"
-#include "components/geometry/DiscreteGridField.h"
+#include <sofa/core/collision/Intersection.h>
+#include <SofaImplicitField/components/collision/ScalarFieldCollisionModel.h>
+#include <SofaBaseCollision/DiscreteIntersection.h>
+#include <SofaMeshCollision/PointModel.h>
 
-#include <sofa/helper/system/PluginManager.h>
-using sofa::helper::system::PluginManager ;
-
-namespace sofa
+namespace sofa::component::collision
 {
-
-namespace component
+namespace _scalarfieldintersection_
 {
-extern "C" {
-SOFA_SOFAIMPLICITFIELD_API void initExternalModule();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleName();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleVersion();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleLicense();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleDescription();
-SOFA_SOFAIMPLICITFIELD_API const char* getModuleComponentList();
-}
+using sofa::core::collision::BaseIntersector;
+using sofa::component::collision::ScalarFieldCollisionElement;
+using sofa::component::collision::DiscreteIntersection;
+using sofa::component::collision::PointModel;
 
-void initExternalModule()
+class SOFA_SOFAIMPLICITFIELD_API ScalarFieldIntersection : public BaseIntersector
 {
-    static bool first = true;
-    if (first)
-    {
-        first = false;
-    }
+    typedef DiscreteIntersection::OutputVector OutputVector;
 
-    if(SOFAIMPLICITFIELD_HAVE_SOFAPYTHON)
-        PluginManager::getInstance().loadPlugin("SofaPython") ;
-}
+public:
+    ScalarFieldIntersection(DiscreteIntersection* object);
 
-const char* getModuleName()
-{
-    return "SofaImplicitField";
-}
+    bool testIntersection(ScalarFieldCollisionElement&, Point&);
+    int computeIntersection(ScalarFieldCollisionElement&, Point&, OutputVector*);
 
-const char* getModuleVersion()
-{
-    return "1.0";
-}
-
-const char* getModuleLicense()
-{
-    return "LGPL";
-}
-
-
-const char* getModuleDescription()
-{
-    return "ImplicitField describe shapes of objects using implicit equation.  \n"
-           "In general of function of a n-dimentional space f(X) returns a scalar value  \n"
-           "The surface is then defined as f(x) = aConstant.";
-}
-
-const char* getModuleComponentList()
-{
-    return "SphereSurface ImplicitSurfaceMapping InterpolatedImplicitSurface "
-           "SphericalField DiscreteGridField";
-}
-
-
-} /// component
-
-} /// sofa
-
+protected:
+    DiscreteIntersection* intersection;
+};
+} /// namespace _scalarfieldintersection_
+} /// sofa::component::collision

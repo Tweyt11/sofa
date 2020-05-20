@@ -7,7 +7,7 @@ sofa_find_package(SofaPython QUIET)
 set(HEADER_FILES
     config.h.in
     initSofaImplicitField.h
-
+    registerCollisionModelToFactory.h
     # This is backward compatibility
     deprecated/SphereSurface.h
     deprecated/ImplicitSurfaceContainer.h    # This is a backward compatibility file toward ScalarField
@@ -18,10 +18,15 @@ set(HEADER_FILES
     components/geometry/ScalarField.h
     components/mapping/ImplicitSurfaceMapping.h
     components/mapping/ImplicitSurfaceMapping.inl
+
+    components/collision/ScalarFieldCollisionModel.h
+    components/collision/ScalarFieldIntersection.h
+
 )
 
 set(SOURCE_FILES
     initSofaImplicitField.cpp
+    registerCollisionModelToFactory.cpp
 
     ## This is a backward compatibility..
     deprecated/SphereSurface.cpp
@@ -31,11 +36,16 @@ set(SOURCE_FILES
     components/geometry/DiscreteGridField.cpp
     components/geometry/SphericalField.cpp
     components/mapping/ImplicitSurfaceMapping.cpp
+
+    components/collision/ScalarFieldCollisionModel.cpp
+    components/collision/ScalarFieldIntersection.cpp
 )
 
 set(EXTRA_FILES
     README.md
     examples/README.md
+    examples/ImplicitSurfaceMapping.scn
+    examples/ScalarFieldCollisionModel.scn
     )
 
 find_package(SofaTest QUIET)
@@ -45,7 +55,7 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${EXTRA_FILES})
 target_compile_options(${PROJECT_NAME} PRIVATE "-DSOFA_BUILD_SOFAIMPLICITFIELD")
-target_link_libraries(${PROJECT_NAME} PRIVATE SofaDistanceGrid)
+target_link_libraries(${PROJECT_NAME} PRIVATE SofaDistanceGrid SofaMeshCollision)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:include>")
