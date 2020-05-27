@@ -12,6 +12,8 @@
             <SphericalField name="field" center="0.0 0.0 0.0" radius="2.0"/>
             <MechanicalObject name="dofs" template="Rigid3" position="0.0 0.0 0.0 0.0 0.0 0.0 1.0"/>
             <ScalarFieldCollisionModel name="collision" field="@field" contactStiffness="1.0"/>
+            <RayMarchingEngine name="raymarching" field="@field" camera="@camera" />
+            <PointSplatRenderer name="renderer" points="@raymarching.intersections" radius="0.05"/>
     </Node>
 
     <Node name="Cloth">

@@ -37,19 +37,15 @@ static int RayMarchingEngineEngineClass = core::RegisterObject("A software imple
 
 RayMarchingEngine::RayMarchingEngine() :
     l_field(initLink("field", "The scalar field to render")),
-    l_camera(initLink("camera", "The camera that will render the scene")),
     d_intersections(initData(&d_intersections, "intersections", "The intersection locations")),
     d_resolution(initData(&d_resolution, Vec2i{20,20}, "resolution", "The amount of samples per visual axis.")),
-    d_cameraState(initData(&d_cameraState, "cameraState", "The camera state")),
     d_renderingCube(initData(&d_renderingCube, {-2.0,2.0,-2.0,2.0,-2.0,2.0}, "renderingCube", "The cube from where the rendering is done"))
 {
-    addInput(&d_cameraState);
     addOutput(&d_intersections);
 }
 
 void RayMarchingEngine::init()
 {
-    d_cameraState.setParent(l_camera.get()->findData("componentState"));
     setDirtyValue();
 }
 
@@ -84,9 +80,6 @@ void RayMarchingEngine::doUpdate()
 {
     std::cout << "Trying to updating the ray marching..." << std::endl;
 
-    if(l_camera.empty())
-        return;
-
     if(l_field.empty())
         return;
 
@@ -95,7 +88,6 @@ void RayMarchingEngine::doUpdate()
     /// can be done before or after setting up the outputs
     cleanDirty();
 
-    BaseCamera* camera = l_camera.get();
     ScalarField* field = l_field.get();
 
     std::cout << "Updating the ray marching..." << std::endl;
