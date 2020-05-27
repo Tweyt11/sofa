@@ -14,6 +14,7 @@ set(HEADER_FILES
     src/SofaOpenglVisual/OglLabel.h
     src/SofaOpenglVisual/OglModel.h
     src/SofaOpenglVisual/PointSplatModel.h
+    src/SofaOpenglVisual/PointSplatRenderer.h
     src/SofaOpenglVisual/MergeVisualModels.h
     src/SofaOpenglVisual/LightManager.h
     src/SofaOpenglVisual/Light.h
@@ -50,6 +51,7 @@ set(SOURCE_FILES
     src/SofaOpenglVisual/OglLabel.cpp
     src/SofaOpenglVisual/OglModel.cpp
     src/SofaOpenglVisual/PointSplatModel.cpp
+    src/SofaOpenglVisual/PointSplatRenderer.cpp
     src/SofaOpenglVisual/MergeVisualModels.cpp
     src/SofaOpenglVisual/Light.cpp
     src/SofaOpenglVisual/LightManager.cpp

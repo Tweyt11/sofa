@@ -41,7 +41,7 @@ SphericalField::SphericalField()
     , d_radiusSphere(initData(&d_radiusSphere, 1.0, "radius", "Radius of Sphere emitting the field. (default = 1)"))
     , d_centerSphere(initData(&d_centerSphere, Vec3d(0.0,0.0,0.0), "center", "Position of the Sphere Surface. (default=0 0 0)" ))
 {init();
-    }
+}
 
 void SphericalField::init()
 {
@@ -58,10 +58,10 @@ void SphericalField::reinit()
 double SphericalField::getValue(Vec3d& Pos, int& domain)
 {
     SOFA_UNUSED(domain) ;
-    double result = (Pos[0] - m_center[0])*(Pos[0] - m_center[0]) +
+    double result = sqrt((Pos[0] - m_center[0])*(Pos[0] - m_center[0]) +
             (Pos[1] - m_center[1])*(Pos[1] - m_center[1]) +
-            (Pos[2] - m_center[2])*(Pos[2] - m_center[2]) -
-            m_radius * m_radius ;
+            (Pos[2] - m_center[2])*(Pos[2] - m_center[2])) -
+            m_radius ;
     if(m_inside)
         result = -result;
 

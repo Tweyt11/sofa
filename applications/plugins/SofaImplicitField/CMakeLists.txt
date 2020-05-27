@@ -21,7 +21,7 @@ set(HEADER_FILES
 
     components/collision/ScalarFieldCollisionModel.h
     components/collision/ScalarFieldIntersection.h
-
+    components/engine/RayMarchingEngine.h
 )
 
 set(SOURCE_FILES
@@ -39,6 +39,7 @@ set(SOURCE_FILES
 
     components/collision/ScalarFieldCollisionModel.cpp
     components/collision/ScalarFieldIntersection.cpp
+    components/engine/RayMarchingEngine.cpp
 )
 
 set(EXTRA_FILES

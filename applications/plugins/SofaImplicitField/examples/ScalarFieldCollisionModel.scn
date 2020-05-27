@@ -26,7 +26,6 @@
             <Quad2TriangleTopologicalMapping object1="../../Container" object2="Container" />
             <TriangularFEMForceField name="FEM" youngModulus="60" poissonRatio="0.3" method="large" />
             <TriangularBendingSprings name="FEM-Bend" stiffness="300" damping="1.0" />
-<!--             <TriangleCollisionModel contactStiffness="20.0"/> -->
             <PointCollisionModel contactStiffness="1.0"/>
             <Node name="Visu">
                 <OglModel name="Visual" material="mat1 Diffuse 1 0.5 1.0 0.75 0.8 Ambient 1 0.2 0.2 0.2 1 Specular 1 0.6 0.6 0.6 0.6  Emissive 0 0 0 0 0 Shininess 0 45" />
