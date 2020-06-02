@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -79,10 +79,16 @@ public:
     {
     }
 
-    void endEdit(const core::ExecParams* params = nullptr)
+    [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]    
+    void endEdit(const core::ExecParams*)
+    {
+        endEdit();
+    }
+
+    void endEdit()
     {
         updatePath();
-        Inherit::endEdit(params);
+        Inherit::endEdit();
     }
 
     void setValue(const std::string& v)
@@ -183,10 +189,16 @@ public:
 
     virtual ~DataFileNameVector();
 
-    void endEdit(const core::ExecParams* params = nullptr)
+    void endEdit()
     {
         updatePath();
-        Inherit::endEdit(params);
+        Inherit::endEdit();
+    }
+
+    [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]    
+    void endEdit(const core::ExecParams*)
+    {
+        endEdit();
     }
 
     void setValue(const sofa::helper::vector<std::string>& v)

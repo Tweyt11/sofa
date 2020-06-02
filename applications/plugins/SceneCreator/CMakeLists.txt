@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.1)
 project(SceneCreator VERSION 0.1)
 
 find_package(SofaSimulation REQUIRED)
-sofa_find_package(Metis QUIET)
+sofa_find_package(SofaSparseSolver QUIET)
+find_package(Eigen3 REQUIRED)
 
 set(HEADER_FILES
     config.h.in
@@ -20,7 +21,8 @@ set(SOURCE_FILES
     )
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} SofaSimulationGraph)
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaSimulationGraph)
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 target_compile_definitions(${PROJECT_NAME} PRIVATE "-DSOFA_BUILD_SCENECREATOR")
 
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>")

@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -45,8 +45,6 @@ namespace objectmodel
 
 using std::string;
 static const std::string unnamed_label=std::string("unnamed");
-
-
 
 Base::Base()
     : ref_counter(0)
@@ -232,53 +230,28 @@ void Base::addAlias( BaseLink* link, const char* alias)
     m_aliasLink.insert(std::make_pair(std::string(alias),link));
 }
 
-/// Copy the source aspect to the destination aspect for each Data in the component.
-void Base::copyAspect(int destAspect, int srcAspect)
-{
-    for(VecData::const_iterator iData = m_vecData.begin(); iData != m_vecData.end(); ++iData)
-    {
-        (*iData)->copyAspect(destAspect, srcAspect);
-    }
-    for(VecLink::const_iterator iLink = m_vecLink.begin(); iLink != m_vecLink.end(); ++iLink)
-    {
-        (*iLink)->copyAspect(destAspect, srcAspect);
-    }
-}
-
-/// Release memory allocated for the specified aspect.
-void Base::releaseAspect(int aspect)
-{
-    for(VecData::const_iterator iData = m_vecData.begin(); iData != m_vecData.end(); ++iData)
-    {
-        (*iData)->releaseAspect(aspect);
-    }
-    for(VecLink::const_iterator iLink = m_vecLink.begin(); iLink != m_vecLink.end(); ++iLink)
-    {
-        (*iLink)->releaseAspect(aspect);
-    }
-}
-
 /// Get the type name of this object (i.e. class and template types)
 std::string Base::getTypeName() const
 {
-    std::string c = getClassName();
-    std::string t = getTemplateName();
-    if (t.empty())
-        return c;
-    else
-        return c + std::string("<") + t + std::string(">");
+    return getClass()->typeName;
 }
 
 /// Get the class name of this object
 std::string Base::getClassName() const
 {
-    return BaseClass::decodeClassName(typeid(*this));
+    return getClass()->className;
 }
 
 /// Get the template type names (if any) used to instantiate this object
 std::string Base::getTemplateName() const
 {
-    return BaseClass::decodeTemplateName(typeid(*this));
+    return getClass()->templateName;
+}
+
+/// Get the template type names (if any) used to instantiate this object
+std::string Base::getNameSpaceName() const
+{
+    return getClass()->namespaceName;
 }
 
 

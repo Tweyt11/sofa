@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -475,7 +475,7 @@ void SphereROI<DataTypes>::draw(const core::visual::VisualParams* vparams)
         {
 
             drawcenters.push_back(c[i]);
-            drawradii.push_back((float)(r[i] * 0.5));
+            drawradii.push_back(float(r[i]));
             
             if (edgeAngle.getValue() > 0)
             {

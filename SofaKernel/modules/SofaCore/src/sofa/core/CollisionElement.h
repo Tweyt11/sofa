@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -254,7 +254,15 @@ public:
     /// @}
 
     Model* model;   ///< CollisionModel containing the referenced element.
+
+    bool isActive(core::CollisionModel *cm = nullptr) const;
 };
+
+template<class CollisionModel>
+inline bool TCollisionElementIterator<CollisionModel>::isActive(core::CollisionModel *cm) const
+{
+    return model->myCollElemActiver->isCollElemActive(this->index, cm);
+}
 
 /**
  *  \brief Reference to an abstract collision element.

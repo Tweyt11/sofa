@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.1)
 project(Sofa) # Cannot use VERSION with patch like "00"
 
+# CMake policies
+if(POLICY CMP0072)
+    cmake_policy(SET CMP0072 NEW) # Use  GLVND libraries for OpenGL and GLX when available
+endif()
+
 # Manually define VERSION
-set(Sofa_VERSION_MAJOR 19)
+set(Sofa_VERSION_MAJOR 20)
 set(Sofa_VERSION_MINOR 06)
 set(Sofa_VERSION_PATCH 99)
 set(Sofa_VERSION ${Sofa_VERSION_MAJOR}.${Sofa_VERSION_MINOR}.${Sofa_VERSION_PATCH})
@@ -101,6 +106,8 @@ if(UNIX)
         list(APPEND CMAKE_INSTALL_RPATH
             "@loader_path/../lib"
             "@executable_path/../lib"
+            "@loader_path/../../Frameworks"
+            "@executable_path/../../Frameworks"
             )
         set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
     endif()
@@ -110,6 +117,7 @@ include(CompilerOptions)
 
 ## Boost (1.54.0 or higher) is now mandatory.
 set(BOOST_MIN_VERSION "1.54.0")
+set(Boost_NO_BOOST_CMAKE TRUE)
 find_package(Boost ${BOOST_MIN_VERSION} QUIET)
 if(NOT Boost_FOUND)
     if(WIN32)
@@ -224,18 +232,36 @@ endif()
 add_subdirectory(${SOFA_KERNEL_SOURCE_DIR}/SofaBase)
 add_subdirectory(${SOFA_KERNEL_SOURCE_DIR}/SofaCommon)
 add_subdirectory(SofaGeneral)
-add_subdirectory(SofaAdvanced)
-add_subdirectory(SofaMisc)
 
-## Packages
-add_subdirectory(applications/collections)
+## Modules
+## in the consortium convention a module is a similar to a plugin the difference is that
+## a module is hosted and managed by the consortium while plugins are hosted and managed by third parties.
+add_subdirectory(modules)
+
+# Sofa misc requires some targets defined in modules
+add_subdirectory(SofaMisc)
 
 # This is all the applications GUI stuff. As there is a dependency to this one
 # In scene creator and SofaPython...it is located here.
 add_subdirectory(SofaGui)
 
-# SofaTest, modules depend on SofaPython, so we add SofaPython before.
+# SofaTest depend on SofaPython, so we add SofaPython before.
+# and SofaPython needs SofaGui...
 sofa_add_plugin(applications/plugins/SofaPython SofaPython)
+
+## Collections
+## A collection is a "meta module" and containing several modules (usable at find level [find_package] and include/link level [add_library])
+# SofaAdvanced is legacy and deprecated since 20.06
+set(SOFA_LIST_OF_DEPRECATED_COLLECTIONS SofaAdvanced)
+option(SOFA_BUILD_DEPRECATED_COLLECTIONS "Build legacy collections (${SOFA_LIST_OF_DEPRECATED_COLLECTIONS})." ON)
+if(SOFA_BUILD_DEPRECATED_COLLECTIONS)
+    foreach(deprecated_collection ${SOFA_LIST_OF_DEPRECATED_COLLECTIONS})
+        add_subdirectory(${deprecated_collection})
+    endforeach()
+endif()
+## Customized collections
+# SofaComponentAll is a convenient collection to get all Sofa features
+add_subdirectory(applications/collections)
 
 ## Scene creator option
 option(SOFA_BUILD_SCENECREATOR "Compile the C++ API located in applications/plugins/SceneCreator" OFF)
@@ -259,11 +285,6 @@ if(SOFA_BUILD_TESTS)
     # Library used to write high level tests involving many components.
     add_subdirectory(applications/plugins/SofaTest)
 endif()
-
-## Modules
-## in the consortium convention a module is a similar to a plugin the difference is that
-## a module is hosted and managed by the consortium while plugins are hosted and managed by third parties.
-add_subdirectory(modules)
 
 if(SOFA_BUILD_TESTS)
     # Tests for all the modules, written using SofaTest.
@@ -405,18 +426,16 @@ cpack_add_component(resources
     GROUP runtime
     )
 
-set(CPACK_COMPONENTS_ALL applications headers Eigen_headers GTest_headers libraries resources)
+set(CPACK_COMPONENTS_ALL applications headers GTest_headers libraries resources)
 
 set(CPACK_COMPONENT_APPLICATIONS_DISPLAY_NAME "runSofa Application")
 set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "C++ Headers")
-set(CPACK_COMPONENT_EIGEN_HEADERS_DISPLAY_NAME "Eigen Headers")
 set(CPACK_COMPONENT_GTEST_HEADERS_DISPLAY_NAME "GTest Headers")
 set(CPACK_COMPONENT_LIBRARIES_DISPLAY_NAME "Libraries")
 set(CPACK_COMPONENT_RESOURCES_DISPLAY_NAME "Resources")
 
 set(CPACK_COMPONENT_APPLICATIONS_GROUP "Runtime")
 set(CPACK_COMPONENT_HEADERS_GROUP "Development")
-set(CPACK_COMPONENT_EIGEN_HEADERS_GROUP "Development")
 set(CPACK_COMPONENT_GTEST_HEADERS_GROUP "Development")
 set(CPACK_COMPONENT_LIBRARIES_GROUP "Development")
 set(CPACK_COMPONENT_RESOURCES_GROUP "Runtime")
@@ -454,10 +473,6 @@ if(CPACK_BINARY_IFW)
         )
     cpack_ifw_configure_component(headers
         DISPLAY_NAME "C++ Headers"
-        DEPENDS development
-        )
-    cpack_ifw_configure_component(Eigen_headers
-        DISPLAY_NAME "Eigen Headers"
         DEPENDS development
         )
     cpack_ifw_configure_component(GTest_headers

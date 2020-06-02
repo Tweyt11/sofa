@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -51,13 +51,13 @@ RayNewProximityIntersection::RayNewProximityIntersection(NewProximityIntersectio
 {
     if (addSelf)
     {
-        intersection->intersectors.ignore<RayModel, PointModel>();
-        intersection->intersectors.ignore<RayModel, LineModel>();
+        intersection->intersectors.ignore<RayCollisionModel, PointCollisionModel<sofa::defaulttype::Vec3Types>>();
+        intersection->intersectors.ignore<RayCollisionModel, LineCollisionModel<sofa::defaulttype::Vec3Types>>();
 
         // why rigidsphere has a different collision detection compared to RayDiscreteIntersection?
-        intersection->intersectors.add<RayModel, RigidSphereModel, RayNewProximityIntersection>(this);
+        intersection->intersectors.add<RayCollisionModel, RigidSphereModel, RayNewProximityIntersection>(this);
 
-        intersection->intersectors.add<RayModel, TriangleModel, RayNewProximityIntersection>(this);
+        intersection->intersectors.add<RayCollisionModel, TriangleCollisionModel<sofa::defaulttype::Vec3Types>, RayNewProximityIntersection>(this);
     }
 }
 

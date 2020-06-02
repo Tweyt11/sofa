@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -457,6 +457,8 @@ void JointSpringForceField<DataTypes>::draw(const core::visual::VisualParams* vp
 template <class DataTypes>
 void JointSpringForceField<DataTypes>::computeBBox(const core::ExecParams*  params, bool /* onlyVisible */)
 {
+    SOFA_UNUSED(params);
+
     const Real max_real = std::numeric_limits<Real>::max();
     const Real min_real = std::numeric_limits<Real>::lowest(); //not min() !
     Real maxBBox[3] = { min_real,min_real,min_real };
@@ -482,7 +484,7 @@ void JointSpringForceField<DataTypes>::computeBBox(const core::ExecParams*  para
             if (v1[c] < minBBox[c]) minBBox[c] = (Real)v1[c];
         }
     }
-    this->f_bbox.setValue(params, sofa::defaulttype::TBoundingBox<Real>(minBBox, maxBBox));
+    this->f_bbox.setValue( sofa::defaulttype::TBoundingBox<Real>(minBBox, maxBBox));
 }
 
 template <class DataTypes>

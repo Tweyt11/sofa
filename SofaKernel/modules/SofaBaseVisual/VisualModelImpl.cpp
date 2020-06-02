@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -1133,9 +1133,9 @@ void VisualModelImpl::computeTangents()
     m_vbitangents.endEdit();
 }
 
-void VisualModelImpl::computeBBox(const core::ExecParams* params, bool)
+void VisualModelImpl::computeBBox(const core::ExecParams*, bool)
 {
-    const VecCoord& x = getVertices(); //m_vertices.getValue(params);
+    const VecCoord& x = getVertices(); //m_vertices.getValue();
 
     SReal minBBox[3] = {std::numeric_limits<Real>::max(),std::numeric_limits<Real>::max(),std::numeric_limits<Real>::max()};
     SReal maxBBox[3] = {-std::numeric_limits<Real>::max(),-std::numeric_limits<Real>::max(),-std::numeric_limits<Real>::max()};
@@ -1148,7 +1148,7 @@ void VisualModelImpl::computeBBox(const core::ExecParams* params, bool)
             if (p[c] < minBBox[c]) minBBox[c] = p[c];
         }
     }
-    this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<SReal>(minBBox,maxBBox));
+    this->f_bbox.setValue(sofa::defaulttype::TBoundingBox<SReal>(minBBox,maxBBox));
 }
 
 

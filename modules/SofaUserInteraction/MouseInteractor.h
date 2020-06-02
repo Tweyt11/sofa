@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -58,7 +58,7 @@ class SOFA_USER_INTERACTION_API BaseMouseInteractor : public core::BehaviorModel
 {
 public:
     SOFA_ABSTRACT_CLASS(BaseMouseInteractor, core::BehaviorModel);
-    typedef sofa::component::collision::RayModel MouseCollisionModel;
+    typedef sofa::component::collision::RayCollisionModel MouseCollisionModel;
     typedef helper::vector< InteractionPerformer* > VecPerformer;
 protected:
     BaseMouseInteractor(): isAttached(false),distanceFromMouse(0) {}
@@ -122,15 +122,6 @@ public:
 
     core::behavior::BaseMechanicalState *getMouseContainer() override {return mouseInSofa;}
 
-
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-    static std::string templateName(const MouseInteractor<DataTypes>* = nullptr)
-    {
-        return DataTypes::Name();
-    }
 protected:
     MouseContainer       *mouseInSofa;
 };

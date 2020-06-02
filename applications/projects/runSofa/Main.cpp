@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU General Public License as published by the Free  *
@@ -29,6 +29,7 @@ using std::string;
 #include <vector>
 using std::vector;
 
+#include <runSofaValidation.h>
 
 #include <sofa/helper/ArgumentParser.h>
 #include <SofaSimulationCommon/common.h>
@@ -47,14 +48,12 @@ using sofa::simulation::Node;
 #include <SofaGraphComponent/SceneCheckerListener.h>
 using sofa::simulation::scenechecking::SceneCheckerListener;
 
-#include <SofaComponentCommon/initComponentCommon.h>
-#include <SofaComponentBase/initComponentBase.h>
-#include <SofaComponentGeneral/initComponentGeneral.h>
-#include <SofaComponentAdvanced/initComponentAdvanced.h>
-#include <SofaComponentMisc/initComponentMisc.h>
+#include <SofaCommon/initSofaCommon.h>
+#include <SofaBase/initSofaBase.h>
+#include <SofaGeneral/initSofaGeneral.h>
+#include <SofaMisc/initSofaMisc.h>
 
 #include <SofaGeneralLoader/ReadState.h>
-#include <SofaValidation/CompareState.h>
 #include <sofa/helper/Factory.h>
 #include <sofa/helper/cast.h>
 #include <sofa/helper/BackTrace.h>
@@ -75,7 +74,6 @@ using sofa::core::ExecParams ;
 #include <sofa/helper/system/console.h>
 using sofa::helper::Utils;
 
-using sofa::component::misc::CompareStateCreator;
 using sofa::component::misc::ReadStateActivator;
 using sofa::simulation::tree::TreeSimulation;
 using sofa::simulation::graph::DAGSimulation;
@@ -123,26 +121,6 @@ using sofa::helper::logging::ExceptionMessageHandler;
 #define TOSTRING(x) STRINGIFY(x)
 
 
-void loadVerificationData(string& directory, string& filename, Node* node)
-{
-    msg_info("") << "loadVerificationData from " << directory << " and file " << filename ;
-
-    string refFile;
-
-    refFile += directory;
-    refFile += '/';
-    refFile += SetDirectory::GetFileName(filename.c_str());
-
-    msg_info("") << "loadVerificationData " << refFile ;
-
-    CompareStateCreator compareVisitor(ExecParams::defaultInstance());
-    compareVisitor.setCreateInMapping(true);
-    compareVisitor.setSceneName(refFile);
-    compareVisitor.execute(node);
-
-    ReadStateActivator v_read(ExecParams::defaultInstance(), true);
-    v_read.execute(node);
-}
 
 void addGUIParameters(ArgumentParser* argumentParser)
 {
@@ -167,15 +145,13 @@ int main(int argc, char** argv)
         }
     }
 
-    // Add plugins and modules dirs to PluginRepository
+    // Add plugins dir to PluginRepository
     if ( FileSystem::isDirectory(Utils::getSofaPathPrefix()+"/plugins") )
     {
         PluginRepository.addFirstPath(Utils::getSofaPathPrefix()+"/plugins");
     }
 
     sofa::helper::BackTrace::autodump();
-
-    ExecParams::defaultInstance()->setAspectID(0);
 
 #ifdef WIN32
     {
@@ -225,11 +201,7 @@ int main(int argc, char** argv)
 
     vector<string> plugins;
     vector<string> files;
-#ifdef SOFA_SMP
-    string nProcs="";
-    bool        disableStealing = false;
-    bool        affinity = false;
-#endif
+
     string colorsStatus = "unset";
     string messageHandler = "auto";
     bool enableInteraction = false ;
@@ -360,29 +332,6 @@ int main(int argc, char** argv)
         "forward extra args to the python interpreter"
     );
 
-#ifdef SOFA_SMP
-    argParser->addArgument(
-        boost::program_options::value<bool>(&disableStealing)
-        ->default_value(false)
-        ->implicit_value(true),
-        "disableStealing,w",
-        "Disable Work Stealing"
-    );
-    argParser->addArgument(
-        boost::program_options::value<std::string>(&nProcs)
-        ->default_value(""),
-        "nprocs",
-        "Number of processor"
-    );
-    argParser->addArgument(
-        boost::program_options::value<bool>(&affinity)
-        ->default_value(false)
-        ->implicit_value(true),
-        "affinity",
-        "Enable aFfinity base Work Stealing"
-    );
-#endif
-
     // example of an option using lambda function which ensure the value passed is > 0
     argParser->addArgument(
         boost::program_options::value<unsigned int>(&nbMSSASamples)
@@ -413,11 +362,10 @@ int main(int argc, char** argv)
 #ifdef SOFA_HAVE_DAG
     sofa::simulation::graph::init();
 #endif
-    sofa::component::initComponentBase();
-    sofa::component::initComponentCommon();
-    sofa::component::initComponentGeneral();
-    sofa::component::initComponentAdvanced();
-    sofa::component::initComponentMisc();
+    sofa::component::initSofaBase();
+    sofa::component::initSofaCommon();
+    sofa::component::initSofaGeneral();
+    sofa::component::initSofaMisc();
 
 #ifdef SOFA_HAVE_DAG
     if (simulationType == "tree")
@@ -552,7 +500,7 @@ int main(int argc, char** argv)
 
     if (!verif.empty())
     {
-        loadVerificationData(verif, fileName, groot.get());
+        runSofa::Validation::execute(verif, fileName, groot.get());
     }
 
     if( computationTimeAtBegin )

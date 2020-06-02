@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -362,10 +362,6 @@ public:
     */
     Data<unsigned int> nFrames; ///< The number of frames of the sequence to be loaded. Default is the entire sequence.
 
-
-    virtual std::string getTemplateName() const	override { return templateName(this); }
-    static std::string templateName(const ImageContainer<ImageTypes>* = NULL) {	return ImageTypes::Name(); }
-
     ImageContainer() : Inherited()
       , image(initData(&image,ImageTypes(),"image","image"))
       , transform(initData(&transform, "transform" , "12-param vector for trans, rot, scale, ..."))
@@ -532,6 +528,8 @@ protected:
 
     void computeBBox(const core::ExecParams*  params, bool onlyVisible=false ) override
     {
+        SOFA_UNUSED(params);
+
         if( onlyVisible && !drawBB.getValue()) return;
 
         defaulttype::Vec<8,defaulttype::Vector3> c;
@@ -544,7 +542,7 @@ protected:
                 if(bbmin[j]>c[i][j]) bbmin[j]=c[i][j];
                 if(bbmax[j]<c[i][j]) bbmax[j]=c[i][j];
             }
-        this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<Real>(bbmin,bbmax));
+        this->f_bbox.setValue(sofa::defaulttype::TBoundingBox<Real>(bbmin,bbmax));
     }
 
     void draw(const core::visual::VisualParams* vparams) override

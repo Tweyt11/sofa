@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -88,7 +88,11 @@ public:
         {
             // only check if this template is correct if no template was given
             if (context->getMechanicalState() && dynamic_cast<sofa::core::behavior::MechanicalState<DataTypes>*>(context->getMechanicalState()) == nullptr)
+            {
+                arg->logError(std::string("No mechanical state with the datatype '") + DataTypes::Name() +
+                              "' found in the context node.");
                 return false; // this template is not the same as the existing MechanicalState
+            }
         }
 
         return BaseObject::canCreate(obj, context, arg);
@@ -101,17 +105,6 @@ public:
         return core::objectmodel::BaseObject::create(tObj, context, arg);
     }
 
-    virtual std::string getTemplateName() const override
-    {
-        return templateName(this);
-    }
-
-    static std::string templateName(const PlaneROI<DataTypes>* = nullptr)
-    {
-        return DataTypes::Name();
-    }
-
-
 protected:
     bool isPointInPlane(const CPos& p);
     bool isPointInPlane(const PointID& pid);
@@ -120,7 +113,6 @@ protected:
     bool isTetrahedronInPlane(const Tetra& t);
 
     void computePlane(unsigned int planeIndex);
-
 
 public:
     //Input

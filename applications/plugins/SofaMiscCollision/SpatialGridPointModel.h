@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -40,10 +40,10 @@ namespace collision
 {
 
 
-class SOFA_MISC_COLLISION_API SpatialGridPointModel : public PointModel
+class SOFA_MISC_COLLISION_API SpatialGridPointModel : public PointCollisionModel<sofa::defaulttype::Vec3Types>
 {
 public:
-    SOFA_CLASS(SpatialGridPointModel, PointModel);
+    SOFA_CLASS(SpatialGridPointModel, PointCollisionModel<sofa::defaulttype::Vec3Types>);
 
     typedef container::SpatialGridContainer<defaulttype::Vec3Types> GridContainer;
     typedef GridContainer::Grid Grid;

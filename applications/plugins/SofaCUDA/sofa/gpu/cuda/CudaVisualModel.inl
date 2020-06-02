@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -450,6 +450,8 @@ void CudaVisualModel< TDataTypes >::internalDraw(const core::visual::VisualParam
 template<class TDataTypes>
 void CudaVisualModel< TDataTypes >::computeBBox(const core::ExecParams* params, bool)
 {
+    SOFA_UNUSED(params);
+
     const VecCoord& x = state->write(core::VecCoordId::position())->getValue();
 
     SReal minBBox[3] = {std::numeric_limits<Real>::max(),std::numeric_limits<Real>::max(),std::numeric_limits<Real>::max()};
@@ -463,7 +465,7 @@ void CudaVisualModel< TDataTypes >::computeBBox(const core::ExecParams* params, 
             if (p[c] < minBBox[c]) minBBox[c] = p[c];
         }
     }
-    this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<SReal>(minBBox,maxBBox));
+    this->f_bbox.setValue(sofa::defaulttype::TBoundingBox<SReal>(minBBox,maxBBox));
 }
 
 

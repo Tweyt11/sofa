@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -22,8 +22,16 @@
 #ifndef SOFA_CORE_DATATRACKER_H
 #define SOFA_CORE_DATATRACKER_H
 
+#include <functional>
+#include <map>
+#include <vector>
 #include <sofa/core/objectmodel/DDGNode.h>
 #include "objectmodel/ComponentState.h"
+namespace sofa::core::objectmodel
+{
+    class Base;
+    class BaseData;
+}
 
 namespace sofa
 {
@@ -166,35 +174,10 @@ namespace core
     public:
         /// set the update function to call
         /// when asking for an output and any input changed.
-        [[deprecated("This function has been replaced by addCallback, and will not perform as expected anymore. Update your code.")]]
-        void setUpdateCallback(std::function<void(DataTrackerEngine*)>){}
-
-        /// set the update function to call
-        /// when asking for an output and any input changed.
-        void addCallback(std::function<sofa::core::objectmodel::ComponentState(void)> f);
+        void addCallback(std::function<void(DataTrackerEngine*)> f);
 
         /// Calls the callback when one of the data has changed.
         void update() override;
-
-        void setName(const std::string& n)
-        {
-            m_name = n;
-        }
-
-        /// This method is needed by DDGNode
-        const std::string& getName() const override
-        {
-            return m_name;
-        }
-
-        void setOwner(objectmodel::Base* owner)
-        {
-            m_owner = owner;
-        }
-        /// This method is needed by DDGNode
-        objectmodel::Base* getOwner() const override { return m_owner; }
-        /// This method is needed by DDGNode
-        objectmodel::BaseData* getData() const override { return nullptr; }
 
     protected:
         std::vector<std::function<sofa::core::objectmodel::ComponentState(void)>> m_callbacks;
@@ -221,28 +204,18 @@ namespace core
 
         /// The trick is here, this function is called as soon as the input data changes
         /// and can then trigger the callback
-        void setDirtyValue(const core::ExecParams* params = nullptr) override
+        void setDirtyValue() override
         {
             m_functor( this );
 
             // the input needs to be inform their output (including this DataTrackerFunctor)
             // are not dirty, to be sure they will call setDirtyValue when they are modified
-            cleanDirtyOutputsOfInputs(params);
+            cleanDirtyOutputsOfInputs();
         }
 
 
         /// This method is needed by DDGNode
         void update() override{}
-        /// This method is needed by DDGNode
-        const std::string& getName() const override
-        {
-            static const std::string emptyName ="";
-            return emptyName;
-        }
-        /// This method is needed by DDGNode
-        objectmodel::Base* getOwner() const override { return nullptr; }
-        /// This method is needed by DDGNode
-        objectmodel::BaseData* getData() const override { return nullptr; }
 
     private:
 

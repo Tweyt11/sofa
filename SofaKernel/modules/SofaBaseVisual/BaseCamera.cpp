@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -20,6 +20,8 @@
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
 #include <cmath>
+#include <sofa/helper/rmath.h>
+using sofa::helper::isEqual;
 
 #include <SofaBaseVisual/BaseCamera.h>
 #include <sofa/core/visual/VisualParams.h>
@@ -263,7 +265,7 @@ bool glhUnProjectf(Real winx, Real winy, Real winz, Real *modelview, Real *proje
     //Objects coordinates
     out = m * in;
 
-    if (out[3] == 0.0)
+    if (isEqual(out[3], 0.0))
         return false;
     out[3] = 1.0 / out[3];
     objectCoordinate[0] = out[0] * out[3];
@@ -358,8 +360,9 @@ BaseCamera::Vec2 BaseCamera::worldToScreenCoordinates(const BaseCamera::Vec3& po
     this->getProjectionMatrix(projection.ptr());
 
     clipSpacePos = projection * (modelview * clipSpacePos);
-    if (clipSpacePos.w() == 0.0)
-        clipSpacePos.w() = 1.0;
+    if (isEqual(clipSpacePos.w(), 0.0))
+        return Vec2(std::nan(""), std::nan(""));
+
     sofa::defaulttype::Vec3 ndcSpacePos = sofa::defaulttype::Vec3(clipSpacePos.x(),clipSpacePos.y(), clipSpacePos.z()) * clipSpacePos.w();
     Vec2 screenCoord = Vec2((ndcSpacePos.x() + 1.0) / 2.0 * viewport[2], (ndcSpacePos.y() + 1.0) / 2.0 * viewport[3]);
     return screenCoord + Vec2(viewport[0], viewport[1]);
@@ -642,18 +645,85 @@ BaseCamera::Ray BaseCamera::toRay() const
 
 void BaseCamera::computeZ()
 {
+    if (p_widthViewport == 0 || p_heightViewport == 0)
+        return Vec3(0, 0, p.z());
+    return Vec3(p.x() / this->p_widthViewport.getValue(),
+                p.y() / this->p_heightViewport.getValue(),
+                p.z());
+}
+BaseCamera::Vec3 BaseCamera::screenToWorldPoint(const BaseCamera::Vec3& p)
+{
+    Vec3 vP = screenToViewportPoint(p);
+    return viewportToWorldPoint(vP);
+}
+
+BaseCamera::Vec3 BaseCamera::viewportToScreenPoint(const BaseCamera::Vec3& p) const
+{
+    return Vec3(p.x() * p_widthViewport.getValue(), p.y() * p_heightViewport.getValue(), p.z());
+}
+BaseCamera::Vec3 BaseCamera::viewportToWorldPoint(const BaseCamera::Vec3& p)
+{
+    Vec3 nsPosition = Vec3(p.x() * 2.0 - 1.0, (1.0 - p.y()) * 2.0 - 1.0, p.z() * 2.0 - 1.0);
+
+    Mat4 glP, glM;
+    getOpenGLProjectionMatrix(glP.ptr());
+    getOpenGLModelViewMatrix(glM.ptr());
+
+    Vec4 vsPosition = glP.inverted().transposed() * Vec4(nsPosition, 1.0);
+    if(isEqual(vsPosition.w(), 0.0))
+    {
+        return Vec3(std::nan(""), std::nan(""), std::nan(""));
+    }
+    vsPosition /= vsPosition.w();
+    Vec4 v = (glM.inverted().transposed() * vsPosition);
+
+    return Vec3(v[0],v[1],v[2]);
+}
+
+BaseCamera::Vec3 BaseCamera::worldToScreenPoint(const BaseCamera::Vec3& p)
+{
+    Mat4 glP, glM;
+    getOpenGLProjectionMatrix(glP.ptr());
+    getOpenGLModelViewMatrix(glM.ptr());
+
+    Vec4 nsPosition = (glP.transposed() * glM.transposed() * Vec4(p, 1.0));
+
+    if(isEqual(nsPosition.w(), 0.0))
+    {
+        return Vec3(std::nan(""), std::nan(""), std::nan(""));
+    }
+
+    nsPosition /= nsPosition.w();
+    return Vec3((nsPosition.x() * 0.5 + 0.5) * p_widthViewport.getValue() + 0.5,
+                p_heightViewport.getValue() - (nsPosition.y() * 0.5 + 0.5) * p_heightViewport.getValue() + 0.5,
+                (nsPosition.z() * 0.5 + 0.5));
+}
+BaseCamera::Vec3 BaseCamera::worldToViewportPoint(const BaseCamera::Vec3& p)
+{
+    Vec3 ssPoint = worldToScreenPoint(p);
+    return Vec3(ssPoint.x() / p_widthViewport.getValue(), ssPoint.y() / p_heightViewport.getValue(), ssPoint.z());
+}
+
+BaseCamera::Ray BaseCamera::viewportPointToRay(const BaseCamera::Vec3& p)
+{
+    return Ray(this->p_position.getValue(), (viewportToWorldPoint(p) - this->p_position.getValue()));
+}
+BaseCamera::Ray BaseCamera::screenPointToRay(const BaseCamera::Vec3& p)
+{
+    return Ray(this->p_position.getValue(), (screenToWorldPoint(p) - this->p_position.getValue()));
+}
+
+BaseCamera::Ray BaseCamera::toRay() const
+{
+    return Ray(this->p_position.getValue(), this->p_lookAt.getValue());
+}
+
+
+
+void BaseCamera::computeZ()
+{
     if (p_computeZClip.getValue())
     {
-        double zNear = 1e10;
-        double zFar = -1e10;
-
-        const Vec3 & minBBox = p_minBBox.getValue();
-        const Vec3 & maxBBox = p_maxBBox.getValue();
-
-        //get the same zFar and zNear calculations as QGLViewer
-        sceneCenter = (minBBox + maxBBox)*0.5;
-        sceneRadius = 0.5*(maxBBox - minBBox).norm();
-
         //modelview transform
         defaulttype::SolidTypes<SReal>::Transform world_H_cam(p_position.getValue(), this->getOrientation());
 
@@ -663,9 +733,8 @@ void BaseCamera::computeZ()
         double zClippingCoeff = 5;
         double zNearCoeff = 0.01;
 
-
-        zNear = distanceCamToCenter - sceneRadius;
-        zFar = (zNear + 2 * sceneRadius) * 1.1;
+        double zNear = distanceCamToCenter - sceneRadius;
+        double zFar = (zNear + 2 * sceneRadius) * 1.1;
         zNear = zNear * zNearCoeff;
 
         double zMin = zNearCoeff * zClippingCoeff * sceneRadius;

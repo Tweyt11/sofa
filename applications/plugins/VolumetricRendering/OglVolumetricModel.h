@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -56,8 +56,8 @@ public:
     typedef sofa::core::topology::BaseMeshTopology::SeqTetrahedra SeqTetrahedra;
     typedef sofa::core::topology::BaseMeshTopology::SeqHexahedra SeqHexahedra;
 
-    Data< sofa::defaulttype::ResizableExtVector<Tetrahedron> > d_tetrahedra; ///< Tetrahedra to draw
-    Data< sofa::defaulttype::ResizableExtVector<Hexahedron> > d_hexahedra; ///< Hexahedra to draw
+    Data< sofa::helper::vector<Tetrahedron> > d_tetrahedra; ///< Tetrahedra to draw
+    Data< sofa::helper::vector<Hexahedron> > d_hexahedra; ///< Hexahedra to draw
 
     Data<float> d_volumeScale; ///< Scale for each volumetric primitive
     Data<bool> d_depthTest; ///< Set Depth Test
@@ -92,7 +92,7 @@ private:
     //Attributes
     sofa::component::visualmodel::OglFloat4Attribute::SPtr m_vertexColors;
 
-    sofa::defaulttype::ResizableExtVector<Tetrahedron> m_hexaToTetrahedra;
+    sofa::helper::vector<Tetrahedron> m_hexaToTetrahedra;
 
     sofa::helper::vector<Coord> m_tetraBarycenters;
     sofa::helper::vector<Coord> m_hexaBarycenters;

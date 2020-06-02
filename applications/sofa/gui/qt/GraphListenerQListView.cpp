@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU General Public License as published by the Free  *
@@ -25,7 +25,7 @@
 #include <sofa/core/collision/CollisionGroupManager.h>
 #include <sofa/core/collision/ContactManager.h>
 #include <sofa/core/objectmodel/ConfigurationSetting.h>
-#include <SofaComponentBase/InfoComponent.h>
+#include <SofaBaseUtils/InfoComponent.h>
 using sofa::component::InfoComponent ;
 
 #include "resources/icons/iconmultinode.xpm"

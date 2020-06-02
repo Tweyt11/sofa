@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -108,6 +108,95 @@ std::map<std::string, ComponentChange> uncreatableComponents = {
     {"SlicedVolumetricModel", Pluginized("v19.06", "SofaOpenglVisual")},
     {"VisualManagerPass", Pluginized("v19.06", "SofaOpenglVisual")},
     {"VisualmanagerSecondaryPass", Pluginized("v19.06", "SofaOpenglVisual")},
+
+    // SofaValidation was pluginized in #1302
+    {"CompareState", Pluginized("v20.06", "SofaValidation")},
+    {"CompareTopology", Pluginized("v20.06", "SofaValidation")},
+    {"DataController", Pluginized("v20.06", "SofaValidation")},
+    {"DataMonitor", Pluginized("v20.06", "SofaValidation")},
+    {"DevAngleCollisionMonitor", Pluginized("v20.06", "SofaValidation")},
+    {"DevMonitorManager", Pluginized("v20.06", "SofaValidation")},
+    {"DevTensionMonitor", Pluginized("v20.06", "SofaValidation")},
+    {"EvalPointsDistance", Pluginized("v20.06", "SofaValidation")},
+    {"EvalSurfaceDistance", Pluginized("v20.06", "SofaValidation")},
+    {"ExtraMonitor", Pluginized("v20.06", "SofaValidation")},
+    {"Monitor", Pluginized("v20.06", "SofaValidation")},
+
+    // SofaDenseSolver was pluginized in #1299
+    {"LULinearSolver", Pluginized("v20.06", "SofaDenseSolver")},
+    //{"NewMatCholeskySolver", Pluginized("v20.06", "SofaDenseSolver")},
+    //{"NewMatCGLinearSolver", Pluginized("v20.06", "SofaDenseSolver")},
+
+    // SofaDenseSolver was pluginized in #1344
+    {"DynamicSparseGridGeometryAlgorithms", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"DynamicSparseGridTopologyAlgorithms", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"DynamicSparseGridTopologyContainer", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"DynamicSparseGridTopologyModifier", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"HexahedronCompositeFEMForceFieldAndMass", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"HexahedronCompositeFEMMapping", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"MultilevelHexahedronSetTopologyContainer", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"NonUniformHexahedralFEMForceFieldAndMass", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"NonUniformHexahedronFEMForceFieldAndMass", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"SparseGridMultipleTopology", Pluginized("v20.06", "SofaNonUniformFem")},
+    {"SparseGridRamificationTopology", Pluginized("v20.06", "SofaNonUniformFem")},
+
+    /***********************/
+    // REMOVED SINCE v20.06
+
+    // SofaKernel
+    {"Point", Removed("v19.12", "v20.06")},
+    {"TPointModel", Removed("v19.12", "v20.06")},
+    {"PointModel", Removed("v19.12", "v20.06")},
+    {"PointMesh", Removed("v19.12", "v20.06")},
+    {"PointSet", Removed("v19.12", "v20.06")},
+
+    {"Line", Removed("v19.12", "v20.06")},
+    {"TLineModel", Removed("v19.12", "v20.06")},
+    {"LineMeshModel", Removed("v19.12", "v20.06")},
+    {"LineSetModel", Removed("v19.12", "v20.06")},
+    {"LineMesh", Removed("v19.12", "v20.06")},
+    {"LineSet", Removed("v19.12", "v20.06")},
+    {"LineModel", Removed("v19.12", "v20.06")},
+
+    {"Triangle", Removed("v19.12", "v20.06")},
+    {"TriangleSet", Removed("v19.12", "v20.06")},
+    {"TriangleMesh", Removed("v19.12", "v20.06")},
+    {"TriangleSetModel", Removed("v19.12", "v20.06")},
+    {"TriangleMeshModel", Removed("v19.12", "v20.06")},
+    {"TriangleModel", Removed("v19.12", "v20.06")},
+    {"TTriangleModel", Removed("v19.12", "v20.06")},
+
+    {"Sphere", Removed("v19.12", "v20.06")},
+    {"SphereModel", Removed("v19.12", "v20.06")},
+    {"TSphereModel", Removed("v19.12", "v20.06")},
+
+    {"Capsule", Removed("v19.12", "v20.06")},
+    {"CapsuleModel", Removed("v19.12", "v20.06")},
+    {"TCapsuleModel", Removed("v19.12", "v20.06")},
+
+    {"RigidCapsule", Removed("v19.12", "v20.06")},
+    {"CapsuleModel", Removed("v19.12", "v20.06")},
+
+    {"Cube", Removed("v19.12", "v20.06")},
+    {"CubeModel", Removed("v19.12", "v20.06")},
+
+    {"CudaPoint", Removed("v19.12", "v20.06")},
+    {"CudaPointModel", Removed("v19.12", "v20.06")},
+
+    {"Cylinder", Removed("v19.12", "v20.06")},
+    {"CylinderModel", Removed("v19.12", "v20.06")},
+
+    {"Ray", Removed("v19.12", "v20.06")},
+    {"RayModel", Removed("v19.12", "v20.06")},
+
+    {"Tetrahedron", Removed("v19.12", "v20.06")},
+    {"TetrahedronModel", Removed("v19.12", "v20.06")},
+
+    {"Euler", Removed("v19.12", "v20.06")},
+    {"EulerExplicit", Removed("v19.12", "v20.06")},
+    {"ExplicitEuler", Removed("v19.12", "v20.06")},
+    {"EulerSolver", Removed("v19.12", "v20.06")},
+    {"ExplicitEulerSolver", Removed("v19.12", "v20.06")},
 
     /***********************/
     // REMOVED SINCE v18.12

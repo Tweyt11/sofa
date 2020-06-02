@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -144,7 +144,7 @@ void SmoothMeshEngine<DataTypes>::doUpdate()
  * initial geometry. Thus, the output coordinates are "inside" the input one's
  */
 template<class DataTypes>
-void SmoothMeshEngine<DataTypes>::computeBBox(const core::ExecParams* params, bool onlyVisible)
+void SmoothMeshEngine<DataTypes>::computeBBox(const core::ExecParams*, bool onlyVisible)
 {
 	if( !onlyVisible ) return;
 
@@ -163,7 +163,7 @@ void SmoothMeshEngine<DataTypes>::computeBBox(const core::ExecParams* params, bo
 		}
 	}
 
-	this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
+	this->f_bbox.setValue(sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
 }
 
 template <class DataTypes>

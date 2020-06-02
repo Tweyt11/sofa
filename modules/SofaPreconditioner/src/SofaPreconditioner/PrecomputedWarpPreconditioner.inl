@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -19,10 +19,6 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-// Author: Hadrien Courtecuisse
-//
-// Copyright: See COPYING file that comes with this distribution
-
 #ifndef SOFA_COMPONENT_LINEARSOLVER_PPRECOMPUTEDWARPPRECONDITIONER_INL
 #define SOFA_COMPONENT_LINEARSOLVER_PPRECOMPUTEDWARPPRECONDITIONER_INL
 
@@ -395,7 +391,6 @@ void PrecomputedWarpPreconditioner<TDataTypes>::loadMatrixWithSolver()
 
             if(pid_j*dof_on_node+d <2 )
             {
-                EulerSolver->f_verbose.setValue(true);
                 EulerSolver->f_printLog.setValue(true);
                 msg_info() <<"getF : "<<force;
             }
@@ -411,7 +406,6 @@ void PrecomputedWarpPreconditioner<TDataTypes>::loadMatrixWithSolver()
 
             if(pid_j*dof_on_node+d < 2)
             {
-                EulerSolver->f_verbose.setValue(false);
                 EulerSolver->f_printLog.setValue(false);
                 msg_info()<<"getV : "<<velocity;
             }

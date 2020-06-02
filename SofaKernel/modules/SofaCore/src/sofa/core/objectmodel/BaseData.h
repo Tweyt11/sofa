@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -24,6 +24,8 @@
 
 #include <sofa/core/core.h>
 #include <sofa/core/objectmodel/DDGNode.h>
+#include <sofa/core/objectmodel/BaseClass.h>
+#include <sofa/core/objectmodel/Link.h>
 
 namespace sofa
 {
@@ -54,7 +56,7 @@ public:
         FLAG_DISPLAYED  = 1 << 1, ///< The Data will be displayed in GUIs.
         FLAG_PERSISTENT = 1 << 2, ///< The Data contains persistent information.
         FLAG_AUTOLINK   = 1 << 3, ///< The Data should be autolinked when using the src="..." syntax.
-        FLAG_REQUIRED = 1 << 4, ///< True if the Data has to be set for the owner component to be valid (a warning is displayed at init otherwise) 
+        FLAG_REQUIRED = 1 << 4, ///< True if the Data has to be set for the owner component to be valid (a warning is displayed at init otherwise)
         FLAG_ANIMATION_INSTANCE = 1 << 10,
         FLAG_VISUAL_INSTANCE = 1 << 11,
         FLAG_HAPTICS_INSTANCE = 1 << 12,
@@ -67,11 +69,15 @@ public:
 
     /// @name Class reflection system
     /// @{
-    typedef TClass<BaseData,DDGNode> MyClass;
-    static const MyClass* GetClass() { return MyClass::get(); }
-    const BaseClass* getClass() const override
-    { return GetClass(); }
-    /// @}
+    typedef TClass<BaseData> MyClass;
+    static const sofa::core::objectmodel::BaseClass* GetClass() { return MyClass::get(); }
+    const BaseClass* getClass() const
+    { return GetClass(); }    
+    template<class T>
+    static void dynamicCast(T*& ptr, Base* /*b*/)
+    {
+        ptr = nullptr; // BaseData does not derive from Base
+    }/// @}
 
     /// This internal class is used by the initData() methods to store initialization parameters of a Data
     class BaseInitData
@@ -99,7 +105,7 @@ public:
      */
     BaseData(const std::string& helpMsg, DataFlags flags = FLAG_DEFAULT);
 
-    //TODO(dmarchal:08/10/2019)Uncomment the deprecated when VS2015 support will be dropped. 
+    //TODO(dmarchal:08/10/2019)Uncomment the deprecated when VS2015 support will be dropped.
     //[[deprecated("Replaced with one with std::string instead of char* version")]]
     BaseData(const char* helpMsg, DataFlags flags = FLAG_DEFAULT);
 
@@ -110,7 +116,7 @@ public:
      */
     BaseData(const std::string& helpMsg, bool isDisplayed=true, bool isReadOnly=false);
 
-    //TODO(dmarchal:08/10/2019)Uncomment the deprecated when VS2015 support will be dropped. 
+    //TODO(dmarchal:08/10/2019)Uncomment the deprecated when VS2015 support will be dropped.
     //[[deprecated("Replaced with one with std::string instead of char* version")]]
     BaseData(const char* helpMsg, bool isDisplayed=true, bool isReadOnly=false);
 
@@ -158,12 +164,6 @@ public:
     /// Note that this is a one-time copy and not a permanent link (otherwise see setParent())
     /// @return true if the copy was successful.
     virtual bool copyValue(const BaseData* parent);
-
-    /// Copy the value of an aspect into another one.
-    void copyAspect(int destAspect, int srcAspect) override = 0;
-
-    /// Release memory allocated for the specified aspect.
-    virtual void releaseAspect(int aspect) = 0;
 
     /// Get a help message that describes this %Data.
     const std::string& getHelp() const { return help; }
@@ -225,7 +225,6 @@ public:
     /// @}
 
     /// If we use the Data as a link and not as value directly
-    //void setLinkPath(const std::string &path) { m_linkPath = path; }
     std::string getLinkPath() const { return parentBaseData.getPath(); }
     /// Return whether this %Data can be used as a linkPath.
     ///
@@ -234,18 +233,18 @@ public:
     virtual bool canBeLinked() const { return true; }
 
     /// Return the Base component owning this %Data.
-    Base* getOwner() const override { return m_owner; }
+    Base* getOwner() const { return m_owner; }
     /// Set the owner of this %Data.
     void setOwner(Base* o) { m_owner=o; }
 
     /// This method is needed by DDGNode
-    BaseData* getData() const override
+    BaseData* getData() const
     {
         return const_cast<BaseData*>(this);
     }
 
     /// Return the name of this %Data within the Base component
-    const std::string& getName() const override { return m_name; }
+    const std::string& getName() const { return m_name; }
     /// Set the name of this %Data.
     ///
     /// This method should not be called directly, the %Data registration methods in Base should be used instead.
@@ -257,18 +256,26 @@ public:
 
     /// True if the value has been modified
     /// If this data is linked, the value of this data will be considered as modified
-    /// (even if the parent's value has not been modified)
-    bool isSet(const core::ExecParams* params=nullptr) const { return m_isSets[static_cast<size_t>(currentAspect(params))]; }
+    /// (even if the parent's value has not been modified)s
+    [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
+    bool isSet(const core::ExecParams*) const { return isSet(); }
+    bool isSet() const { return m_isSet; }
 
     /// Reset the isSet flag to false, to indicate that the current value is the default for this %Data.
-    void unset(const core::ExecParams* params=nullptr) { m_isSets[static_cast<size_t>(currentAspect(params))] = false; }
+    [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
+    void unset(const core::ExecParams*) { unset(); }
+    void unset() { m_isSet = false; }
 
     /// Reset the isSet flag to true, to indicate that the current value has been modified.
-    void forceSet(const core::ExecParams* params=nullptr) { m_isSets[static_cast<size_t>(currentAspect(params))] = true; }
+    [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
+    void forceSet(const core::ExecParams*) { forceSet(); }
+    void forceSet() { m_isSet = true; }
 
     /// Return the number of changes since creation
     /// This can be used to efficiently detect changes
-    int getCounter(const core::ExecParams* params=nullptr) const { return m_counters[static_cast<size_t>(currentAspect(params))]; }
+    [[deprecated("2020-03-25: Aspect have been deprecated for complete removal in PR #1269. You can probably update your code by removing aspect related calls. If the feature was important to you contact sofa-dev. ")]]
+    int getCounter(const core::ExecParams*) const { return getCounter(); }
+    int getCounter() const { return m_counter; }
 
     /// @}
 
@@ -290,8 +297,6 @@ public:
     typedef std::vector<BaseLink*> VecLink;
     /// Accessor to the vector containing all the fields of this object
     const VecLink& getLinks() const { return m_vecLink; }
-
-    virtual bool findDataLinkDest(DDGNode*& ptr, const std::string& path, const BaseLink* link) override;
 
     virtual bool findDataLinkDest(BaseData*& ptr, const std::string& path, const BaseLink* link);
 
@@ -336,17 +341,16 @@ protected:
     /// widget
     std::string widget {""};
     /// Number of changes since creation
-    helper::fixed_array<int, SOFA_DATA_MAX_ASPECTS> m_counters;
+    int m_counter;
     /// True if this %Data is set, i.e. its value is different from the default value
-    helper::fixed_array<bool, SOFA_DATA_MAX_ASPECTS> m_isSets;
+    bool m_isSet;
     /// Flags indicating the purpose and behaviour of this %Data
     DataFlags m_dataFlags;
     /// Return the Base component owning this %Data
     Base* m_owner {nullptr};
     /// Data name within the Base component
     std::string m_name;
-//    /// Link to another Data, if used as an input from another Data (@ typo).
-//    std::string m_linkPath;
+
     /// Parent Data
     SingleLink<BaseData,BaseData,BaseLink::FLAG_STOREPATH|BaseLink::FLAG_DATALINK|BaseLink::FLAG_DUPLICATE> parentBaseData;
 

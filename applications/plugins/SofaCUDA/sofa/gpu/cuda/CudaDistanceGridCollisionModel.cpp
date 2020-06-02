@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -597,12 +597,12 @@ void CudaRigidDistanceGridCollisionModel::setNewState(int index, double dt, Cuda
     modified = true;
 }
 
-using sofa::component::collision::CubeModel;
+using sofa::component::collision::CubeCollisionModel;
 
 /// Create or update the bounding volume hierarchy.
 void CudaRigidDistanceGridCollisionModel::computeBoundingTree(int maxDepth)
 {
-    CubeModel* cubeModel = this->createPrevious<CubeModel>();
+    CubeCollisionModel* cubeModel = this->createPrevious<CubeCollisionModel>();
 
     if (!modified && !isMoving() && !cubeModel->empty()) return; // No need to recompute BBox if immobile
 

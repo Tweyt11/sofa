@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU General Public License as published by the Free  *
@@ -24,6 +24,8 @@
 #include <sofa/helper/AdvancedTimer.h>
 
 #include <boost/program_options.hpp>
+#include <thread>
+#include <chrono>
 
 namespace sofa
 {
@@ -346,7 +348,7 @@ int HeadlessRecorder::mainLoop()
         }
         else
         {
-            sleep(0.01);
+            std::this_thread::sleep_for(std::chrono::seconds(10));
         }
     }
     msg_info("HeadlessRecorder") << "Recording time: " << recordTimeInSeconds << " seconds at: " << fps << " fps.";
@@ -494,11 +496,7 @@ void HeadlessRecorder::paintGL()
 void HeadlessRecorder::step()
 {
     sofa::helper::AdvancedTimer::begin("Animate");
-#ifdef SOFA_SMP
-    mg->step();
-#else
     getSimulation()->animate(groot.get());
-#endif
     sofa::helper::AdvancedTimer::end("Animate");
     getSimulation()->updateVisual(groot.get());
     redraw();

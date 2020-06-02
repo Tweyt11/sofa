@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU General Public License as published by the Free  *
@@ -113,8 +113,8 @@ component::collision::BodyPicked GLPickHandler::findCollisionUsingColourCoding(c
     sofa::defaulttype::Vec4f color;
     int x = mousePosition.x;
     int y = mousePosition.screenHeight - mousePosition.y;
-    TriangleModel* tmodel;
-    SphereModel* smodel;
+    TriangleCollisionModel<defaulttype::Vec3Types>* tmodel;
+    SphereCollisionModel<defaulttype::Vec3Types>* smodel;
     _fbo.start();
     if(renderCallback)
     {
@@ -123,11 +123,11 @@ component::collision::BodyPicked GLPickHandler::findCollisionUsingColourCoding(c
         decodeCollisionElement(color,result);
         renderCallback->render(ColourPickingVisitor::ENCODE_RELATIVEPOSITION );
         glReadPixels(x,y,1,1,_fboParams.colorFormat,_fboParams.colorType,color.elems);
-        if( ( tmodel = dynamic_cast<TriangleModel*>(result.body) ) != nullptr )
+        if( ( tmodel = dynamic_cast<TriangleCollisionModel<defaulttype::Vec3Types>*>(result.body) ) != nullptr )
         {
             decodePosition(result,color,tmodel,result.indexCollisionElement);
         }
-        if( ( smodel = dynamic_cast<SphereModel*>(result.body)) != nullptr)
+        if( ( smodel = dynamic_cast<SphereCollisionModel<defaulttype::Vec3Types>*>(result.body)) != nullptr)
         {
             decodePosition(result, color,smodel,result.indexCollisionElement);
         }

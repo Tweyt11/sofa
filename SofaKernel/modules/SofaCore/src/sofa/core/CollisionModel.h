@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -39,6 +39,15 @@ namespace visual
 class VisualParams;
 }
 
+
+class CollisionElementActiver
+{
+public:
+    CollisionElementActiver() {}
+    virtual ~CollisionElementActiver() {}
+    virtual bool isCollElemActive(int /*index*/, core::CollisionModel * /*cm*/ = nullptr) { return true; }
+    static CollisionElementActiver* getDefaultActiver() { static CollisionElementActiver defaultActiver; return &defaultActiver; }
+};
 
 /**
  *  \brief Abstract CollisionModel interface.
@@ -97,6 +106,27 @@ public:
     void bwdInit() override
     {
         getColor4f(); //init the color to default value
+        
+        if (l_collElemActiver.get() == nullptr)
+        {
+            myCollElemActiver = CollisionElementActiver::getDefaultActiver();
+            msg_info() << "no CollisionElementActiver found." << this->getName();
+        }
+        else
+        {
+            myCollElemActiver = dynamic_cast<CollisionElementActiver *> (l_collElemActiver.get());
+
+            if (myCollElemActiver == nullptr)
+            {
+                myCollElemActiver = CollisionElementActiver::getDefaultActiver();
+                msg_error() << "no dynamic cast possible for CollisionElementActiver." << this->getName();
+            }
+            else
+            {
+                msg_info() << "CollisionElementActiver named" << l_collElemActiver.get()->getName() << " found !" << this->getName();
+            }
+        }
+
     }
 
     /// Return true if there are no elements
@@ -420,7 +450,11 @@ protected:
 
     void* userData;
 
+    /// Pointer to the  Controller component heritating from CollisionElementActiver
+    SingleLink<CollisionModel, sofa::core::objectmodel::BaseObject, BaseLink::FLAG_STOREPATH | BaseLink::FLAG_STRONGLINK> l_collElemActiver;
+
 public:
+    CollisionElementActiver *myCollElemActiver; ///< CollisionElementActiver that activate or deactivate collision element during execution
 
     bool insertInNode( objectmodel::BaseNode* node ) override;
     bool removeInNode( objectmodel::BaseNode* node ) override;

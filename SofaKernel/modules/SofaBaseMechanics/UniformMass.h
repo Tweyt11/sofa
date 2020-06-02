@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -74,7 +74,7 @@ public:
     Data< defaulttype::Vec<2,int> > d_localRange;
     Data< helper::vector<int> >     d_indices; ///< optional local DOF indices. Any computation involving only indices outside of this list are discarded
 
-    Data<bool> d_handleTopoChange; ///< The mass and totalMass are recomputed on particles add/remove.
+    Data<bool> d_handleTopologicalChanges; ///< The mass and totalMass are recomputed on particles add/remove.
     Data<bool> d_preserveTotalMass; ///< Prevent totalMass from decreasing when removing particles.
 
     ////////////////////////// Inherited attributes ////////////////////////////

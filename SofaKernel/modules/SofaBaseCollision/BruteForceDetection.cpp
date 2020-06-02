@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -70,7 +70,7 @@ void BruteForceDetection::reinit()
     }
     else
     {
-        if (!boxModel) boxModel = sofa::core::objectmodel::New<CubeModel>();
+        if (!boxModel) boxModel = sofa::core::objectmodel::New<CubeCollisionModel>();
         boxModel->resize(1);
         boxModel->setParentOf(0, box.getValue()[0], box.getValue()[1]);
     }

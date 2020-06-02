@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -880,8 +880,11 @@ void SubsetTopology<DataTypes>::draw(const core::visual::VisualParams* vparams)
 }
 
 template <class DataTypes>
-void SubsetTopology<DataTypes>::computeBBox(const core::ExecParams*  params , bool /*onlyVisible*/)
+void SubsetTopology<DataTypes>::computeBBox(const core::ExecParams*  params , bool onlyVisible)
 {
+    SOFA_UNUSED(params);
+    SOFA_UNUSED(onlyVisible);
+
     const helper::vector<Vec6>& vb=boxes.getValue();
     const Real max_real = std::numeric_limits<Real>::max();
     const Real min_real = std::numeric_limits<Real>::lowest();
@@ -898,7 +901,7 @@ void SubsetTopology<DataTypes>::computeBBox(const core::ExecParams*  params , bo
         if (b[4] > maxBBox[1]) maxBBox[1] = b[4];
         if (b[5] > maxBBox[2]) maxBBox[2] = b[5];
     }
-    this->f_bbox.setValue(params,sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
+    this->f_bbox.setValue(sofa::defaulttype::TBoundingBox<Real>(minBBox,maxBBox));
 }
 
 } // namespace engine

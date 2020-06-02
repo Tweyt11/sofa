@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -47,8 +47,8 @@ IntersectorCreator<DiscreteIntersection, TetrahedronDiscreteIntersection> Tetrah
 TetrahedronDiscreteIntersection::TetrahedronDiscreteIntersection(DiscreteIntersection* object)
     : intersection(object)
 {
-    intersection->intersectors.add<TetrahedronModel, PointModel,       TetrahedronDiscreteIntersection>  (this);
-    intersection->intersectors.add<RayModel, TetrahedronModel,         TetrahedronDiscreteIntersection>  (this);
+    intersection->intersectors.add<TetrahedronCollisionModel, PointCollisionModel<sofa::defaulttype::Vec3Types>,       TetrahedronDiscreteIntersection>  (this);
+    intersection->intersectors.add<RayCollisionModel, TetrahedronCollisionModel,         TetrahedronDiscreteIntersection>  (this);
 }
 
 bool TetrahedronDiscreteIntersection::testIntersection(Tetrahedron&, Point&)

@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -98,7 +98,7 @@ public:
                  }*/
                 VecIndex& _lastparticles = *ps->m_lastparticles.beginEdit();
 
-                unsigned int size = _lastparticles.size();
+                size_t size = _lastparticles.size();
                 for (unsigned int i = 0; i < size; ++i)
                 {
                     if ((unsigned int)_lastparticles[i] == index)
@@ -184,7 +184,7 @@ public:
     Data< bool > d_canHaveEmptyVector;
 
 protected:    
-    int m_numberParticles; ///< Number particles given by the initial particles size
+    size_t m_numberParticles; ///< Number particles given by the initial particles size
     Real m_lastTime; ///< Last time particle have been computed
     Real m_maxdist;
 

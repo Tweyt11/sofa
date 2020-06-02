@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -443,9 +443,7 @@ void Tetra2TriangleTopologicalMapping::updateTopologicalMappingTopDown()
         case core::topology::EDGESADDED:
         {
             const auto * edgeAdded=static_cast< const EdgesAdded * >( *itBegin );
-            m_outTopoModifier->addEdgesProcess(edgeAdded->edgeArray);
-            m_outTopoModifier->addEdgesWarning(edgeAdded->nEdges, edgeAdded->edgeArray, edgeAdded->edgeIndexArray);
-            m_outTopoModifier->propagateTopologicalChanges();
+            m_outTopoModifier->addEdges(edgeAdded->edgeArray);
             break;
         }
 

@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -19,17 +19,6 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-//
-// C++ Implementation: TriangularBendingSprings
-//
-// Description:
-//
-//
-// Author: The SOFA team </www.sofa-framework.org>, (C) 2007
-//
-// Copyright: See COPYING file that comes with this distribution
-//
-//
 #ifndef SOFA_COMPONENT_FORCEFIELD_TRIANGULARBENDINGSPRINGS_INL
 #define SOFA_COMPONENT_FORCEFIELD_TRIANGULARBENDINGSPRINGS_INL
 
@@ -494,7 +483,7 @@ void TriangularBendingSprings<DataTypes>::init()
         return;
     }
 
-    if (m_topology->getNbTriangles()==0)
+    if (m_topology->d_componentstate.getValue() == sofa::core::objectmodel::ComponentState::Invalid || m_topology->getNbTriangles()==0)
     {
         msg_error() << " object must have a Triangular Set Topology.";
         sofa::core::objectmodel::BaseObject::d_componentstate.setValue(sofa::core::objectmodel::ComponentState::Invalid);

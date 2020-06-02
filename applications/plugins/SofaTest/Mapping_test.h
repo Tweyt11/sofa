@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU General Public License as published by the Free  *
@@ -30,11 +30,10 @@
 
 #include <SceneCreator/SceneCreator.h>
 
-#include <SofaComponentBase/initComponentBase.h>
-#include <SofaComponentCommon/initComponentCommon.h>
-#include <SofaComponentGeneral/initComponentGeneral.h>
-#include <SofaComponentAdvanced/initComponentAdvanced.h>
-#include <SofaComponentMisc/initComponentMisc.h>
+#include <SofaBase/initSofaBase.h>
+#include <SofaCommon/initSofaCommon.h>
+#include <SofaGeneral/initSofaGeneral.h>
+#include <SofaMisc/initSofaMisc.h>
 
 #include <SofaBaseLinearSolver/FullVector.h>
 #include <SofaEigen2Solver/EigenSparseMatrix.h>
@@ -132,11 +131,10 @@ struct Mapping_test: public Sofa_test<typename _Mapping::Real>
 
     Mapping_test():deltaRange(1,1000),errorMax(10),errorFactorDJ(1),flags(TEST_ASSEMBLY_API | TEST_GEOMETRIC_STIFFNESS)
     {
-        sofa::component::initComponentBase();
-        sofa::component::initComponentCommon();
-        sofa::component::initComponentGeneral();
-        sofa::component::initComponentAdvanced();
-        sofa::component::initComponentMisc();
+        sofa::component::initSofaBase();
+        sofa::component::initSofaCommon();
+        sofa::component::initSofaGeneral();
+        sofa::component::initSofaMisc();
         sofa::simulation::setSimulation(simulation = new sofa::simulation::graph::DAGSimulation());
 
         /// Parent node
@@ -152,11 +150,10 @@ struct Mapping_test: public Sofa_test<typename _Mapping::Real>
 
     Mapping_test(std::string fileName):deltaRange(1,1000),errorMax(100),errorFactorDJ(1),flags(TEST_ASSEMBLY_API | TEST_GEOMETRIC_STIFFNESS)
     {
-        sofa::component::initComponentBase();
-        sofa::component::initComponentCommon();
-        sofa::component::initComponentGeneral();
-        sofa::component::initComponentAdvanced();
-        sofa::component::initComponentMisc();
+        sofa::component::initSofaBase();
+        sofa::component::initSofaCommon();
+        sofa::component::initSofaGeneral();
+        sofa::component::initSofaMisc();
         sofa::simulation::setSimulation(simulation = new sofa::simulation::graph::DAGSimulation());
 
         /// Load the scene

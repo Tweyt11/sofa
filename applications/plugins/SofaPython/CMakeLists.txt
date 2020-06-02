@@ -146,6 +146,7 @@ find_package(PythonLibs 2.7 REQUIRED)
 find_package(SofaGui REQUIRED)
 find_package(SofaGeneral REQUIRED)
 find_package(SofaMisc REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 GET_FILENAME_COMPONENT(LIBRARY_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${PROJECT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} NAME_WE)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -175,7 +176,8 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC "$<INSTALL_INTERFACE:include>"
     )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaSimulationCommon SofaUserInteraction SofaGuiCommon SofaComponentMisc SofaComponentGeneral ${PYTHON_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaSimulationCommon SofaUserInteraction SofaGuiCommon SofaMisc SofaGeneral ${PYTHON_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 
 if(CMAKE_SYSTEM_NAME STREQUAL Linux)
     # dlopen() is used on Linux for a workaround (see PythonEnvironnement.cpp)
@@ -184,6 +186,9 @@ endif()
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>")
 target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:include>")
+target_compile_definitions(${PROJECT_NAME} PUBLIC  "-Dregister=")
+target_compile_definitions(${PROJECT_NAME} PUBLIC "-D_ALLOW_KEYWORD_MACROS")
+
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${SOFAPYTHON_COMPILER_FLAGS}")
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
 

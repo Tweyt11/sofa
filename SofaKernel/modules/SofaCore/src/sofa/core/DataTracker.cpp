@@ -1,6 +1,6 @@
 /******************************************************************************
-*       SOFA, Simulation Open-Framework Architecture, development version     *
-*                (c) 2006-2019 INRIA, USTL, UJF, CNRS, MGH                    *
+*                 SOFA, Simulation Open-Framework Architecture                *
+*                    (c) 2006 INRIA, USTL, UJF, CNRS, MGH                     *
 *                                                                             *
 * This program is free software; you can redistribute it and/or modify it     *
 * under the terms of the GNU Lesser General Public License as published by    *
@@ -76,9 +76,9 @@ void DataTrackerDDGNode::addOutputs(std::initializer_list<sofa::core::objectmode
         addOutput(d);
 }
 
-void DataTrackerDDGNode::cleanDirty(const core::ExecParams* params)
+void DataTrackerDDGNode::cleanDirty(const core::ExecParams*)
 {
-    core::objectmodel::DDGNode::cleanDirty(params);
+    core::objectmodel::DDGNode::cleanDirty();
 
     /// it is also time to clean the tracked Data
     m_dataTracker.clean();
@@ -87,9 +87,9 @@ void DataTrackerDDGNode::cleanDirty(const core::ExecParams* params)
 void DataTrackerDDGNode::updateAllInputsIfDirty()
 {
     const DDGLinkContainer& inputs = DDGNode::getInputs();
-    for(size_t i=0, iend=inputs.size() ; i<iend ; ++i )
+    for(auto input : inputs)
     {
-        static_cast<core::objectmodel::BaseData*>(inputs[i])->updateIfDirty();
+        static_cast<core::objectmodel::BaseData*>(input)->updateIfDirty();
     }
 }
 ///////////////////////
