@@ -45,7 +45,10 @@ BaseAddResourceRepository::BaseAddResourceRepository()
     addUpdateCallback("path", {&d_repositoryPath}, [this]()
     {
         if (this->parse())
+        {
+            clearLoggedMessages();
             return sofa::core::objectmodel::ComponentState::Valid;
+        }
         return sofa::core::objectmodel::ComponentState::Invalid;
     }, {});
 }
