@@ -174,7 +174,7 @@ namespace core
     public:
         /// set the update function to call
         /// when asking for an output and any input changed.
-        void addCallback(std::function<void(DataTrackerEngine*)> f);
+        void addCallback(std::function<sofa::core::objectmodel::ComponentState(void)> f);
 
         /// Calls the callback when one of the data has changed.
         void update() override;

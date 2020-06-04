@@ -25,7 +25,6 @@
 #include <sofa/helper/StringUtils.h>
 #include <sofa/defaulttype/BoundingBox.h>
 #include <sofa/core/objectmodel/Data.h>
-#include <sofa/core/objectmodel/DDGLink.h>
 #include <sofa/core/DataTracker.h>
 #include <sofa/core/objectmodel/BaseObjectDescription.h>
 #include <sofa/core/objectmodel/Tag.h>
@@ -275,15 +274,10 @@ public:
 
     /// Find data fields given a name: several can be found as we look into the alias map
     std::vector< BaseData* > findGlobalField( const std::string &name ) const;
-    std::vector< BaseDDGLink* > findGlobalDDGLink( const std::string &name ) const;
 
     /// Find a link given its name. Return nullptr if not found.
     /// If more than one link is found (due to aliases), only the first is returned.
     BaseLink* findLink( const std::string &name ) const;
-
-    /// Find a link given its name. Return nullptr if not found.
-    /// If more than one link is found (due to aliases), only the first is returned.
-    BaseDDGLink* findDDGLink( const std::string &name ) const;
 
     /// Find link fields given a name: several can be found as we look into the alias map
     std::vector< BaseLink* > findLinks( const std::string &name ) const;
@@ -332,16 +326,6 @@ public:
     void addAlias( BaseLink* link, const char* alias);
 
 
-    /// Removes a link owner. should only be called from DDGLinks
-    void removeDDGLinkOwner(const Base* l);
-    /// Registers a link owner. should only be called from DDGLinks
-    void addDDGLinkOwner(const Base* l);
-
-    /// Registers a DDGLink.
-    void addDDGLink(BaseDDGLink* l, const std::string& name);
-    /// Remove a DDGLink.
-    void removeDDGLink(BaseDDGLink* l);
-
     typedef helper::vector<BaseData*> VecData;
     typedef std::multimap<std::string, BaseData*> MapData;
 
@@ -358,13 +342,6 @@ public:
     const VecData& getDataFields() const { return m_vecData; }
     /// Accessor to the map containing all the aliases of this object
     const MapData& getDataAliases() const { return m_aliasData; }
-
-    /// Accessor to the vector containing all the components holding a link to this object
-    const VecDDGLinkOwner& getDDGLinkOwners() const { return m_vecDDGLinkOwners; }
-    /// Accessor to the vector containing all the links to components held by this object
-    const VecDDGLink& getDDGLinks() const { return m_vecDDGLink; }
-    /// Accessor to the vector containing all the fields of this object
-    const MapDDGLink& getDDGLinkAliases() const { return m_aliasDDGLink; }
 
     /// Accessor to the vector containing all the fields of this object
     const VecLink& getLinks() const { return m_vecLink; }
@@ -548,9 +525,6 @@ protected:
     /// name -> Link multi-map (includes names and aliases)
     MapLink m_aliasLink;
 
-    VecDDGLinkOwner m_vecDDGLinkOwners;
-    VecDDGLink m_vecDDGLink;
-    MapDDGLink m_aliasDDGLink;
 public:
     /// Name of the object.
     Data<std::string> name;
