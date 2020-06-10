@@ -103,6 +103,7 @@ void Base::addUpdateCallback(const std::string& name,
                              std::initializer_list<DDGNode*> outputs)
 {
     auto& engine = m_internalEngine[name];
+    engine.setOwner(this);
     engine.addInputs(inputs);
     engine.addCallback(
                 [func, name](){

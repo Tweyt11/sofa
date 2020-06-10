@@ -179,6 +179,9 @@ namespace core
         /// Calls the callback when one of the data has changed.
         void update() override;
 
+        void setOwner(sofa::core::objectmodel::Base* owner) { m_owner = owner; }
+        sofa::core::objectmodel::Base* getOwner() { return m_owner; }
+
     protected:
         std::vector<std::function<sofa::core::objectmodel::ComponentState(void)>> m_callbacks;
         std::string m_name {""};

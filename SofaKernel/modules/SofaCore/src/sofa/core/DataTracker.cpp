@@ -101,12 +101,18 @@ void DataTrackerEngine::addCallback( std::function<sofa::core::objectmodel::Comp
 void DataTrackerEngine::update()
 {
     updateAllInputsIfDirty();
-    sofa::core::objectmodel::ComponentState cs = sofa::core::objectmodel::ComponentState::Valid;
+    sofa::core::objectmodel::ComponentState cs;
+    if(m_owner)
+        cs = m_owner->getComponentState();
+
     for(auto& callback : m_callbacks)
     {
+        if(m_owner)
+            std::cout << "UPDATING CALLBACK FOR " << m_owner->getName() << std::endl;
+        else
+            std::cout << "UPDATING NOW OWNING CALLBACK " << std::endl;
         sofa::core::objectmodel::ComponentState state = callback();
-        if (state != sofa::core::objectmodel::ComponentState::Valid)
-            cs = state;
+        cs = state;
     }
     if (m_owner)
         m_owner->d_componentstate.setValue(cs);
